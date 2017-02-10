@@ -1,0 +1,126 @@
+srcdir := @abs_top_srcdir@
+builddir := @abs_top_builddir@
+INSTALL_DIR := @prefix@
+
+PACKAGES :=
+
+DISTDIR ?= /var/cache/distfiles
+GNU_MIRROR := http://mirrors.kernel.org/gnu
+gcc_url := $(GNU_MIRROR)/gcc/gcc-$(gcc_version)/gcc-$(gcc_version).tar.gz
+newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
+
+WITH_CPU ?= @WITH_CPU@
+SYSROOT := $(INSTALL_DIR)/sysroot
+
+SHELL := /bin/sh
+AWK := @GAWK@
+SED := @GSED@
+PATH := $(INSTALL_DIR)/bin:$(PATH)
+
+# Check to see if we need wrapper scripts for awk/sed (which point to
+# gawk/gsed on platforms where these aren't the default), otherwise
+# don't override these as the wrappers don't always work.
+ifneq (@GSED@,/bin/sed)
+	PATH := $(base_dir)/sed:$(PATH)
+endif
+ifneq (@GAWK@,/usr/bin/gawk)
+	PATH := $(base_dir)/awk:$(PATH)
+endif
+
+export PATH AWK SED
+
+MULTILIB_FLAGS := @multilib_flags@
+GCC_CHECKING_FLAGS := @gcc_checking@
+
+CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
+ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
+
+all: @default_target@
+newlib: stamps/build-gcc-newlib
+
+$(addprefix src/original-,$(PACKAGES)):
+	mkdir -p src
+	rm -rf $@ $(subst original-,,$@)-*
+	cd src && (cat $(DISTDIR)/$(subst src/original-,,$@)-$($(subst src/original-,,$@)_version).tar.gz || @FETCHER@ $($(subst src/original-,,$@)_url)) | tar zxf -
+	mv $(subst original-,,$@)-$($(subst src/original-,,$@)_version) $@
+
+$(addprefix src/,$(PACKAGES)): src/%: src/original-%
+	rm -rf $@ $@.tmp
+	cp -a $< $@.tmp
+	$(srcdir)/scripts/cp_s $(srcdir)/$(notdir $@) $@.tmp
+	cd $@.tmp && patch -p1 < $(srcdir)/patches/$(notdir $@)
+	if test -f $@.tmp/contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" == "true"; then cd $@.tmp && ./contrib/download_prerequisites; fi
+	mv $@.tmp $@
+
+.PHONY: patches $(addprefix $(srcdir)/patches/,$(PACKAGES))
+$(addprefix $(srcdir)/patches/,$(PACKAGES)): $(srcdir)/patches/%: src/%
+	-cd src/$(notdir $@) && rm `cd $(srcdir)/$(notdir $@) && find . -type f`
+	-cd src && diff --exclude=manual --exclude=autom4te.cache -rupN original-$(notdir $@) $(notdir $@) | filterdiff --remove-timestamps > $@
+	$(srcdir)/scripts/cp_s $(srcdir)/$(notdir $@) $<
+
+patches: $(addprefix $(srcdir)/patches/,$(PACKAGES))
+
+stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--target=arc-elf32 \
+		--prefix=$(INSTALL_DIR) \
+		--disable-gdb
+		$(WITH_CPU)
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
+
+src/newlib-gcc: $(srcdir)/arc-gcc
+	rm -rf $@ $@.tmp
+	mkdir -p $(dir $@)
+	cp -a $< $@.tmp
+	cp -a $(srcdir)/arc-newlib/. $@.tmp
+	cp -a $</include/. $@.tmp/include
+	mv $@.tmp $@
+
+# For some reason, newlib builds a "default" library set even when
+# multilibs are enabled.  Purge it after completing a multilib build.
+stamps/build-gcc-newlib: src/newlib-gcc stamps/build-binutils-newlib
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $(CURDIR)/$</configure \
+		--target=arc-elf32 \
+		--prefix=$(INSTALL_DIR) \
+		--without-headers \
+		--disable-shared \
+		--disable-threads \
+		--enable-languages=c,c++ \
+		--with-system-zlib \
+		--disable-tls \
+		--with-newlib \
+		--disable-libmudflap \
+		--disable-libssp \
+		--disable-libquadmath \
+		--disable-libgomp \
+		--disable-nls \
+		$(GCC_CHECKING_FLAGS) \
+		$(MULTILIB_FLAGS) \
+		$(WITH_CPU)
+	$(MAKE) -C $(notdir $@) inhibit-libc=true
+	$(MAKE) -C $(notdir $@) install
+	$(if $(findstring enable,$(MULTILIB_FLAGS)),rm -f $(INSTALL_DIR)/arc-elf32/lib/*.*,)
+	mkdir -p $(dir $@) && touch $@
+
+.PHONY: check-gcc-newlib
+check-gcc-newlib: stamps/build-gcc-newlib
+	export PATH=$(INSTALL_DIR)/bin:$(PATH) && \
+	export DEJAGNULIBS=$(srcdir)/arc-dejagnu && \
+	export ARC_SYSROOT=$(SYSROOT) && \
+	cd build-gcc-newlib && \
+	$(MAKE) check-gcc "RUNTESTFLAGS=--target_board=arc-sim"
+
+clean:
+	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps
+
+distclean: clean
+	rm -rf src
+
+# All of the packages install themselves, so our install target does nothing.
+install:
