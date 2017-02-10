@@ -586,7 +586,7 @@ ac_subst_vars='LTLIBOBJS
 LIBOBJS
 gcc_checking
 multilib_flags
-WITH_ARCH
+WITH_CPU
 default_target
 FETCHER
 FTP
@@ -3202,7 +3202,7 @@ else
 fi
 
 
-WITH_ARCH=--with-cpu=$with_cpu
+WITH_CPU=--with-cpu=$with_cpu
 
 
 # Check whether --enable-multilib was given.

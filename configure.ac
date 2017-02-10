@@ -57,7 +57,7 @@ AC_ARG_WITH(cpu,
 	[with_cpu=archs]
 	)
 
-AC_SUBST(WITH_ARCH, --with-cpu=$with_cpu)
+AC_SUBST(WITH_CPU, --with-cpu=$with_cpu)
 
 AC_ARG_ENABLE(multilib,
 	[AS_HELP_STRING([--enable-multilib],
