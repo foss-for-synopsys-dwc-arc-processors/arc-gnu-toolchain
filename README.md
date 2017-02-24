@@ -1,4 +1,4 @@
-ARC GNU Compiler Toolchain
+ARC GNU Compiler Toolchain [![Build Status](https://travis-ci.org/claziss/arc-gnu-toolchain.svg?branch=master)](https://travis-ci.org/claziss/arc-gnu-toolchain)
 =============================
 
 This is the ARC C and C++ cross-compiler, based on the RISC-V scripts. It supports two build modes: a generic ELF/Newlib toolchain.
