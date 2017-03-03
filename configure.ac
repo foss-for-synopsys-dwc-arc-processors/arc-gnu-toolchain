@@ -50,6 +50,17 @@ AS_IF([test "x$enable_linux" != xno],
 	[AC_SUBST(default_target, linux)],
 	[AC_SUBST(default_target, newlib)])
 
+AC_ARG_ENABLE(werror,
+        [AS_HELP_STRING([--enable-werror],
+		[controls if build is compiled with werror or not @<:@--disable-linux@:>@])],
+        [],
+        [enable_werror=yes]
+        )
+
+AS_IF([test "x$enable_werror" != xno],
+	[AC_SUBST(werror_flag, --enable-werror)],
+	[AC_SUBST(werror_flag, --disable-werror)])
+
 AC_ARG_WITH(cpu,
 	[AS_HELP_STRING([--with-cpu=archs],
 		[Sets the base ARC ISA, defaults to archs])],

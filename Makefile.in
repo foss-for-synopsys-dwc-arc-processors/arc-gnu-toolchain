@@ -29,6 +29,7 @@ endif
 
 export PATH AWK SED
 
+WERROR_FLAG := @werror_flag@
 MULTILIB_FLAGS := @multilib_flags@
 GCC_CHECKING_FLAGS := @gcc_checking@
 
@@ -66,8 +67,8 @@ stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 	cd $(notdir $@) && $</configure \
 		--target=arc-elf32 \
 		--prefix=$(INSTALL_DIR) \
-		--disable-gdb
-		$(WITH_CPU)
+		--disable-gdb \
+		$(WERROR_FLAG)
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -102,6 +103,7 @@ stamps/build-gcc-newlib: src/newlib-gcc stamps/build-binutils-newlib
 		--disable-nls \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
+		$(WERROR_FLAG) \
 		$(WITH_CPU)
 	$(MAKE) -C $(notdir $@) inhibit-libc=true
 	$(MAKE) -C $(notdir $@) install

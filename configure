@@ -587,6 +587,7 @@ LIBOBJS
 gcc_checking
 multilib_flags
 WITH_CPU
+werror_flag
 default_target
 FETCHER
 FTP
@@ -647,6 +648,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_linux
+enable_werror
 with_cpu
 enable_multilib
 enable_gcc_checking
@@ -1269,6 +1271,8 @@ Optional Features:
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-linux          set linux as the default make target
+                          [--disable-linux]
+  --enable-werror         controls if build is compiled with werror or not
                           [--disable-linux]
   --enable-multilib       build all ARC runtime libraries [--disable-multilib]
   --enable-gcc-checking   Enable gcc internal checking, it will make gcc very
@@ -3189,6 +3193,23 @@ if test "x$enable_linux" != xno; then :
 
 else
   default_target=newlib
+
+fi
+
+# Check whether --enable-werror was given.
+if test "${enable_werror+set}" = set; then :
+  enableval=$enable_werror;
+else
+  enable_werror=yes
+
+fi
+
+
+if test "x$enable_werror" != xno; then :
+  werror_flag=--enable-werror
+
+else
+  werror_flag=--disable-werror
 
 fi
 
