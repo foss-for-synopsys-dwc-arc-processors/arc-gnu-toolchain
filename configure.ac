@@ -85,7 +85,7 @@ AC_ARG_ENABLE(gcc-checking,
         [AS_HELP_STRING([--enable-gcc-checking],
 		[Enable gcc internal checking, it will make gcc very slow, only enable it when developing gcc @<:@--disable-gcc-checking@:>@])],
         [],
-        [enable_gcc_checking=yes]
+        [enable_gcc_checking=no]
         )
 AS_IF([test "x$enable_gcc_checking" != xno],
 	[AC_SUBST(gcc_checking, --enable-checking=yes)],
