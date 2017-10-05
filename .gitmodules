@@ -7,3 +7,6 @@
 [submodule "arc-binutils-gdb"]
 	path = arc-binutils-gdb
 	url = https://github.com/foss-for-synopsys-dwc-arc-processors/binutils-gdb.git
+[submodule "arc-toolchain"]
+	path = arc-toolchain
+	url = https://github.com/foss-for-synopsys-dwc-arc-processors/toolchain.git
