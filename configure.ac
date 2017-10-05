@@ -70,6 +70,21 @@ AC_ARG_WITH(cpu,
 
 AC_SUBST(WITH_CPU, --with-cpu=$with_cpu)
 
+AS_IF([test "x$with_host" != xdefault],
+	[AC_SUBST(configure_host,--host=$with_host)],
+	[AC_SUBST(configure_host,"")])
+
+AC_ARG_WITH(system-zlib,
+	[AS_HELP_STRING([--without-system-zlib],
+		[use the builtin copy of zlib from GCC])],
+	[],
+	[with_system_zlib=yes]
+	)
+
+AS_IF([test "x$with_system_zlib" != xno],
+	[AC_SUBST(with_system_zlib,--with-system-zlib)],
+	[AC_SUBST(with_system_zlib,--without-system-zlib)])
+
 AC_ARG_ENABLE(multilib,
 	[AS_HELP_STRING([--enable-multilib],
 		[build all ARC runtime libraries @<:@--disable-multilib@:>@])],

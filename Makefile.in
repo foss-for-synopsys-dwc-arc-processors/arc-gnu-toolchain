@@ -32,12 +32,13 @@ export PATH AWK SED
 WERROR_FLAG := @werror_flag@
 MULTILIB_FLAGS := @multilib_flags@
 GCC_CHECKING_FLAGS := @gcc_checking@
+CONFIGURE_HOST = @configure_host@
 
 CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
 
 all: @default_target@
-newlib: stamps/build-gcc-newlib
+newlib: stamps/build-gcc-newlib-stage2
 
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
@@ -73,29 +74,57 @@ stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-src/newlib-gcc: $(srcdir)/arc-gcc
-	rm -rf $@ $@.tmp
-	mkdir -p $(dir $@)
-	cp -a $< $@.tmp
-	cp -a $(srcdir)/arc-newlib/. $@.tmp
-	cp -a $</include/. $@.tmp/include
-	mv $@.tmp $@
-
-# For some reason, newlib builds a "default" library set even when
-# multilibs are enabled.  Purge it after completing a multilib build.
-stamps/build-gcc-newlib: src/newlib-gcc stamps/build-binutils-newlib
+stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
+	if test -f $</contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" == "true"; then cd $< && ./contrib/download_prerequisites; fi
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
-	cd $(notdir $@) && $(CURDIR)/$</configure \
+	cd $(notdir $@) && $</configure \
 		--target=arc-elf32 \
+		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
-		--without-headers \
+		--disable-shared \
+		--disable-threads \
+		--disable-tls \
+		--enable-languages=c,c++ \
+		@with_system_zlib@ \
+		--with-newlib \
+		--disable-libmudflap \
+		--disable-libssp \
+		--disable-libquadmath \
+		--disable-libgomp \
+		--disable-nls \
+		$(GCC_CHECKING_FLAGS) \
+		$(WERROR_FLAG) \
+		$(WITH_CPU)
+	$(MAKE) -C $(notdir $@) all-gcc
+	$(MAKE) -C $(notdir $@) install-gcc
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--target=arc-elf32 \
+		$(CONFIGURE_HOST) \
+		--prefix=$(INSTALL_DIR)
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--target=arc-elf32 \
+		$(CONFIGURE_HOST) \
+		--prefix=$(INSTALL_DIR) \
 		--disable-shared \
 		--disable-threads \
 		--enable-languages=c,c++ \
-		--with-system-zlib \
+		@with_system_zlib@ \
 		--disable-tls \
 		--with-newlib \
+		--with-headers=$(INSTALL_DIR)/arc-elf32/include \
 		--disable-libmudflap \
 		--disable-libssp \
 		--disable-libquadmath \
@@ -105,9 +134,8 @@ stamps/build-gcc-newlib: src/newlib-gcc stamps/build-binutils-newlib
 		$(MULTILIB_FLAGS) \
 		$(WERROR_FLAG) \
 		$(WITH_CPU)
-	$(MAKE) -C $(notdir $@) inhibit-libc=true
+	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
-	$(if $(findstring enable,$(MULTILIB_FLAGS)),rm -f $(INSTALL_DIR)/arc-elf32/lib/*.*,)
 	mkdir -p $(dir $@) && touch $@
 
 .PHONY: check-gcc-newlib
