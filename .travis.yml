@@ -21,5 +21,5 @@ before_install:
   - export MAKEFLAGS="-j3"
 install: true
 script:
-  - ./configure --prefix=/tmp/build-default
+  - ./configure --prefix=/tmp/build-default --disable-multilib
   - (make > /dev/null) || (make -j1 && exit 1)
