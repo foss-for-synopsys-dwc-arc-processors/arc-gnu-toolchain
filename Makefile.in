@@ -69,6 +69,7 @@ stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 		--target=arc-elf32 \
 		--prefix=$(INSTALL_DIR) \
 		--disable-gdb \
+		$(MULTILIB_FLAGS) \
 		$(WERROR_FLAG)
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
@@ -106,6 +107,7 @@ stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
 	cd $(notdir $@) && $</configure \
 		--target=arc-elf32 \
 		$(CONFIGURE_HOST) \
+		$(MULTILIB_FLAGS) \
 		--prefix=$(INSTALL_DIR)
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
