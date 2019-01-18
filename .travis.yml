@@ -1,3 +1,14 @@
+dist: trusty
+os: linux
+language: minimal
+
+git:
+  depth: 1
+
+env:
+  global:
+    - MAKEJOBS=-j3
+
 addons:
   apt:
     packages:
