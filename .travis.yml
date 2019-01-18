@@ -4,6 +4,7 @@ language: minimal
 
 git:
   depth: 1
+  submodules_depth: 1
 
 env:
   global:
