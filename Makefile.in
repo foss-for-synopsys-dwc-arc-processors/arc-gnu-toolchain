@@ -9,7 +9,12 @@ GNU_MIRROR := http://mirrors.kernel.org/gnu
 gcc_url := $(GNU_MIRROR)/gcc/gcc-$(gcc_version)/gcc-$(gcc_version).tar.gz
 newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
 
-WITH_CPU ?= @WITH_CPU@
+# SNPS toolchains
+SNPS_GIT_URL    := https://github.com/foss-for-synopsys-dwc-arc-processors
+BINUTILS_BRANCH := arc64
+GCC_BRANCH      := arc-arc
+NEWLIB_BRANCH   := arc64
+
 SYSROOT := $(INSTALL_DIR)/sysroot
 
 SHELL := /bin/sh
@@ -29,10 +34,6 @@ endif
 
 export PATH AWK SED
 
-WERROR_FLAG := @werror_flag@
-MULTILIB_FLAGS := @multilib_flags@
-GCC_CHECKING_FLAGS := @gcc_checking@
-CONFIGURE_HOST = @configure_host@
 
 CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
@@ -62,15 +63,24 @@ $(addprefix $(srcdir)/patches/,$(PACKAGES)): $(srcdir)/patches/%: src/%
 
 patches: $(addprefix $(srcdir)/patches/,$(PACKAGES))
 
+$(srcdir)/arc-binutils-gdb:
+	git clone --depth 1 --single-branch --branch $(BINUTILS_BRANCH) $(SNPS_GIT_URL)/binutils-gdb.git $@
+
+$(srcdir)/arc-gcc:
+	git clone --depth 1 --single-branch --branch $(GCC_BRANCH) $(SNPS_GIT_URL)/gcc.git $@
+
+$(srcdir)/arc-newlib:
+	git clone --depth 1 --single-branch --branch $(NEWLIB_BRANCH) $(SNPS_GIT_URL)/newlib.git $@
+
 stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=arc-elf32 \
+		--target=@arc_target@ \
 		--prefix=$(INSTALL_DIR) \
 		--disable-gdb \
-		$(MULTILIB_FLAGS) \
-		$(WERROR_FLAG)
+		@multilib_flags@ \
+		@werror_flag@
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -80,8 +90,8 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=arc-elf32 \
-		$(CONFIGURE_HOST) \
+		--target=@arc_target@ \
+		@configure_host@ \
 		--prefix=$(INSTALL_DIR) \
 		--disable-shared \
 		--disable-threads \
@@ -94,9 +104,9 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 		--disable-libquadmath \
 		--disable-libgomp \
 		--disable-nls \
-		$(GCC_CHECKING_FLAGS) \
-		$(WERROR_FLAG) \
-		$(WITH_CPU)
+		@gcc_checking@ \
+		@werror_flag@ \
+		@with_cpu@
 	$(MAKE) -C $(notdir $@) all-gcc
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
@@ -105,9 +115,9 @@ stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=arc-elf32 \
-		$(CONFIGURE_HOST) \
-		$(MULTILIB_FLAGS) \
+		--target=@arc_target@ \
+		@configure_host@ \
+		@multilib_flags@ \
 		--prefix=$(INSTALL_DIR)
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
@@ -117,8 +127,8 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=arc-elf32 \
-		$(CONFIGURE_HOST) \
+		--target=@arc_target@ \
+		@configure_host@ \
 		--prefix=$(INSTALL_DIR) \
 		--disable-shared \
 		--disable-threads \
@@ -126,16 +136,16 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@with_system_zlib@ \
 		--disable-tls \
 		--with-newlib \
-		--with-headers=$(INSTALL_DIR)/arc-elf32/include \
+		--with-headers=$(INSTALL_DIR)/@arc_target@/include \
 		--disable-libmudflap \
 		--disable-libssp \
 		--disable-libquadmath \
 		--disable-libgomp \
 		--disable-nls \
-		$(GCC_CHECKING_FLAGS) \
-		$(MULTILIB_FLAGS) \
-		$(WERROR_FLAG) \
-		$(WITH_CPU)
+		@gcc_checking@ \
+		@multilib_flags@ \
+		@werror_flag@ \
+		@with_cpu@
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@

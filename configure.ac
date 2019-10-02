@@ -52,7 +52,7 @@ AS_IF([test "x$enable_linux" != xno],
 
 AC_ARG_ENABLE(werror,
         [AS_HELP_STRING([--enable-werror],
-		[controls if build is compiled with werror or not @<:@--disable-linux@:>@])],
+		[controls if build is compiled with werror or not @<:@--disable-werror@:>@])],
         [],
         [enable_werror=yes]
         )
@@ -61,22 +61,31 @@ AS_IF([test "x$enable_werror" != xno],
 	[AC_SUBST(werror_flag, --enable-werror)],
 	[AC_SUBST(werror_flag, --disable-werror)])
 
+AC_ARG_WITH(target,
+	[AS_HELP_STRING([--with-target=TARGET],
+		[Sets the ARC target @<:@--with-target=arc64-elf@:>@])],
+	[],
+	[with_target=arc64-elf]
+	)
+
+AC_SUBST(arc_target, $with_target)
+
 AC_ARG_WITH(cpu,
-	[AS_HELP_STRING([--with-cpu=archs],
-		[Sets the base ARC ISA, defaults to archs])],
+	[AS_HELP_STRING([--with-cpu=CPU],
+		[Sets the base ARC ISA @<:@--with-cpu=archs@:>@])],
 	[],
 	[with_cpu=archs]
 	)
 
-AC_SUBST(WITH_CPU, --with-cpu=$with_cpu)
+AC_SUBST(with_cpu, --with-cpu=$with_cpu)
 
 AS_IF([test "x$with_host" != xdefault],
 	[AC_SUBST(configure_host,--host=$with_host)],
 	[AC_SUBST(configure_host,"")])
 
 AC_ARG_WITH(system-zlib,
-	[AS_HELP_STRING([--without-system-zlib],
-		[use the builtin copy of zlib from GCC])],
+	[AS_HELP_STRING([--with-system-zlib],
+		[use zlib from the system instead of the builtin copy from GCC @<:@--with-system-zlib@:>@])],
 	[],
 	[with_system_zlib=yes]
 	)
