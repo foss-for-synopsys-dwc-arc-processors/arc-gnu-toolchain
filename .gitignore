@@ -3,6 +3,5 @@ arc-*
 build*
 config.log
 config.status
-configure
 Makefile
 .DS_Store
