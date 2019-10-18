@@ -5,16 +5,29 @@ This is the ARC C and C++ cross-compiler, based on the [RISC-V scripts](https://
 
 ###  Getting the sources
 
-This repository uses submodules. You need the --recursive option to fetch the submodules automatically
+    $ git clone https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain
 
-    $ git clone --recursive https://github.com/claziss/arc-gnu-toolchain
+This repository checks for the existance of the following directories:
 
-Alternatively :
+    arc-binutils-gdb
+    arc-gcc
+    arc-newlib
 
-    $ git clone https://github.com/claziss/arc-gnu-toolchain
-    $ cd src-gnu-toolchain
-    $ git submodule update --init --recursive
+If they do not exist, it will clone them. You can link your source directories
+from other palces as well:
 
+    $ cd arc-gnu-toolchain
+    $ ln -s /repos/arcgnu/binutils  arc-binutils-gdb
+    $ ln -s /repos/arcgnu/gcc       arc-gcc
+    $ ln -s /repos/arcgnu/newlib    arc-newlib
+
+For a 64-bit build, you will need the following branches:
+
+| repo         | branch  |
+|--------------|---------|
+| binutils-gdb | arc64   |
+| gcc          | arc-arc |
+| newlib       | arc64   |
 
 
 ### Prerequisites
@@ -38,16 +51,19 @@ upstream sources exists in $(DISTDIR), it will be used; the default location
 is /var/cache/distfiles.  Your computer will need about 8 GiB of disk space to
 complete the process.
 
-### Installation (Newlib)
+### Configure generation
+You can (re)generate the `configure` script with:
 
-To build the Newlib cross-compiler, pick an install path.  If you choose,
-say, `/opt/arc`, then add `/opt/arc/bin` to your `PATH` now.  Then, simply
-run the following command:
+    $ cd arc-gnu-toolchain
+    $ autoconf
 
-    ./configure --prefix=/opt/arc
-    make
+### Building and installing
+Configure and build with:
 
-You should now be able to use arc-gcc and its cousins.
+    $ cd arc-gnu-toolchain
+    $ ./configure --prefix=/path/to/install/toolchain
+    $ make -j $(nproc)
+    $ make install
 
 ### Advanced Options
 
