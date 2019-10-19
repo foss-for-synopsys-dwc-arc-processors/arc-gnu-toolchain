@@ -39,6 +39,7 @@ CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
 
 all: @default_target@
+	echo "$(INSTALL_DIR)" > stamps/install_dir
 newlib: stamps/build-gcc-newlib-stage2
 
 $(addprefix src/original-,$(PACKAGES)):
