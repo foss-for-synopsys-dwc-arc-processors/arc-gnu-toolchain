@@ -3,7 +3,7 @@
 
 #set arc_exec_prefix "$env(INSTALL_DIR)/bin/arc-snps-linux-uclibc"
 set srcdir "$env(SOURCE_DIR)/arc-gcc/gcc/testsuite"
-set arc_exec_prefix "$env(INSTALL_DIR)/bin/arc64-snps-elf"
+set arc_exec_prefix "$env(INSTALL_DIR)/bin/arc64-elf"
 #set arc_exec_prefix "/home/cmiranda/buildroot/linux_alexey_failing_to_boot/output/host/usr/bin/arc-buildroot-linux-uclibc"
 set dummy_script "../arc-toolchain/dejagnu/baseboards/dummy_sim.sh"
 
