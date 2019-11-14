@@ -5,7 +5,7 @@
 set srcdir "$env(SOURCE_DIR)/arc-gcc/gcc/testsuite"
 set arc_exec_prefix "$env(INSTALL_DIR)/bin/arc64-elf"
 #set arc_exec_prefix "/home/cmiranda/buildroot/linux_alexey_failing_to_boot/output/host/usr/bin/arc-buildroot-linux-uclibc"
-set dummy_script "../arc-toolchain/dejagnu/baseboards/dummy_sim.sh"
+set dummy_script "../arc-toolchain/dejagnu/baseboards/nsim_wrapper.sh"
 
 set target_alias    "arc64-elf"
 set target_triplet  "arc64-elf"
@@ -57,7 +57,7 @@ if { $tool == "gcc" || $tool == "g++" } {
 
 set target_triplet arc64-elf-baremetal
 set target_alias arc64-elf
-set target_board arc64-dummy
-set target_list arc64-dummy
+set target_board arc64-nsim
+set target_list arc64-nsim
 
 #set verbose 2
