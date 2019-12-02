@@ -29,6 +29,12 @@ For a 64-bit build, you will need the following branches:
 | gcc          | arc-arc |
 | newlib       | arc64   |
 
+Last but not least, if you plan to run DejaGnu later, you must use:
+
+| repo         | branch    |
+|--------------|-----------|
+| toolchain    | arc64-dev |
+
 
 ### Prerequisites
 
