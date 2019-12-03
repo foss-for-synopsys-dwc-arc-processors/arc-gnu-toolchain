@@ -79,7 +79,6 @@ stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 	cd $(notdir $@) && $</configure \
 		--target=@arc_target@ \
 		--prefix=$(INSTALL_DIR) \
-		--disable-gdb \
 		@multilib_flags@ \
 		@werror_flag@
 	$(MAKE) -C $(notdir $@)
