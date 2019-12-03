@@ -14,6 +14,7 @@ SNPS_GIT_URL    := https://github.com/foss-for-synopsys-dwc-arc-processors
 BINUTILS_BRANCH := arc64
 GCC_BRANCH      := arc-arc
 NEWLIB_BRANCH   := arc64
+QEMU_BRANCH     := dudes_stuff
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
@@ -40,7 +41,8 @@ ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
 
 all: @default_target@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
-newlib: stamps/build-gcc-newlib-stage2
+newlib: stamps/build-gcc-newlib-stage2 qemu
+qemu: stamps/build-qemu
 
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
@@ -72,6 +74,9 @@ $(srcdir)/arc-gcc:
 
 $(srcdir)/arc-newlib:
 	git clone --depth 1 --single-branch --branch $(NEWLIB_BRANCH) $(SNPS_GIT_URL)/newlib.git $@
+
+$(srcdir)/arc-qemu:
+	git clone --depth 1 --single-branch --branch $(QEMU_BRANCH) $(SNPS_GIT_URL)/qemu.git $@
 
 stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 	rm -rf $@ $(notdir $@)
@@ -146,6 +151,20 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@multilib_flags@ \
 		@werror_flag@ \
 		@with_cpu@
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-qemu: $(srcdir)/arc-qemu
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--prefix=${INSTALL_DIR} \
+		--target-list=arc64-softmmu \
+		--enable-debug \
+		--disable-pie \
+		--extra-cflags="-O0 -g3" \
+		--disable-werror
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
