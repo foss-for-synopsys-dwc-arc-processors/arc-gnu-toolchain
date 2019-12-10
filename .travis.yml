@@ -33,5 +33,5 @@ before_install:
   - export MAKEFLAGS="-j3"
 install: true
 script:
-  - ./configure --prefix=/tmp/build-default --disable-multilib
+  - ./configure --prefix=/tmp/build-default --disable-multilib --disable-qemu
   - (make > /dev/null) || (make -j1 && exit 1)

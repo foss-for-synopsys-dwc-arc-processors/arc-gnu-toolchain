@@ -50,6 +50,17 @@ AS_IF([test "x$enable_linux" != xno],
 	[AC_SUBST(default_target, linux)],
 	[AC_SUBST(default_target, newlib)])
 
+AC_ARG_ENABLE(qemu,
+        [AS_HELP_STRING([--enable-qemu],
+		[enable building ARC QEMU @<:@--disable-qemu@:>@])],
+        [],
+        [enable_qemu=yes]
+        )
+
+AS_IF([test "x$enable_qemu" != xno],
+	[AC_SUBST(qemu_build, qemu)],
+	[])
+
 AC_ARG_ENABLE(werror,
         [AS_HELP_STRING([--enable-werror],
 		[controls if build is compiled with werror or not @<:@--disable-werror@:>@])],

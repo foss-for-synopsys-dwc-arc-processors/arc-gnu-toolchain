@@ -591,6 +591,7 @@ configure_host
 with_cpu
 arc_target
 werror_flag
+qemu_build
 default_target
 FETCHER
 FTP
@@ -651,6 +652,7 @@ ac_subst_files=''
 ac_user_opts='
 enable_option_checking
 enable_linux
+enable_qemu
 enable_werror
 with_target
 with_cpu
@@ -1277,6 +1279,7 @@ Optional Features:
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-linux          set linux as the default make target
                           [--disable-linux]
+  --enable-qemu           enable building ARC QEMU [--disable-qemu]
   --enable-werror         controls if build is compiled with werror or not
                           [--disable-werror]
   --enable-multilib       build all ARC runtime libraries [--disable-multilib]
@@ -3201,6 +3204,20 @@ if test "x$enable_linux" != xno; then :
 
 else
   default_target=newlib
+
+fi
+
+# Check whether --enable-qemu was given.
+if test "${enable_qemu+set}" = set; then :
+  enableval=$enable_qemu;
+else
+  enable_qemu=no
+
+fi
+
+
+if test "x$enable_qemu" != xno; then :
+  qemu_build=qemu
 
 fi
 
