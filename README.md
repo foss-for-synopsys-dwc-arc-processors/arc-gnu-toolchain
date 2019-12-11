@@ -70,6 +70,15 @@ Configure and build with:
     $ ./configure --prefix=/path/to/install/toolchain
     $ make -j $(nproc)
     $ make install
+ 
+Some of parameters you can pass to the configure script:
+
+| parameter         | default   | values                           |
+|-------------------|-----------|----------------------------------|
+| --target          | arc64-elf | arc64-elf, arc-elf32             |
+| --prefix          |           | any path string for installation |
+| --enable-multilib | no        | yes, no (--disable-multilib)     |
+| --enable-qemu     | no        | yes, no (--disable-qemu)         |
 
 ### Advanced Options
 

@@ -54,7 +54,7 @@ AC_ARG_ENABLE(qemu,
         [AS_HELP_STRING([--enable-qemu],
 		[enable building ARC QEMU @<:@--disable-qemu@:>@])],
         [],
-        [enable_qemu=yes]
+        [enable_qemu=no]
         )
 
 AS_IF([test "x$enable_qemu" != xno],
