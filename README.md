@@ -23,11 +23,11 @@ from other palces as well:
 
 For a 64-bit build, you will need the following branches:
 
-| repo         | branch  |
-|--------------|---------|
-| binutils-gdb | arc64   |
-| gcc          | arc-arc |
-| newlib       | arc64   |
+| repo         | branch |
+|--------------|--------|
+| binutils-gdb | arc64  |
+| gcc          | arc64  |
+| newlib       | arc64  |
 
 Last but not least, if you plan to run DejaGnu later, you must use:
 
