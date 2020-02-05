@@ -41,11 +41,11 @@ Last but not least, if you plan to run DejaGnu later, you must use:
 Several standard packages are needed to build the toolchain.  On Ubuntu,
 executing the following command should suffice:
 
-    $ sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential bison flex texinfo gperf libtool patchutils bc zlib1g-dev
+    $ sudo apt-get install autoconf automake autotools-dev curl libmpc-dev libmpfr-dev libgmp-dev gawk build-essential libncurses-dev bison flex texinfo gperf libtool patchutils bc zlib1g-dev
 
 On Fedora/CentOS/RHEL OS, executing the following command should suffice:
 
-    $ sudo yum install autoconf automake libmpc-devel mpfr-devel gmp-devel gawk  bison flex texinfo patchutils gcc gcc-c++ zlib-devel
+    $ sudo yum install autoconf automake libmpc-devel mpfr-devel gmp-devel gawk ncurses-devel bison flex texinfo patchutils gcc gcc-c++ zlib-devel
 
 On OS X, you can use [Homebrew](http://brew.sh) to install the dependencies:
 
