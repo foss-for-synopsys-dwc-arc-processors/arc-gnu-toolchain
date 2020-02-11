@@ -51,6 +51,10 @@ On OS X, you can use [Homebrew](http://brew.sh) to install the dependencies:
 
     $ brew install gawk gnu-sed gmp mpfr libmpc isl zlib
 
+On Void Linux, at least these packages are required:
+
+    $ xbps-install libmpc-devel ncurses-devel texinfo bison flex
+
 This process will start by downloading about 200 MiB of upstream sources, then
 will patch, build, and install the toolchain.  If a local cache of the
 upstream sources exists in $(DISTDIR), it will be used; the default location
