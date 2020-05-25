@@ -126,8 +126,48 @@ AS_IF([test "x$enable_gcc_checking" != xno],
 	[AC_SUBST(gcc_checking, --enable-checking=yes)],
 	[AC_SUBST(gcc_checking, --enable-checking=release)])
 
+AC_ARG_WITH(cmodel,
+	[AS_HELP_STRING([--with-cmodel],
+		[Select the code model to use when building libc and libgcc @<:@--with-cmodel=medlow@:>@])],
+	[],
+	[]
+	)
+AS_IF([test "x$with_cmodel" != x],
+      	[AC_SUBST(cmodel, -mcmodel=$with_cmodel)],
+	[AC_SUBST(cmodel, "")])
+#	[AC_SUBST(cmodel, -mcmodel=medlow)])
+
+AC_ARG_WITH(target_cflags,
+	[AS_HELP_STRING([--with-target-cflags],
+		[Add extra target flags for C for library code])],
+	[],
+	[]
+	)
+AC_SUBST(target_cflags, $with_target_cflags)
+AC_ARG_WITH(target_cxxflags,
+	[AS_HELP_STRING([--with-target-cxxflags],
+		[Add extra target flags for C++ for library code])],
+	[],
+	[]
+	)
+AC_SUBST(target_cxxflags, $with_target_cxxflags)
+
+
 AC_CONFIG_FILES([Makefile])
 AC_CONFIG_FILES([scripts/wrapper/awk/awk], [chmod +x scripts/wrapper/awk])
 AC_CONFIG_FILES([scripts/wrapper/sed/sed], [chmod +x scripts/wrapper/sed])
+
+AC_ARG_WITH(linux-headers-src,
+	[AC_HELP_STRING([--with-linux-headers-src],
+		[Set linux-headers source path, use builtin source by default])],
+	[],
+	[with_linux_headers_src=default]
+	)
+
+AS_IF([test "x$with_linux_headers_src" != xdefault],
+      	[AC_SUBST(with_linux_headers_src,$with_linux_headers_src)],
+	[AC_SUBST(with_linux_headers_src,"\$(srcdir)/arc-linux/include")])
+
+AC_OUTPUT
 
 AC_OUTPUT
