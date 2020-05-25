@@ -2,7 +2,7 @@ export CURRENT_PATH=`pwd`/../
 export WORKSPACE_DIR=${CURRENT_PATH}/workspace
 export SOURCE_DIR=${CURRENT_PATH}
 export BUILD_DIR=${WORKSPACE_DIR}/build
-export INSTALL_DIR=$(cat ${CURRENT_PATH}/stamps/install_dir)
+export INSTALL_DIR=$(/usr/local/sbin/simplify_path.rb $(cat ${CURRENT_PATH}/stamps/install_dir))
 export QEMU_HOME=${INSTALL_DIR}
 
 export PATH=${INSTALL_DIR}/bin:${PATH}

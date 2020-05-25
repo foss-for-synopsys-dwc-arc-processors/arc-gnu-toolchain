@@ -78,8 +78,6 @@ MUSL_CXX_FOR_TARGET ?= $(MUSL_TUPLE)-g++
 CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
 
-CONFIGURE_HOST   = @configure_host@
-
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
 newlib: stamps/build-gcc-newlib-stage2
@@ -133,13 +131,12 @@ stamps/check-write-permission:
 	rm -r $(INSTALL_DIR)/.test
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-glibc-linux-headers: $(LINUX_SRCDIR) stamps/build-gcc-linux-stage1
-	rm -rf $@ $(notdir build-linux)
-	mkdir $(notdir build-linux)
-	cd $(srcdir)/arc-linux && make ARCH=arc defconfig O=$(builddir)/build-linux
-	cd $(builddir)/build-linux && make ARCH=arc INSTALL_HDR_PATH=$(SYSROOT)/usr headers_install
+stamps/build-linux-headers:
+	mkdir -p $(SYSROOT)/usr/
+	cp -a $(srcdir)/linux-headers/include $(SYSROOT)/usr/
 	mkdir -p $(dir $@) && touch $@
-	
+
+
 #
 # GLIBC
 #
@@ -150,10 +147,10 @@ stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
 # CC_FOR_TARGET is required for the ld testsuite.
 	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
 		--target=$(LINUX_TUPLE) \
-		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
 		$(MULTILIB_FLAGS) \
+		@with_guile@ \
 		--disable-werror \
 		--disable-nls \
 		$(BINUTILS_TARGET_FLAGS) \
@@ -171,10 +168,10 @@ stamps/build-gdb-linux: $(GDB_SRCDIR)
 # CC_FOR_TARGET is required for the ld testsuite.
 	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
 		--target=$(LINUX_TUPLE) \
-		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
 		$(MULTILIB_FLAGS) \
+		@with_guile@ \
 		--disable-werror \
 		--disable-nls \
 		$(GDB_TARGET_FLAGS) \
@@ -188,27 +185,22 @@ stamps/build-gdb-linux: $(GDB_SRCDIR)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-#stamps/build-glibc-linux-headers: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
-#	rm -rf $@ $(notdir $@)
-#	mkdir $(notdir $@)
-#	cd $(notdir $@) && CC="$(GLIBC_CC_FOR_TARGET)" $</configure \
-#		--host=$(LINUX_TUPLE) \
-#		--prefix=$(SYSROOT)/usr \
-#		--enable-shared \
-#		--with-headers=$(LINUX_HEADERS_SRCDIR) \
-#		--disable-multilib \
-#		--enable-kernel=3.0.0
-#	$(MAKE) -C $(notdir $@) install-headers
-#	mkdir -p $(dir $@) && touch $@
+stamps/build-glibc-linux-headers: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && CC="$(GLIBC_CC_FOR_TARGET)" $</configure \
+		--host=$(LINUX_TUPLE) \
+		--prefix=$(SYSROOT)/usr \
+		--enable-shared \
+		--with-headers=$(LINUX_HEADERS_SRCDIR) \
+		--disable-multilib \
+		--enable-kernel=3.0.0
+	$(MAKE) -C $(notdir $@) install-headers
+	mkdir -p $(dir $@) && touch $@
 
-stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
-ifeq ($(MULTILIB_FLAGS),--enable-multilib)
-	$(eval $@_ARCH := $(word 4,$(subst -, ,$@)))
-	$(eval $@_ABI := $(word 5,$(subst -, ,$@)))
-else
+stamps/build-glibc-linux-%: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 	$(eval $@_ARCH := )
 	$(eval $@_ABI := )
-endif
 	$(eval $@_LIBDIRSUFFIX := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/')/$($@_ABI),))
 	$(eval $@_XLEN := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/'),$(XLEN)))
 	$(eval $@_CFLAGS := $(if $($@_ABI),-march=$($@_ARCH) -mabi=$($@_ABI),))
@@ -222,12 +214,12 @@ endif
 		CXXFLAGS="$(CXXFLAGS_FOR_TARGET) -g -O2 $($@_CFLAGS)" \
 		ASFLAGS="$(ASFLAGS_FOR_TARGET) $($@_CFLAGS)" \
 		$</configure \
-		--host=$(call make_tuple,linux-gnu) \
+		--host=$(call make_tuple,$($@_XLEN),linux-gnu) \
 		--prefix=/usr \
 		--disable-werror \
 		--enable-shared \
 		--enable-obsolete-rpc \
-		--with-sysroot=$(SYSROOT) \
+		--with-headers=$(LINUX_HEADERS_SRCDIR) \
 		$(MULTILIB_FLAGS) \
 		--enable-kernel=3.0.0 \
 		$(GLIBC_TARGET_FLAGS) \
@@ -237,21 +229,23 @@ endif
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
-                               stamps/build-glibc-linux-headers
+                               stamps/build-linux-headers
 	if test -f $</contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" = "true"; then cd $< && ./contrib/download_prerequisites; fi
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--target=$(LINUX_TUPLE) \
-		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
-		--without-headers \
-		--enable-shared \
+		--enable-languages=c,c++ \
+		--with-sysroot=$(SYSROOT) \
 		--without-newlib \
+		--without-headers \
+		--disable-shared \
+		--disable-threads \
 		@with_system_zlib@ \
-		--enable-threads \
 		--enable-tls \
 		--enable-languages=c \
+		--disable-lto \
 		--disable-libatomic \
 		--disable-libmudflap \
 		--disable-libssp \
@@ -259,6 +253,8 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		--disable-libgomp \
 		--disable-nls \
 		--disable-bootstrap \
+		--disable-multilib \
+		--disable-c99 \
 		--src=$(gccsrcdir) \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
@@ -273,13 +269,12 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 	$(MAKE) -C $(notdir $@) inhibit-libc=true install-target-libgcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
+stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) $(addprefix stamps/build-glibc-linux-,$(GLIBC_MULTILIB_NAMES)) \
                                stamps/build-glibc-linux-headers
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--target=$(LINUX_TUPLE) \
-		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
 		@with_system_zlib@ \
@@ -292,8 +287,6 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 		--disable-nls \
 		--disable-bootstrap \
 		--src=$(gccsrcdir) \
-		--enable-threads \
-		--enable-tls \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
 		$(WITH_ABI) \
@@ -306,54 +299,217 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-binutils-linux-native: $(BINUTILS_SRCDIR) stamps/build-gcc-linux-stage2 stamps/check-write-permission
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--host=$(LINUX_TUPLE) \
-		--target=$(LINUX_TUPLE) \
-		$(CONFIGURE_HOST) \
-		--prefix=$(INSTALL_DIR)/native \
-		$(MULTILIB_FLAGS) \
-		--disable-werror \
-		--disable-nls \
-		$(BINUTILS_NATIVE_FLAGS) \
-		--disable-gdb \
-		--disable-sim \
-		--disable-libdecnumber \
-		--disable-readline
-	$(MAKE) -C $(notdir $@)
-	$(MAKE) -C $(notdir $@) install
-	mkdir -p $(dir $@) && touch $@
-
-stamps/build-gcc-linux-native: $(GCC_SRCDIR) stamps/build-gcc-linux-stage2 stamps/build-binutils-linux-native
-	if test -f $</contrib/download_prerequisites; then cd $< && ./contrib/download_prerequisites; fi
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--host=$(LINUX_TUPLE) \
-		--target=$(LINUX_TUPLE) \
-		$(CONFIGURE_HOST) \
-		--prefix=$(INSTALL_DIR)/native \
-		--without-system-zlib \
-		--enable-shared \
-		--enable-tls \
-		--enable-languages=c,c++,fortran \
-		--disable-libmudflap \
-		--disable-libssp \
-		--disable-libquadmath \
-		--disable-nls \
-		--disable-bootstrap \
-                --with-native-system-header-dir=$(INSTALL_DIR)/native/include \
-		$(GCC_CHECKING_FLAGS) \
-		$(MULTILIB_FLAGS) \
-		$(WITH_ABI) \
-		$(WITH_ARCH) \
-		$(WITH_TUNE)
-	$(MAKE) -C $(notdir $@)
-	$(MAKE) -C $(notdir $@) install
-	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
-	mkdir -p $(dir $@) && touch $@
+#HERE
+#stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+## CC_FOR_TARGET is required for the ld testsuite.
+#	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
+#		--target=$(LINUX_TUPLE) \
+#		$(CONFIGURE_HOST) \
+#		--prefix=$(INSTALL_DIR) \
+#		--with-sysroot=$(SYSROOT) \
+#		$(MULTILIB_FLAGS) \
+#		--disable-werror \
+#		--disable-nls \
+#		$(BINUTILS_TARGET_FLAGS) \
+#		--disable-gdb \
+#		--disable-sim \
+#		--disable-libdecnumber \
+#		--disable-readline
+#	$(MAKE) -C $(notdir $@)
+#	$(MAKE) -C $(notdir $@) install
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-gdb-linux: $(GDB_SRCDIR)
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+## CC_FOR_TARGET is required for the ld testsuite.
+#	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
+#		--target=$(LINUX_TUPLE) \
+#		$(CONFIGURE_HOST) \
+#		--prefix=$(INSTALL_DIR) \
+#		--with-sysroot=$(SYSROOT) \
+#		$(MULTILIB_FLAGS) \
+#		--disable-werror \
+#		--disable-nls \
+#		$(GDB_TARGET_FLAGS) \
+#		--enable-gdb \
+#		--disable-gas \
+#		--disable-binutils \
+#		--disable-ld \
+#		--disable-gold \
+#		--disable-gprof
+#	$(MAKE) -C $(notdir $@)
+#	$(MAKE) -C $(notdir $@) install
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-glibc-linux-headers: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+#	cd $(notdir $@) && CC="$(GLIBC_CC_FOR_TARGET)" $</configure \
+#		--host=$(LINUX_TUPLE) \
+#		--prefix=$(SYSROOT)/usr \
+#		--enable-shared \
+#		--with-headers=$(LINUX_HEADERS_SRCDIR) \
+#		--disable-multilib \
+#		--enable-kernel=3.0.0
+#	$(MAKE) -C $(notdir $@) install-headers
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
+#ifeq ($(MULTILIB_FLAGS),--enable-multilib)
+#	$(eval $@_ARCH := $(word 4,$(subst -, ,$@)))
+#	$(eval $@_ABI := $(word 5,$(subst -, ,$@)))
+#else
+#	$(eval $@_ARCH := )
+#	$(eval $@_ABI := )
+#endif
+#	$(eval $@_LIBDIRSUFFIX := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/')/$($@_ABI),))
+#	$(eval $@_XLEN := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/'),$(XLEN)))
+#	$(eval $@_CFLAGS := $(if $($@_ABI),-march=$($@_ARCH) -mabi=$($@_ABI),))
+#	$(eval $@_LIBDIROPTS := $(if $@_LIBDIRSUFFIX,--libdir=/usr/lib$($@_LIBDIRSUFFIX) libc_cv_slibdir=/lib$($@_LIBDIRSUFFIX) libc_cv_rtlddir=/lib,))
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+#	cd $(notdir $@) && \
+#		CC="$(GLIBC_CC_FOR_TARGET) $($@_CFLAGS)" \
+#		CXX="$(GLIBC_CXX_FOR_TARGET) $($@_CFLAGS)" \
+#		CFLAGS="$(CFLAGS_FOR_TARGET) -g -O2 $($@_CFLAGS)" \
+#		CXXFLAGS="$(CXXFLAGS_FOR_TARGET) -g -O2 $($@_CFLAGS)" \
+#		ASFLAGS="$(ASFLAGS_FOR_TARGET) $($@_CFLAGS)" \
+#		$</configure \
+#		--host=$(call make_tuple,linux-gnu) \
+#		--prefix=/usr \
+#		--disable-werror \
+#		--enable-shared \
+#		--enable-obsolete-rpc \
+#		--with-sysroot=$(SYSROOT) \
+#		$(MULTILIB_FLAGS) \
+#		--enable-kernel=3.0.0 \
+#		$(GLIBC_TARGET_FLAGS) \
+#		$($@_LIBDIROPTS)
+#	$(MAKE) -C $(notdir $@)
+#	+flock $(SYSROOT)/.lock $(MAKE) -C $(notdir $@) install install_root=$(SYSROOT)
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
+#                               stamps/build-glibc-linux-headers
+#	if test -f $</contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" = "true"; then cd $< && ./contrib/download_prerequisites; fi
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+#	cd $(notdir $@) && $</configure \
+#		--target=$(LINUX_TUPLE) \
+#		$(CONFIGURE_HOST) \
+#		--prefix=$(INSTALL_DIR) \
+#		--without-headers \
+#		--enable-shared \
+#		--without-newlib \
+#		@with_system_zlib@ \
+#		--enable-threads \
+#		--enable-tls \
+#		--enable-languages=c \
+#		--disable-libatomic \
+#		--disable-libmudflap \
+#		--disable-libssp \
+#		--disable-libquadmath \
+#		--disable-libgomp \
+#		--disable-nls \
+#		--disable-bootstrap \
+#		--src=$(gccsrcdir) \
+#		$(GCC_CHECKING_FLAGS) \
+#		$(MULTILIB_FLAGS) \
+#		$(WITH_ABI) \
+#		$(WITH_ARCH) \
+#		$(WITH_TUNE) \
+#		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+#		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+#	$(MAKE) -C $(notdir $@) inhibit-libc=true all-gcc
+#	$(MAKE) -C $(notdir $@) inhibit-libc=true install-gcc
+#	$(MAKE) -C $(notdir $@) inhibit-libc=true all-target-libgcc
+#	$(MAKE) -C $(notdir $@) inhibit-libc=true install-target-libgcc
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
+#                               stamps/build-glibc-linux-headers
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+#	cd $(notdir $@) && $</configure \
+#		--target=$(LINUX_TUPLE) \
+#		$(CONFIGURE_HOST) \
+#		--prefix=$(INSTALL_DIR) \
+#		--with-sysroot=$(SYSROOT) \
+#		@with_system_zlib@ \
+#		--enable-shared \
+#		--enable-tls \
+#		--enable-languages=c,c++,fortran \
+#		--disable-libmudflap \
+#		--disable-libssp \
+#		--disable-libquadmath \
+#		--disable-nls \
+#		--disable-bootstrap \
+#		--src=$(gccsrcdir) \
+#		--enable-threads \
+#		--enable-tls \
+#		$(GCC_CHECKING_FLAGS) \
+#		$(MULTILIB_FLAGS) \
+#		$(WITH_ABI) \
+#		$(WITH_ARCH) \
+#		$(WITH_TUNE) \
+#		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+#		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+#	$(MAKE) -C $(notdir $@)
+#	$(MAKE) -C $(notdir $@) install
+#	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-binutils-linux-native: $(BINUTILS_SRCDIR) stamps/build-gcc-linux-stage2 stamps/check-write-permission
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+#	cd $(notdir $@) && $</configure \
+#		--host=$(LINUX_TUPLE) \
+#		--target=$(LINUX_TUPLE) \
+#		$(CONFIGURE_HOST) \
+#		--prefix=$(INSTALL_DIR)/native \
+#		$(MULTILIB_FLAGS) \
+#		--disable-werror \
+#		--disable-nls \
+#		$(BINUTILS_NATIVE_FLAGS) \
+#		--disable-gdb \
+#		--disable-sim \
+#		--disable-libdecnumber \
+#		--disable-readline
+#	$(MAKE) -C $(notdir $@)
+#	$(MAKE) -C $(notdir $@) install
+#	mkdir -p $(dir $@) && touch $@
+#
+#stamps/build-gcc-linux-native: $(GCC_SRCDIR) stamps/build-gcc-linux-stage2 stamps/build-binutils-linux-native
+#	if test -f $</contrib/download_prerequisites; then cd $< && ./contrib/download_prerequisites; fi
+#	rm -rf $@ $(notdir $@)
+#	mkdir $(notdir $@)
+#	cd $(notdir $@) && $</configure \
+#		--host=$(LINUX_TUPLE) \
+#		--target=$(LINUX_TUPLE) \
+#		$(CONFIGURE_HOST) \
+#		--prefix=$(INSTALL_DIR)/native \
+#		--without-system-zlib \
+#		--enable-shared \
+#		--enable-tls \
+#		--enable-languages=c,c++,fortran \
+#		--disable-libmudflap \
+#		--disable-libssp \
+#		--disable-libquadmath \
+#		--disable-nls \
+#		--disable-bootstrap \
+#                --with-native-system-header-dir=$(INSTALL_DIR)/native/include \
+#		$(GCC_CHECKING_FLAGS) \
+#		$(MULTILIB_FLAGS) \
+#		$(WITH_ABI) \
+#		$(WITH_ARCH) \
+#		$(WITH_TUNE)
+#	$(MAKE) -C $(notdir $@)
+#	$(MAKE) -C $(notdir $@) install
+#	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
+#	mkdir -p $(dir $@) && touch $@
 
 #
 # NEWLIB
