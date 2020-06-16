@@ -133,7 +133,11 @@ stamps/check-write-permission:
 
 stamps/build-linux-headers:
 	mkdir -p $(SYSROOT)/usr/
+ifdef LINUX_HEADERS_SRCDIR
+	cp -a $(LINUX_HEADERS_SRCDIR) $(SYSROOT)/usr/
+else
 	cp -a $(srcdir)/linux-headers/include $(SYSROOT)/usr/
+endif
 	mkdir -p $(dir $@) && touch $@
 
 
@@ -147,10 +151,10 @@ stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
 # CC_FOR_TARGET is required for the ld testsuite.
 	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
 		--target=$(LINUX_TUPLE) \
+		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
 		$(MULTILIB_FLAGS) \
-		@with_guile@ \
 		--disable-werror \
 		--disable-nls \
 		$(BINUTILS_TARGET_FLAGS) \
@@ -168,10 +172,10 @@ stamps/build-gdb-linux: $(GDB_SRCDIR)
 # CC_FOR_TARGET is required for the ld testsuite.
 	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
 		--target=$(LINUX_TUPLE) \
+		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
 		$(MULTILIB_FLAGS) \
-		@with_guile@ \
 		--disable-werror \
 		--disable-nls \
 		$(GDB_TARGET_FLAGS) \
@@ -199,11 +203,15 @@ stamps/build-glibc-linux-headers: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-glibc-linux-%: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
+ifeq ($(MULTILIB_FLAGS),--enable-multilib)
+	$(eval $@_ARCH := $(word 4,$(subst -, ,$@)))
+	$(eval $@_ABI := $(word 5,$(subst -, ,$@)))
+else
 	$(eval $@_ARCH := )
 	$(eval $@_ABI := )
+endif
 	$(eval $@_LIBDIRSUFFIX := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/')/$($@_ABI),))
 	$(eval $@_XLEN := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/'),$(XLEN)))
-	$(eval $@_CFLAGS := $(if $($@_ABI),-march=$($@_ARCH) -mabi=$($@_ABI),))
 	$(eval $@_LIBDIROPTS := $(if $@_LIBDIRSUFFIX,--libdir=/usr/lib$($@_LIBDIRSUFFIX) libc_cv_slibdir=/lib$($@_LIBDIRSUFFIX) libc_cv_rtlddir=/lib,))
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
@@ -221,7 +229,6 @@ stamps/build-glibc-linux-%: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 		--enable-obsolete-rpc \
 		--with-headers=$(LINUX_HEADERS_SRCDIR) \
 		$(MULTILIB_FLAGS) \
-		--enable-kernel=3.0.0 \
 		$(GLIBC_TARGET_FLAGS) \
 		$($@_LIBDIROPTS)
 	$(MAKE) -C $(notdir $@)
@@ -235,17 +242,16 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--target=$(LINUX_TUPLE) \
+		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
-		--enable-languages=c,c++ \
 		--with-sysroot=$(SYSROOT) \
-		--without-newlib \
+		--with-newlib \
 		--without-headers \
 		--disable-shared \
 		--disable-threads \
 		@with_system_zlib@ \
 		--enable-tls \
 		--enable-languages=c \
-		--disable-lto \
 		--disable-libatomic \
 		--disable-libmudflap \
 		--disable-libssp \
@@ -253,14 +259,10 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		--disable-libgomp \
 		--disable-nls \
 		--disable-bootstrap \
-		--disable-multilib \
-		--disable-c99 \
+		--disable-lto \
 		--src=$(gccsrcdir) \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
-		$(WITH_ABI) \
-		$(WITH_ARCH) \
-		$(WITH_TUNE) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
 		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@) inhibit-libc=true all-gcc
@@ -275,6 +277,7 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) $(addprefix stamps/build-glibc-linu
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--target=$(LINUX_TUPLE) \
+		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
 		@with_system_zlib@ \
@@ -290,8 +293,6 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) $(addprefix stamps/build-glibc-linu
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
 		$(WITH_ABI) \
-		$(WITH_ARCH) \
-		$(WITH_TUNE) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
 		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@)
