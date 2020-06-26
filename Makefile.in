@@ -202,14 +202,9 @@ stamps/build-glibc-linux-headers: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 	$(MAKE) -C $(notdir $@) install-headers
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-glibc-linux-%: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
-ifeq ($(MULTILIB_FLAGS),--enable-multilib)
-	$(eval $@_ARCH := $(word 4,$(subst -, ,$@)))
-	$(eval $@_ABI := $(word 5,$(subst -, ,$@)))
-else
+stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 	$(eval $@_ARCH := )
 	$(eval $@_ABI := )
-endif
 	$(eval $@_LIBDIRSUFFIX := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/')/$($@_ABI),))
 	$(eval $@_XLEN := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/'),$(XLEN)))
 	$(eval $@_LIBDIROPTS := $(if $@_LIBDIRSUFFIX,--libdir=/usr/lib$($@_LIBDIRSUFFIX) libc_cv_slibdir=/lib$($@_LIBDIRSUFFIX) libc_cv_rtlddir=/lib,))
@@ -222,7 +217,7 @@ endif
 		CXXFLAGS="$(CXXFLAGS_FOR_TARGET) -g -O2 $($@_CFLAGS)" \
 		ASFLAGS="$(ASFLAGS_FOR_TARGET) $($@_CFLAGS)" \
 		$</configure \
-		--host=$(call make_tuple,$($@_XLEN),linux-gnu) \
+		--host=${LINUX_TUPLE} \
 		--prefix=/usr \
 		--disable-werror \
 		--enable-shared \
@@ -271,7 +266,7 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 	$(MAKE) -C $(notdir $@) inhibit-libc=true install-target-libgcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) $(addprefix stamps/build-glibc-linux-,$(GLIBC_MULTILIB_NAMES)) \
+stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
                                stamps/build-glibc-linux-headers
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
