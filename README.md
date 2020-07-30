@@ -12,6 +12,7 @@ This repository checks for the existance of the following directories:
     arc-binutils-gdb
     arc-gcc
     arc-newlib
+    arc-glibc
 
 If they do not exist, it will clone them. You can link your source directories
 from other palces as well:
@@ -20,14 +21,18 @@ from other palces as well:
     $ ln -s /repos/arcgnu/binutils  arc-binutils-gdb
     $ ln -s /repos/arcgnu/gcc       arc-gcc
     $ ln -s /repos/arcgnu/newlib    arc-newlib
+    $ ln -s /repos/arcgnu/glibc     arc-glibc
 
-For a 64-bit build, you will need the following branches:
+For a 64-bit linux build, you will need the following branches:
 
 | repo         | branch |
 |--------------|--------|
 | binutils-gdb | arc64  |
 | gcc          | arc64  |
 | newlib       | arc64  |
+| glibc        | arc64  |
+
+For a 64-bit baremetal build, you don't need the glibc.
 
 Last but not least, if you plan to run DejaGnu later, you must use:
 
@@ -77,12 +82,12 @@ Configure and build with:
  
 Some of parameters you can pass to the configure script:
 
-| parameter         | default   | values                           |
-|-------------------|-----------|----------------------------------|
-| --target          | arc64-elf | arc64-elf, arc-elf32             |
-| --prefix          |           | any path string for installation |
-| --enable-multilib | no        | yes, no (--disable-multilib)     |
-| --enable-qemu     | no        | yes, no (--disable-qemu)         |
+| parameter         | default   | values                            |
+|-------------------|-----------|-----------------------------------|
+| --target          | arc64-elf | arc64-elf, arc-elf32, arc64-linux |
+| --prefix          |           | any path string for installation  |
+| --enable-multilib | no        | yes, no (--disable-multilib)      |
+| --enable-qemu     | no        | yes, no (--disable-qemu)          |
 
 ### Advanced Options
 

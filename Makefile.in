@@ -14,13 +14,12 @@ SNPS_GIT_URL    := https://github.com/foss-for-synopsys-dwc-arc-processors
 BINUTILS_BRANCH := arc64
 GCC_BRANCH      := arc64
 NEWLIB_BRANCH   := arc64
-QEMU_BRANCH     := dudes_stuff
-GLIBC_BRANCH	:= arc64
+QEMU_BRANCH     := arc64-dev
+GLIBC_BRANCH    := arc64
 
-GLIBC_SRCDIR	:= $(srcdir)/arc-glibc
-GCC_SRCDIR	:= $(srcdir)/arc-gcc
 BINUTILS_SRCDIR	:= $(srcdir)/arc-binutils-gdb
-LINUX_SRCDIR	:= $(srcdir)/arc-linux
+GCC_SRCDIR	:= $(srcdir)/arc-gcc
+GLIBC_SRCDIR	:= $(srcdir)/arc-glibc
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
