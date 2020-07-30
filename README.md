@@ -93,12 +93,18 @@ Some of parameters you can pass to the configure script:
 ### Advanced Options
 
 There are a number of additional options that may be passed to
-configure.  See './configure --help' for more details.
+configure.  See `./configure --help` for more details.
 
-### Test Suite
+#### Recipes
+##### Baremetal
+    $ ./configure --prefix=/path/to/install
 
-To test GCC, run the following commands:
+##### Linux
+    $ ./configure --prefix=/path/to/install \
+                  --target=arc64-linux      \
+                  --enable-linux
 
-    ./configure --prefix=$ARC --disable-linux
-    make newlib
-    make check-gcc-newlib
+##### Running GCC Test Suite
+    $ ./configure --prefix=/path/to/install --disable-linux
+    $ make newlib
+    $ make check-gcc-newlib
