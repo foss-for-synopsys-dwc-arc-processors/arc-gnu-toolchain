@@ -86,6 +86,7 @@ Some of parameters you can pass to the configure script:
 |-------------------|-----------|-----------------------------------|
 | --target          | arc64-elf | arc64-elf, arc-elf32, arc64-linux |
 | --prefix          |           | any path string for installation  |
+| --enable-linux    | no        | yes, no (--disable-linux)         |
 | --enable-multilib | no        | yes, no (--disable-multilib)      |
 | --enable-qemu     | no        | yes, no (--disable-qemu)          |
 
