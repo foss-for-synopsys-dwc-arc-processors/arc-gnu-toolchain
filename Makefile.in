@@ -258,7 +258,9 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
+		--with-gnu-as \
+		--with-gnu-ld
 	$(MAKE) -C $(notdir $@) inhibit-libc=true all-gcc
 	$(MAKE) -C $(notdir $@) inhibit-libc=true install-gcc
 	$(MAKE) -C $(notdir $@) inhibit-libc=true all-target-libgcc
@@ -288,7 +290,9 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 		$(MULTILIB_FLAGS) \
 		$(WITH_ABI) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
+		--with-gnu-as \
+		--with-gnu-ld
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
@@ -543,7 +547,9 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 		--disable-nls \
 		@gcc_checking@ \
 		@werror_flag@ \
-		@with_cpu@
+		@with_cpu@ \
+		--with-gnu-as \
+		--with-gnu-ld
 	$(MAKE) -C $(notdir $@) all-gcc
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
@@ -582,7 +588,9 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@gcc_checking@ \
 		@multilib_flags@ \
 		@werror_flag@ \
-		@with_cpu@
+		@with_cpu@ \
+		--with-gnu-as \
+		--with-gnu-ld
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
