@@ -160,7 +160,8 @@ stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
 		--disable-gdb \
 		--disable-sim \
 		--disable-libdecnumber \
-		--disable-readline
+		--disable-readline \
+		CFLAGS="-O0 -g3"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -224,7 +225,8 @@ stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 		--with-headers=$(LINUX_HEADERS_SRCDIR) \
 		$(MULTILIB_FLAGS) \
 		$(GLIBC_TARGET_FLAGS) \
-		$($@_LIBDIROPTS)
+		$($@_LIBDIROPTS) \
+		CFLAGS="-O2 -g3"
 	$(MAKE) -C $(notdir $@)
 	+flock $(SYSROOT)/.lock $(MAKE) -C $(notdir $@) install install_root=$(SYSROOT)
 	mkdir -p $(dir $@) && touch $@
