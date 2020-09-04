@@ -132,8 +132,6 @@ $(srcdir)/arc-buildroot:
 
 $(srcdir)/arc-linux:
 	git clone --depth 1 --single-branch --branch $(LINUX_BRANCH) $(SNPS_GIT_URL)/linux.git $@
-	cd $(LINUX_SRCDIR) && git fetch $(LINUX_BRANCH)
-
 
 stamps/check-write-permission:
 	mkdir -p $(INSTALL_DIR)/.test || \
@@ -319,6 +317,7 @@ stamps/build-buildroot-linux: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-
 	export PATH=$(ORIGINAL_PATH)
 	unset AWK SED
 	rm -rf $@ $(notdir $@)
+	cd ${ROOT_DIR} && tar cfz /tmp/arc-linux.tar.gz arc-linux
 	$(SED) 's.%INSTALL_DIR%.$(INSTALL_DIR).' scripts/buildroot_defconfig > /tmp/buildroot_defconfig
 	$(SED) -i 's.%LINUX_SRCDIR%.$(LINUX_SRCDIR).' /tmp/buildroot_defconfig
 	cd ${BUILDROOT_SRCDIR} && make defconfig BR2_DEFCONFIG=/tmp/buildroot_defconfig O=${ROOT_DIR}/$(notdir $@)
