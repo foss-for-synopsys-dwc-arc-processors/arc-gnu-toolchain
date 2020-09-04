@@ -132,6 +132,7 @@ $(srcdir)/arc-buildroot:
 
 $(srcdir)/arc-linux:
 	git clone --depth 1 --single-branch --branch $(LINUX_BRANCH) $(SNPS_GIT_URL)/linux.git $@
+	cd $(LINUX_SRCDIR) && git fetch $(LINUX_BRANCH)
 
 
 stamps/check-write-permission:
@@ -314,7 +315,7 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 	mkdir -p $(dir $@) && touch $@
 
 
-stamps/build-buildroot-linux: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-gcc-linux-stage2
+stamps/build-buildroot-linux1: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-gcc-linux-stage2
 	export PATH=$(ORIGINAL_PATH)
 	unset AWK SED
 	rm -rf $@ $(notdir $@)
