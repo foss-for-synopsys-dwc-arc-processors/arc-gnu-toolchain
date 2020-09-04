@@ -324,7 +324,7 @@ stamps/build-buildroot-linux: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-
 	cd ${BUILDROOT_SRCDIR} && make defconfig BR2_DEFCONFIG=/tmp/buildroot_defconfig O=${ROOT_DIR}/$(notdir $@)
 	@echo ""
 	@echo " ========= IMPORTANT NOTICE ============"
-	@echo "Buildroot is setup complete. Further continue by going to ./build_buildroot_linux and executing make."
+	@echo "Buildroot is setup complete. Further continue by going to $(notdir $@) and executing make."
 	@echo ""
 	mkdir -p $(dir $@) && touch $@
 
