@@ -10,16 +10,20 @@ gcc_url := $(GNU_MIRROR)/gcc/gcc-$(gcc_version)/gcc-$(gcc_version).tar.gz
 newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
 
 # SNPS toolchains
-SNPS_GIT_URL    := https://github.com/foss-for-synopsys-dwc-arc-processors
-BINUTILS_BRANCH := arc64
-GCC_BRANCH      := arc64
-NEWLIB_BRANCH   := arc64
-QEMU_BRANCH     := arc64-dev
-GLIBC_BRANCH    := arc64
+SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
+BINUTILS_BRANCH 	:= arc64
+GCC_BRANCH      	:= arc64
+NEWLIB_BRANCH   	:= arc64
+QEMU_BRANCH     	:= arc64-dev
+GLIBC_BRANCH    	:= arc64
+BUILDROOT_BRANCH	:= arc64
+LINUX_BRANCH 		:= topic-zol-remove
 
-BINUTILS_SRCDIR	:= $(srcdir)/arc-binutils-gdb
-GCC_SRCDIR	:= $(srcdir)/arc-gcc
-GLIBC_SRCDIR	:= $(srcdir)/arc-glibc
+BINUTILS_SRCDIR		:= $(srcdir)/arc-binutils-gdb
+GCC_SRCDIR		:= $(srcdir)/arc-gcc
+GLIBC_SRCDIR		:= $(srcdir)/arc-glibc
+BUILDROOT_SRCDIR	:= $(srcdir)/arc-buildroot
+LINUX_SRCDIR		:= $(srcdir)/arc-linux
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
@@ -31,6 +35,7 @@ PATH := $(INSTALL_DIR)/bin:$(PATH)
 # Check to see if we need wrapper scripts for awk/sed (which point to
 # gawk/gsed on platforms where these aren't the default), otherwise
 # don't override these as the wrappers don't always work.
+ORIGINAL_PATH := $(PATH)
 ifneq (@GSED@,/bin/sed)
 	PATH := $(base_dir)/sed:$(PATH)
 endif
@@ -53,6 +58,8 @@ LINUX_TUPLE  ?= $(call make_tuple,linux-gnu)
 NEWLIB_TUPLE ?= $(call make_tuple,elf)
 MUSL_TUPLE ?= $(call make_tuple,linux-musl)
 LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
+
+ROOT_DIR := $(shell pwd)
 
 CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA) @target_cflags@ @cmodel@
 CXXFLAGS_FOR_TARGET := $(CXXFLAGS_FOR_TARGET_EXTRA) @target_cxxflags@ @cmodel@
@@ -119,6 +126,12 @@ $(srcdir)/arc-glibc:
 
 $(srcdir)/arc-qemu:
 	git clone --depth 1 --single-branch --branch $(QEMU_BRANCH) $(SNPS_GIT_URL)/qemu.git $@
+
+$(srcdir)/arc-buildroot:
+	git clone --depth 1 --single-branch --branch $(BUILDROOT_BRANCH) $(SNPS_GIT_URL)/buildroot.git $@
+
+$(srcdir)/arc-linux:
+	git clone --depth 1 --single-branch --branch $(LINUX_BRANCH) $(SNPS_GIT_URL)/linux.git $@
 
 
 stamps/check-write-permission:
@@ -300,6 +313,20 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
 	mkdir -p $(dir $@) && touch $@
 
+
+stamps/build-buildroot-linux: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-gcc-linux-stage2
+	export PATH=$(ORIGINAL_PATH)
+	unset AWK SED
+	rm -rf $@ $(notdir $@)
+	$(SED) 's.%INSTALL_DIR%.$(INSTALL_DIR).' scripts/buildroot_defconfig > /tmp/buildroot_defconfig
+	$(SED) -i 's.%LINUX_SRCDIR%.$(LINUX_SRCDIR).' /tmp/buildroot_defconfig
+	cd ${BUILDROOT_SRCDIR} && make defconfig BR2_DEFCONFIG=/tmp/buildroot_defconfig O=${ROOT_DIR}/$(notdir $@)
+	@echo ""
+	@echo " ========= IMPORTANT NOTICE ============"
+	@echo "Buildroot is setup complete. Further continue by going to ./build_buildroot_linux and executing make."
+	@echo ""
+	mkdir -p $(dir $@) && touch $@
+
 #HERE
 #stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
 #	rm -rf $@ $(notdir $@)
@@ -326,6 +353,8 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 #	rm -rf $@ $(notdir $@)
 #	mkdir $(notdir $@)
 ## CC_FOR_TARGET is required for the ld testsuite.
+#
+#
 #	cd $(notdir $@) && CC_FOR_TARGET=$(GLIBC_CC_FOR_TARGET) $</configure \
 #		--target=$(LINUX_TUPLE) \
 #		$(CONFIGURE_HOST) \
