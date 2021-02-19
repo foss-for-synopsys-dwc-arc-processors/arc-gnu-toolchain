@@ -53,6 +53,8 @@ ifneq ($(XLEN),32)
 		XLEN := 64
 	endif
 
+GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
+PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
 make_tuple = arc64-unknown-$(1)
 LINUX_TUPLE  ?= $(call make_tuple,linux-gnu)
 NEWLIB_TUPLE ?= $(call make_tuple,elf)
@@ -290,6 +292,7 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 		$(CONFIGURE_HOST) \
 		--prefix=$(INSTALL_DIR) \
 		--with-sysroot=$(SYSROOT) \
+		--with-pkgversion=$(PKGVER) \
 		@with_system_zlib@ \
 		--enable-shared \
 		--enable-tls \
