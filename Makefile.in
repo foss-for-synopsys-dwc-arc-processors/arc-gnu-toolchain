@@ -175,7 +175,7 @@ stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
 		--disable-sim \
 		--disable-libdecnumber \
 		--disable-readline \
-		CFLAGS="-O0 -g3"
+		CFLAGS="-g3"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
