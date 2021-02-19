@@ -56,7 +56,7 @@ ifneq ($(XLEN),32)
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
 PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
 make_tuple = arc64-unknown-$(1)
-LINUX_TUPLE  ?= $(call make_tuple,linux-gnu)
+LINUX_TUPLE  ?= arc64-linux-gnu
 NEWLIB_TUPLE ?= $(call make_tuple,elf)
 MUSL_TUPLE ?= $(call make_tuple,linux-musl)
 LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
