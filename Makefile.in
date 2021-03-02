@@ -583,6 +583,7 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 		@gcc_checking@ \
 		@werror_flag@ \
 		@with_cpu@ \
+		@with_fpu@ \
 		--with-gnu-as \
 		--with-gnu-ld
 	$(MAKE) -C $(notdir $@) all-gcc
@@ -624,6 +625,7 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@multilib_flags@ \
 		@werror_flag@ \
 		@with_cpu@ \
+		@with_fpu@ \
 		--with-gnu-as \
 		--with-gnu-ld
 	$(MAKE) -C $(notdir $@)

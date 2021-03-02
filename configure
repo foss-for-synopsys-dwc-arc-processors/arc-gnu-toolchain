@@ -592,6 +592,7 @@ gcc_checking
 multilib_flags
 with_system_zlib
 configure_host
+with_fpu
 with_cpu
 arc_target
 werror_flag
@@ -660,6 +661,7 @@ enable_qemu
 enable_werror
 with_target
 with_cpu
+with_fpu
 with_system_zlib
 enable_multilib
 enable_gcc_checking
@@ -1300,6 +1302,7 @@ Optional Packages:
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
   --with-target=TARGET    Sets the ARC target [--with-target=arc64-elf]
   --with-cpu=CPU          Sets the base ARC ISA [--with-cpu=archs]
+  --with-fpu=FPU          Sets default FPU support [--with-fpu=fpus]
   --with-system-zlib      use zlib from the system instead of the builtin copy
                           from GCC [--with-system-zlib]
   --with-cmodel           Select the code model to use when building libc and
@@ -3271,13 +3274,36 @@ arc_target=$with_target
 if test "${with_cpu+set}" = set; then :
   withval=$with_cpu;
 else
-  with_cpu=archs
+  with_cpu=default
 
 fi
 
 
-with_cpu=--with-cpu=$with_cpu
+if test "x$with_cpu" != xdefault; then :
+  with_cpu=--with-cpu=$with_cpu
 
+else
+  with_cpu=""
+
+fi
+
+
+# Check whether --with-fpu was given.
+if test "${with_fpu+set}" = set; then :
+  withval=$with_fpu;
+else
+  with_fpu=none
+
+fi
+
+
+if test "x$with_fpu" != xnone; then :
+  with_fpu=--with-fpu=$with_fpu
+
+else
+  with_fpu=""
+
+fi
 
 if test "x$with_host" != xdefault; then :
   configure_host=--host=$with_host
@@ -3395,6 +3421,7 @@ else
   with_linux_headers_src="\$(srcdir)/linux-headers/include"
 
 fi
+
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure

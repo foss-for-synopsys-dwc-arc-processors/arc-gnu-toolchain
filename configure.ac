@@ -85,10 +85,23 @@ AC_ARG_WITH(cpu,
 	[AS_HELP_STRING([--with-cpu=CPU],
 		[Sets the base ARC ISA @<:@--with-cpu=archs@:>@])],
 	[],
-	[with_cpu=archs]
+	[with_cpu=default]
 	)
 
-AC_SUBST(with_cpu, --with-cpu=$with_cpu)
+AS_IF([test "x$with_cpu" != xdefault],
+	    [AC_SUBST(with_cpu, --with-cpu=$with_cpu)],
+	    [AC_SUBST(with_cpu,"")])
+
+AC_ARG_WITH(fpu,
+	[AS_HELP_STRING([--with-fpu=FPU],
+		[Sets default FPU support @<:@--with-fpu=fpus@:>@])],
+	[],
+	[with_fpu=none]
+	)
+
+AS_IF([test "x$with_fpu" != xnone],
+	    [AC_SUBST(with_fpu, --with-fpu=$with_fpu)],
+	    [AC_SUBST(with_fpu,"")])
 
 AS_IF([test "x$with_host" != xdefault],
 	[AC_SUBST(configure_host,--host=$with_host)],
