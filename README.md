@@ -89,6 +89,7 @@ Some of parameters you can pass to the configure script:
 | --enable-linux    | no        | yes, no (--disable-linux)         |
 | --enable-multilib | no        | yes, no (--disable-multilib)      |
 | --enable-qemu     | no        | yes, no (--disable-qemu)          |
+| --with-fpu        | none      | none, fpus, fpud                  |
 
 ### Advanced Options
 
