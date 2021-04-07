@@ -637,11 +637,9 @@ stamps/build-qemu: $(srcdir)/arc-qemu
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--prefix=${INSTALL_DIR} \
-		--target-list=arc64-softmmu \
+		--target-list=arcv3-softmmu \
 		--enable-debug \
-		--disable-pie \
-		--extra-cflags="-O0 -g3" \
-		--disable-werror
+		--enable-debug-tcg
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
