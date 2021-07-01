@@ -10,7 +10,8 @@ gcc_url := $(GNU_MIRROR)/gcc/gcc-$(gcc_version)/gcc-$(gcc_version).tar.gz
 newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
 
 # SNPS toolchains
-SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
+SNPS_GIT_URL		:= https://github.com/foss-for-synopsys-dwc-arc-processors
+UNFS_GIT_URL		:= https://github.com/unfs3/unfs3.git
 BINUTILS_BRANCH 	:= arc64
 GCC_BRANCH      	:= arc64
 NEWLIB_BRANCH   	:= arc64
@@ -18,12 +19,15 @@ QEMU_BRANCH     	:= arc64
 GLIBC_BRANCH    	:= arc64
 BUILDROOT_BRANCH	:= arc64
 LINUX_BRANCH 		:= arc64
+UNFS_BRANCH		:= master
+TESTSUITE_BRANCH	:= main
 
 BINUTILS_SRCDIR		:= $(srcdir)/arc-binutils-gdb
 GCC_SRCDIR		:= $(srcdir)/arc-gcc
 GLIBC_SRCDIR		:= $(srcdir)/arc-glibc
 BUILDROOT_SRCDIR	:= $(srcdir)/arc-buildroot
 LINUX_SRCDIR		:= $(srcdir)/arc-linux
+TESTSUITE_SRCDIR	:= $(srcdir)/arc-gnu-testsuite
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
@@ -50,8 +54,8 @@ GCC_CHECKING_FLAGS := @gcc_checking@
 
 XLEN := $(shell echo $(WITH_ARCH) | tr A-Z a-z | sed 's/.*rv\([0-9]*\).*/\1/')
 ifneq ($(XLEN),32)
-		XLEN := 64
-	endif
+	XLEN := 64
+endif
 
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
 PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
@@ -86,11 +90,12 @@ MUSL_CXX_FOR_TARGET ?= $(MUSL_TUPLE)-g++
 CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
 
-all: @default_target@ @qemu_build@
+all: @default_target@ @qemu_build@ @unfs_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
 newlib: stamps/build-gcc-newlib-stage2
 linux: stamps/build-gcc-linux-stage2
 qemu: stamps/build-qemu
+unfs: stamps/build-unfs
 
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
@@ -125,6 +130,12 @@ $(srcdir)/arc-newlib:
 
 $(srcdir)/arc-glibc:
 	git clone --depth 1 --single-branch --branch $(GLIBC_BRANCH) $(SNPS_GIT_URL)/glibc.git $@
+
+$(srcdir)/arc-gnu-testsuite:
+	git clone --depth 1 --single-branch --branch $(TESTSUITE_BRANCH) $(SNPS_GIT_URL)/arc-gnu-testsuite.git $@
+
+$(srcdir)/unfs:
+	git clone --depth 1 --single-branch --branch $(UNFS_BRANCH) $(UNFS_GIT_URL) $@
 
 $(srcdir)/arc-qemu:
 	git clone --depth 1 --single-branch --branch $(QEMU_BRANCH) $(SNPS_GIT_URL)/qemu.git $@
@@ -637,9 +648,17 @@ stamps/build-qemu: $(srcdir)/arc-qemu
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--prefix=${INSTALL_DIR} \
-		--target-list=arcv3-softmmu \
-		--enable-debug \
-		--enable-debug-tcg
+		--target-list=arc64-softmmu
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
+
+stamps/build-unfs: $(srcdir)/unfs
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $< && ./bootstrap
+	cd $(notdir $@) && $</configure \
+		--prefix=${INSTALL_DIR}
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -651,6 +670,24 @@ check-gcc-newlib: stamps/build-gcc-newlib
 	export ARC_SYSROOT=$(SYSROOT) && \
 	cd build-gcc-newlib && \
 	$(MAKE) check-gcc "RUNTESTFLAGS=--target_board=arc-sim"
+
+.PHONY:check-glibc
+check-glibc: $(TESTSUITE_SRCDIR) \
+		stamps/build-qemu \
+		stamps/build-unfs \
+		stamps/build-gcc-linux-stage2
+	$(TESTSUITE_SRCDIR)/run_glibc_testsuite.py \
+		--qemu=$(INSTALL_DIR)/bin/qemu-system-arc64  \
+		--kernel=@with_vmlinux@ \
+		--glibc-dir=$(GLIBC_SRCDIR) \
+		--toolchain-path=$(INSTALL_DIR) \
+		--toolchain-prefix=$(LINUX_TUPLE) \
+		--linux-headers-dir=$(SYSROOT) \
+		--linux-headers-version=5.6.0 \
+		--cflags="$(CFLAGS_FOR_TARGET) -g -O2" \
+		--cxxflags="$(CXXFLAGS_FOR_TARGET) -g -O2" \
+		--unfs=$(INSTALL_DIR)/sbin/unfsd \
+		--cpu=hs6x
 
 clean:
 	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache

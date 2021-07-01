@@ -594,9 +594,11 @@ with_system_zlib
 configure_host
 with_fpu
 with_cpu
+with_vmlinux
 arc_target
 werror_flag
 qemu_build
+unfs_build
 default_target
 FETCHER
 FTP
@@ -658,10 +660,12 @@ ac_user_opts='
 enable_option_checking
 enable_linux
 enable_qemu
+enable_unfs
 enable_werror
 with_target
 with_cpu
 with_fpu
+with_vmlinux
 with_system_zlib
 enable_multilib
 enable_gcc_checking
@@ -1290,6 +1294,7 @@ Optional Features:
   --enable-linux          set linux as the default make target
                           [--disable-linux]
   --enable-qemu           enable building ARC QEMU [--disable-qemu]
+  --enable-unfs           enable building unfs3 [--disable-unfs]
   --enable-werror         controls if build is compiled with werror or not
                           [--disable-werror]
   --enable-multilib       build all ARC runtime libraries [--disable-multilib]
@@ -1312,6 +1317,7 @@ Optional Packages:
   --with-linux-headers-src
                           Set linux-headers source path, use builtin source by
                           default
+  --with-vmlinux          Path to vmlinux for glibc testing
 
 Some influential environment variables:
   CC          C compiler command
@@ -3239,6 +3245,19 @@ if test "x$enable_qemu" != xno; then :
 
 fi
 
+if test "${enable_unfs+set}" = set; then :
+  enableval=$enable_unfs;
+else
+  enable_unfs=no
+
+fi
+
+
+if test "x$enable_unfs" != xno; then :
+  unfs_build=unfs
+
+fi
+
 # Check whether --enable-werror was given.
 if test "${enable_werror+set}" = set; then :
   enableval=$enable_werror;
@@ -3302,6 +3321,22 @@ if test "x$with_fpu" != xnone; then :
 
 else
   with_fpu=""
+
+fi
+
+if test "${with_vmlinux+set}" = set; then :
+  withval=$with_vmlinux;
+else
+  with_vmlinux=none
+
+fi
+
+
+if test "x$with_vmlinux" != xnone; then :
+  with_vmlinux=$with_vmlinux
+
+else
+  with_vmlinux="test/vmlinux64-glibc"
 
 fi
 
