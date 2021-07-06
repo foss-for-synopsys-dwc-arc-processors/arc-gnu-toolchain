@@ -61,6 +61,17 @@ AS_IF([test "x$enable_qemu" != xno],
 	[AC_SUBST(qemu_build, qemu)],
 	[])
 
+AC_ARG_ENABLE(unfs,
+        [AS_HELP_STRING([--enable-unfs],
+		[enable building unfs3 @<:@--disable-unfs@:>@])],
+        [],
+        [enable_unfs=no]
+        )
+
+AS_IF([test "x$enable_unfs" != xno],
+	[AC_SUBST(unfs_build, unfs)],
+	[])
+
 AC_ARG_ENABLE(werror,
         [AS_HELP_STRING([--enable-werror],
 		[controls if build is compiled with werror or not @<:@--disable-werror@:>@])],
@@ -102,6 +113,17 @@ AC_ARG_WITH(fpu,
 AS_IF([test "x$with_fpu" != xnone],
 	    [AC_SUBST(with_fpu, --with-fpu=$with_fpu)],
 	    [AC_SUBST(with_fpu,"")])
+
+AC_ARG_WITH(vmlinux,
+	[AS_HELP_STRING([--with-vmlinux=VMLINUX],
+		[Path to vmlinux for glibc testing @<:@--with-vmlinux=vmlinux@:>@])],
+	[],
+	[with_vmlinux=none]
+	)
+
+AS_IF([test "x$with_vmlinux" != xnone],
+	    [AC_SUBST(with_vmlinux, --with-vmlinux=$with_vmlinux)],
+	    [AC_SUBST(with_vmlinux,"")])
 
 AS_IF([test "x$with_host" != xdefault],
 	[AC_SUBST(configure_host,--host=$with_host)],

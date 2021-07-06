@@ -1,8 +1,10 @@
-autom4te.cache
 arc-*
+autom4te.cache
 build-*
 config.log
 config.status
 Makefile
+stamps
+unfs
 .DS_Store
 *.sw?
