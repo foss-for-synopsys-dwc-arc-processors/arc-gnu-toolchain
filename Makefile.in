@@ -83,9 +83,6 @@ MUSL_TARGET_FLAGS := $(MUSL_TARGET_FLAGS_EXTRA)
 MUSL_CC_FOR_TARGET ?= $(MUSL_TUPLE)-gcc
 MUSL_CXX_FOR_TARGET ?= $(MUSL_TUPLE)-g++
 
-CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
-ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
-
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
 newlib: stamps/build-gcc-newlib-stage2
@@ -556,7 +553,9 @@ stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 		--prefix=$(INSTALL_DIR) \
 		--disable-python \
 		@multilib_flags@ \
-		@werror_flag@
+		@werror_flag@ \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -585,7 +584,9 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 		@with_cpu@ \
 		@with_fpu@ \
 		--with-gnu-as \
-		--with-gnu-ld
+		--with-gnu-ld \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@) all-gcc
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
@@ -597,7 +598,9 @@ stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
 		--target=@arc_target@ \
 		@configure_host@ \
 		@multilib_flags@ \
-		--prefix=$(INSTALL_DIR)
+		--prefix=$(INSTALL_DIR) \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -627,7 +630,9 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@with_cpu@ \
 		@with_fpu@ \
 		--with-gnu-as \
-		--with-gnu-ld
+		--with-gnu-ld \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
