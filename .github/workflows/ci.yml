@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+  schedule:
+    - cron:  '0 0 * * *'
+
+env:
+  build_dir: ${{ github.workspace }}/output
+
+jobs:
+  build:
+    name: Building ${{ matrix.target }} toolchain
+    runs-on: ubuntu-18.04
+
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [arc64-elf, arc64-linux]
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install apt dependencies
+        run: |
+          sudo apt-get -y update
+          sudo apt-get install -y --no-install-recommends \
+            autoconf \
+            automake \
+            autotools-dev \
+            bc \
+            bison \
+            build-essential \
+            curl \
+            flex \
+            gawk \
+            gperf \
+            libgmp-dev \
+            libmpc-dev \
+            libmpfr-dev \
+            libtool \
+            patchutils \
+            texinfo
+
+      - name: Build toolchain
+        run: |
+          ./configure \
+            --target=${{ matrix.target }} \
+            --prefix=${{ env.build_dir }} \
+            --disable-multilib \
+            --disable-qemu
+
+          make -j $(nproc)
+          make install
+
+      - name: Create toolchain archive
+        if: github.event_name == 'schedule'
+        run: |
+          tar -cvf ${{ matrix.target }}-nightly.tar --owner=0 --group=0 -C ${{ env.build_dir }} .
+
+      - name: Upload artifacts
+        if: github.event_name == 'schedule'
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.target }}-nightly
+          path: ${{ matrix.target }}-nightly.tar
