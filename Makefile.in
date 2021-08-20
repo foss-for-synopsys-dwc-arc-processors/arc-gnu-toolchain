@@ -14,7 +14,7 @@ SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
 BINUTILS_BRANCH 	:= arc64
 GCC_BRANCH      	:= arc64
 NEWLIB_BRANCH   	:= arc64
-QEMU_BRANCH     	:= arc64
+QEMU_BRANCH     	:= master
 GLIBC_BRANCH    	:= arc64
 BUILDROOT_BRANCH	:= arc64
 LINUX_BRANCH 		:= arc64
@@ -637,7 +637,7 @@ stamps/build-qemu: $(srcdir)/arc-qemu
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--prefix=${INSTALL_DIR} \
-		--target-list=arcv3-softmmu \
+		--target-list="arc64-softmmu" \
 		--enable-debug \
 		--enable-debug-tcg
 	$(MAKE) -C $(notdir $@)
