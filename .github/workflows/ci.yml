@@ -50,7 +50,8 @@ jobs:
             --target=${{ matrix.target }} \
             --prefix=${{ env.build_dir }} \
             --disable-multilib \
-            --disable-qemu
+            --disable-qemu \
+            --disable-werror
 
           make -j $(nproc)
           make install
