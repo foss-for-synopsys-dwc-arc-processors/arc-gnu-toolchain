@@ -47,8 +47,25 @@ AC_ARG_ENABLE(linux,
         )
 
 AS_IF([test "x$enable_linux" != xno],
-	[AC_SUBST(default_target, linux)],
-	[AC_SUBST(default_target, newlib)])
+	[AC_SUBST(enable_linux, linux)],
+	[])
+AS_IF([test "x$enable_linux" != xno],
+	[AC_SUBST(test_linux, execute-tests-linux)],
+	[])
+
+AC_ARG_ENABLE(newlib,
+        [AS_HELP_STRING([--enable-newlib],
+		[set linux as the default make target @<:@--disable-newlib@:>@])],
+        [],
+        [enable_newlib=no]
+        )
+
+AS_IF([test "x$enable_newlib" != xno],
+	[AC_SUBST(enable_newlib, newlib)],
+	[])
+AS_IF([test "x$enable_linux" != xno],
+	[AC_SUBST(test_newlib, execute-tests-newlib)],
+	[])
 
 AC_ARG_ENABLE(qemu,
         [AS_HELP_STRING([--enable-qemu],

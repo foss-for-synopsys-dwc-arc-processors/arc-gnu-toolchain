@@ -1,0 +1,52 @@
+{
+	"arc64_baremetal": {
+		"type": "baremetal-qemu",
+		"toolchain_tripplet": "arc64-unknown-elf",
+		"target_alias": "arc64-elf",
+		"target_list": "arc-sim-qemu",
+		"gcc_dir": "$env(SOURCE)/arc-gcc/",
+		"toolchain_dir": "$env(SOURCE)/arc-toolchain/",
+		"install_dir": "$env(INSTALL)",
+		"workspace_dir": "arc64_baremetal",
+		"qemu_path": "$env(INSTALL)",
+		"qemu_arch": "arc64",
+		"extra_env_variables": "ARC_MULTILIB_OPTIONS='cpu=archs'",
+		"qemu_options": ""
+	},
+	"arc64_linux": {
+		"type": "linux-qemu",
+		"toolchain_tripplet": "arc64-linux-gnu",
+		"target_alias": "arc64-linux-gnu",
+		"target_list": "arc-linux-qemu",
+		"toolchain_path": "~/foss/toolchain/hs/linux-arc-2021.03/",
+		"gcc_dir": "$env(SOURCE)/arc-gcc/",
+		"toolchain_dir": "$env(SOURCE)/arc-toolchain/",
+		"install_dir": "$env(INSTALL)",
+		"workspace_dir": "arc64_linux",
+		"qemu_arch": "arc64",
+		"extra_env_variables": "ARC_MULTILIB_OPTIONS='cpu=archs'",
+		"qemu_path": "$env(INSTALL)/bin/qemu-system-arc64",
+  		"qemu_opts": "-M virt -cpu hs6x -nographic -no-reboot -netdev user,id=net0,hostfwd=tcp:127.0.0.1:$env(PORT_PREFIX)7-:21,hostfwd=tcp:127.0.0.1:$env(PORT_PREFIX)8-:23 -device virtio-net-device,netdev=net0",
+		"linux_image": "$(SOURCE)/scripts/testing/vmlinux_arc64",
+		"qemu_options": "",
+		"qemu_telnet_port": "$env(PORT_PREFIX)8",
+		"qemu_ftp_port": "$env(PORT_PREFIX)7"
+	},
+	"arc64_linux_user": {
+		"type": "linux-qemu-user",
+		"toolchain_tripplet": "arc64-linux-gnu",
+		"target_alias": "arc64-linux-gnu",
+		"target_list": "arc-qemu-user",
+		"toolchain_path": "~/foss/toolchain/hs/linux-arc-2021.03/",
+		"gcc_dir": "$env(SOURCE)/arc-gcc",
+		"toolchain_dir": "$env(SOURCE)/arc-toolchain",
+		"install_dir": "$env(INSTALL)",
+		"workspace_dir": "arc64_linux_user",
+		"qemu_arch": "arc64",
+		"extra_env_variables": "",
+  		"qemu_flags": "-L $env(INSTALL)/sysroot -cpu hs6x",
+		"qemu_path": "$env(INSTALL)/bin/qemu-arc64",
+		"qemu_telnet_port": "$env(PORT_PREFIX)2",
+		"qemu_ftp_port": "$env(PORT_PREFIX)3"
+	}
+}

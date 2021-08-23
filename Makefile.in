@@ -86,7 +86,7 @@ MUSL_CXX_FOR_TARGET ?= $(MUSL_TUPLE)-g++
 CFLAGS_FOR_TARGET := $(CFLAGS_FOR_TARGET_EXTRA)
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA)
 
-all: @default_target@ @qemu_build@
+all: @enable_linux@ @enable_newlib@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
 newlib: stamps/build-gcc-newlib-stage2
 linux: stamps/build-gcc-linux-stage2
@@ -651,6 +651,42 @@ check-gcc-newlib: stamps/build-gcc-newlib
 	export ARC_SYSROOT=$(SYSROOT) && \
 	cd build-gcc-newlib && \
 	$(MAKE) check-gcc "RUNTESTFLAGS=--target_board=arc-sim"
+
+.PHONY: check-dejagnu
+execute-tests-newlib: \
+		stamps/build-qemu \
+		stamps/build-gcc-newlib-stage2
+	SOURCE=$(srcdir) \
+	INSTALL=$(INSTALL_DIR) \
+	PORT_PREFIX="700" \
+	ruby $(srcdir)/scripts/testing/test.rb \
+	-j $(srcdir)/scripts/testing/config.json \
+	-t arc64_baremetal
+
+execute-tests-linux: \
+		stamps/build-qemu \
+		stamps/build-gcc-linux-stage2
+	SOURCE=$(srcdir) \
+	INSTALL=$(INSTALL_DIR) \
+	PORT_PREFIX="700" \
+	ruby $(srcdir)/scripts/testing/test.rb \
+	-j $(srcdir)/scripts/testing/config.json \
+	-t arc64_linux -t arc64_linux_user
+
+execute-tests: @test_newlib@ @test_linux@
+
+check: $(srcdir)/arc-qemu
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--prefix=${INSTALL_DIR} \
+		--target-list="arc64-softmmu" \
+		--enable-debug \
+		--enable-debug-tcg
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	mkdir -p $(dir $@) && touch $@
+
 
 clean:
 	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache
