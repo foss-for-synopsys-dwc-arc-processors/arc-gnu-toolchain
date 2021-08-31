@@ -41,9 +41,9 @@ For a 64-bit baremetal build, you don't need the glibc.
 
 Last but not least, if you plan to run DejaGnu later, you must use:
 
-| repo         | branch    |
-|--------------|-----------|
-| toolchain    | arc64-dev |
+| repo         | branch  |
+|--------------|---------|
+| toolchain    | arc-dev |
 
 ## Prerequisites
 
