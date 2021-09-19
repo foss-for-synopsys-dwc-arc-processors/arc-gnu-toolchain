@@ -13,13 +13,17 @@ env:
 
 jobs:
   build:
-    name: Building ${{ matrix.target }} toolchain
+    name: Building ${{ matrix.toolchain.target }} toolchain
     runs-on: ubuntu-18.04
 
     strategy:
       fail-fast: false
       matrix:
-        target: [arc64-elf, arc64-linux]
+        toolchain:
+          - target: arc64-elf
+            mode: newlib
+          - target: arc64-linux
+            mode: linux
 
     steps:
       - uses: actions/checkout@v2
@@ -47,16 +51,16 @@ jobs:
       - name: Build toolchain
         id: build_toolchain
         run: |
-          echo "::set-output name=toolchain_name::${{ matrix.target }}-nightly-$(date --utc '+%Y.%m.%d')"
+          echo "::set-output name=toolchain_name::${{ matrix.toolchain.target }}-nightly-$(date --utc '+%Y.%m.%d')"
 
           ./configure \
-            --target=${{ matrix.target }} \
+            --target=${{ matrix.toolchain.target }} \
             --prefix=${{ env.build_dir }} \
             --disable-multilib \
             --disable-qemu \
             --disable-werror
 
-          make -j $(nproc)
+          make ${{ matrix.toolchain.mode }} -j$(nproc)
 
       - name: Create toolchain archive
         if: github.event_name == 'schedule'
