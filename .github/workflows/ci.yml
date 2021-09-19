@@ -56,7 +56,7 @@ jobs:
           ./configure \
             --target=${{ matrix.toolchain.target }} \
             --prefix=${{ env.build_dir }} \
-            --disable-multilib \
+            --enable-multilib \
             --disable-qemu \
             --disable-werror
 
