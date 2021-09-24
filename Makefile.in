@@ -357,6 +357,7 @@ stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--target=@arc_target@ \
+		--enable-newlib-io-c99-formats \
 		@configure_host@ \
 		@multilib_flags@ \
 		--prefix=$(INSTALL_DIR) \
