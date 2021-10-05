@@ -1312,7 +1312,7 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-target=TARGET    Sets the ARC target [--with-target=arc64-elf]
+  --with-target=TARGET    Sets the ARC target [--with-target=arc64]
   --with-cpu=CPU          Sets the base ARC ISA [--with-cpu=archs]
   --with-fpu=FPU          Sets default FPU support [--with-fpu=fpus]
   --with-system-zlib      use zlib from the system instead of the builtin copy
@@ -3273,13 +3273,18 @@ fi
 if test "${with_target+set}" = set; then :
   withval=$with_target;
 else
-  with_target=arc64-elf
+  with_target=arc64
 
 fi
 
 
-arc_target=$with_target
+if test "x$with_target" != xarc64; then :
+  arc_target=arc
 
+else
+  arc_target=arc64
+
+fi
 
 
 # Check whether --with-cpu was given.

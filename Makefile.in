@@ -19,11 +19,12 @@ GLIBC_BRANCH    	:= arc64
 BUILDROOT_BRANCH	:= arc64
 LINUX_BRANCH 		:= arc64
 
-BINUTILS_SRCDIR		:= $(srcdir)/arc-binutils-gdb
-GCC_SRCDIR		:= $(srcdir)/arc-gcc
-GLIBC_SRCDIR		:= $(srcdir)/arc-glibc
-BUILDROOT_SRCDIR	:= $(srcdir)/arc-buildroot
-LINUX_SRCDIR		:= $(srcdir)/arc-linux
+BINUTILS_SRCDIR		:= $(srcdir)/binutils-gdb
+NEWLIB_SRCDIR		:= $(srcdir)/newlib
+GCC_SRCDIR		:= $(srcdir)/gcc
+GLIBC_SRCDIR		:= $(srcdir)/glibc
+LINUX_SRCDIR		:= $(srcdir)/linux
+QEMU_SRCDIR		:= $(srcdir)/qemu
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
@@ -48,18 +49,21 @@ export PATH AWK SED
 MULTILIB_FLAGS := @multilib_flags@
 GCC_CHECKING_FLAGS := @gcc_checking@
 
-XLEN := $(shell echo $(WITH_ARCH) | tr A-Z a-z | sed 's/.*rv\([0-9]*\).*/\1/')
-ifneq ($(XLEN),32)
-		XLEN := 64
-	endif
-
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
 PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
-make_tuple = arc64-unknown-$(1)
-LINUX_TUPLE  ?= arc64-linux-gnu
-NEWLIB_TUPLE ?= $(call make_tuple,elf)
-MUSL_TUPLE ?= $(call make_tuple,linux-musl)
+
+make_tuple = @arc_target@-$(1)
+LINUX_TUPLE  ?= $(call make_tuple,linux-gnu)
 LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
+
+ifeq (@arc_target@,arc)
+NEWLIB_TUPLE ?= $(call make_tuple,elf32)
+WITH_CPU ?= @with_cpu@
+else
+NEWLIB_TUPLE ?= $(call make_tuple,elf)
+WITH_CPU ?=
+endif
+
 
 ROOT_DIR := $(shell pwd)
 
@@ -78,10 +82,6 @@ GLIBC_CXX_FOR_TARGET ?= $(LINUX_TUPLE)-g++
 
 NEWLIB_CC_FOR_TARGET ?= $(NEWLIB_TUPLE)-gcc
 NEWLIB_CXX_FOR_TARGET ?= $(NEWLIB_TUPLE)-g++
-
-MUSL_TARGET_FLAGS := $(MUSL_TARGET_FLAGS_EXTRA)
-MUSL_CC_FOR_TARGET ?= $(MUSL_TUPLE)-gcc
-MUSL_CXX_FOR_TARGET ?= $(MUSL_TUPLE)-g++
 
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
@@ -113,25 +113,22 @@ $(addprefix $(srcdir)/patches/,$(PACKAGES)): $(srcdir)/patches/%: src/%
 
 patches: $(addprefix $(srcdir)/patches/,$(PACKAGES))
 
-$(srcdir)/arc-binutils-gdb:
+$(BINUTILS_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(BINUTILS_BRANCH) $(SNPS_GIT_URL)/binutils-gdb.git $@
 
-$(srcdir)/arc-gcc:
+$(GCC_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(GCC_BRANCH) $(SNPS_GIT_URL)/gcc.git $@
 
-$(srcdir)/arc-newlib:
+$(NEWLIB_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(NEWLIB_BRANCH) $(SNPS_GIT_URL)/newlib.git $@
 
-$(srcdir)/arc-glibc:
+$(GLIBC_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(GLIBC_BRANCH) $(SNPS_GIT_URL)/glibc.git $@
 
-$(srcdir)/arc-qemu:
+$(QEMU_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(QEMU_BRANCH) $(SNPS_GIT_URL)/qemu.git $@
 
-$(srcdir)/arc-buildroot:
-	git clone --depth 1 --single-branch --branch $(BUILDROOT_BRANCH) $(SNPS_GIT_URL)/buildroot.git $@
-
-$(srcdir)/arc-linux:
+$(LINUX_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(LINUX_BRANCH) $(SNPS_GIT_URL)/linux.git $@
 
 stamps/check-write-permission:
@@ -193,7 +190,6 @@ stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 	$(eval $@_ARCH := )
 	$(eval $@_ABI := )
 	$(eval $@_LIBDIRSUFFIX := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/')/$($@_ABI),))
-	$(eval $@_XLEN := $(if $($@_ABI),$(shell echo $($@_ARCH) | sed 's/.*rv\([0-9]*\).*/\1/'),$(XLEN)))
 	$(eval $@_LIBDIROPTS := $(if $@_LIBDIRSUFFIX,--libdir=/usr/lib$($@_LIBDIRSUFFIX) libc_cv_slibdir=/lib$($@_LIBDIRSUFFIX) libc_cv_rtlddir=/lib,))
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
@@ -243,7 +239,6 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		--disable-nls \
 		--disable-bootstrap \
 		--disable-lto \
-		--src=$(gccsrcdir) \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
@@ -275,7 +270,6 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 		--disable-libquadmath \
 		--disable-nls \
 		--disable-bootstrap \
-		--src=$(gccsrcdir) \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
 		$(WITH_ABI) \
@@ -314,16 +308,15 @@ stamps/build-buildroot-linux: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-
 	@echo ""
 	mkdir -p $(dir $@) && touch $@
 
-
 #
 # NEWLIB
 #
 
-stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
+stamps/build-binutils-newlib: $(BINUTILS_SRCDIR)
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=@arc_target@ \
+		--target=$(NEWLIB_TUPLE) \
 		--prefix=$(INSTALL_DIR) \
 		--disable-python \
 		@multilib_flags@ \
@@ -334,12 +327,12 @@ stamps/build-binutils-newlib: $(srcdir)/arc-binutils-gdb
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
+stamps/build-gcc-newlib-stage1: $(GCC_SRCDIR) stamps/build-binutils-newlib
 	if test -f $</contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" == "true"; then cd $< && ./contrib/download_prerequisites; fi
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=@arc_target@ \
+		--target=$(NEWLIB_TUPLE) \
 		@configure_host@ \
 		--prefix=$(INSTALL_DIR) \
 		--disable-shared \
@@ -355,7 +348,7 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 		--disable-nls \
 		@gcc_checking@ \
 		@werror_flag@ \
-		@with_cpu@ \
+		$(WITH_CPU) \
 		@with_fpu@ \
 		--with-gnu-as \
 		--with-gnu-ld \
@@ -365,11 +358,11 @@ stamps/build-gcc-newlib-stage1: $(srcdir)/arc-gcc stamps/build-binutils-newlib
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
+stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-newlib-stage1
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=@arc_target@ \
+		--target=$(NEWLIB_TUPLE) \
 		--enable-newlib-io-c99-formats \
 		@configure_host@ \
 		@multilib_flags@ \
@@ -380,11 +373,11 @@ stamps/build-newlib: $(srcdir)/arc-newlib stamps/build-gcc-newlib-stage1
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
+stamps/build-gcc-newlib-stage2: $(GCC_SRCDIR) stamps/build-newlib
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=@arc_target@ \
+		--target=$(NEWLIB_TUPLE) \
 		@configure_host@ \
 		--prefix=$(INSTALL_DIR) \
 		--disable-shared \
@@ -393,7 +386,7 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@with_system_zlib@ \
 		--disable-tls \
 		--with-newlib \
-		--with-headers=$(INSTALL_DIR)/@arc_target@/include \
+		--with-headers=$(INSTALL_DIR)/$(NEWLIB_TUPLE)/include \
 		--disable-libmudflap \
 		--disable-libssp \
 		--disable-libquadmath \
@@ -402,7 +395,7 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 		@gcc_checking@ \
 		@multilib_flags@ \
 		@werror_flag@ \
-		@with_cpu@ \
+		$(WITH_CPU) \
 		@with_fpu@ \
 		--with-gnu-as \
 		--with-gnu-ld \
@@ -412,25 +405,17 @@ stamps/build-gcc-newlib-stage2: $(srcdir)/arc-gcc stamps/build-newlib
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-qemu: $(srcdir)/arc-qemu
+stamps/build-qemu: $(QEMU_SRCDIR)
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--prefix=${INSTALL_DIR} \
-		--target-list="arc64-softmmu" \
+		--target-list="arc-softmmu,arc64-softmmu" \
 		--enable-debug \
 		--enable-debug-tcg
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
-
-.PHONY: check-gcc-newlib
-check-gcc-newlib: stamps/build-gcc-newlib
-	export PATH=$(INSTALL_DIR)/bin:$(PATH) && \
-	export DEJAGNULIBS=$(srcdir)/arc-dejagnu && \
-	export ARC_SYSROOT=$(SYSROOT) && \
-	cd build-gcc-newlib && \
-	$(MAKE) check-gcc "RUNTESTFLAGS=--target_board=arc-sim"
 
 clean:
 	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache

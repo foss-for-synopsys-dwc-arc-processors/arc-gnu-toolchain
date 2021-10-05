@@ -74,12 +74,14 @@ AS_IF([test "x$enable_werror" != xno],
 
 AC_ARG_WITH(target,
 	[AS_HELP_STRING([--with-target=TARGET],
-		[Sets the ARC target @<:@--with-target=arc64-elf@:>@])],
+		[Sets the ARC target @<:@--with-target=arc64@:>@])],
 	[],
-	[with_target=arc64-elf]
+	[with_target=arc64]
 	)
 
-AC_SUBST(arc_target, $with_target)
+AS_IF([test "x$with_target" != xarc64],
+	[AC_SUBST(arc_target, arc)],
+	[AC_SUBST(arc_target, arc64)])
 
 AC_ARG_WITH(cpu,
 	[AS_HELP_STRING([--with-cpu=CPU],

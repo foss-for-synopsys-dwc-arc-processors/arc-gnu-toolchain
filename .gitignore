@@ -1,5 +1,10 @@
 autom4te.cache
-arc-*
+binutils-gdb
+gcc
+newlib
+glibc
+linux
+qemu
 build-*
 config.log
 config.status
