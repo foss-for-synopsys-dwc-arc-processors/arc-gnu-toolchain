@@ -11,10 +11,10 @@ git clone https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolch
 This repository checks for the existance of the following directories:
 
 ```sh
-arc-binutils-gdb
-arc-gcc
-arc-newlib
-arc-glibc
+binutils-gdb
+gcc
+newlib
+glibc
 ```
 
 If they do not exist, it will clone them. You can link your source directories
@@ -22,10 +22,10 @@ from other palces as well:
 
 ```sh
 cd arc-gnu-toolchain
-ln -s /repos/arcgnu/binutils  arc-binutils-gdb
-ln -s /repos/arcgnu/gcc       arc-gcc
-ln -s /repos/arcgnu/newlib    arc-newlib
-ln -s /repos/arcgnu/glibc     arc-glibc
+ln -s /repos/arcgnu/binutils  binutils-gdb
+ln -s /repos/arcgnu/gcc       gcc
+ln -s /repos/arcgnu/newlib    newlib
+ln -s /repos/arcgnu/glibc     glibc
 ```
 
 For a 64-bit linux build, you will need the following branches:
@@ -119,14 +119,14 @@ make install
 
 Some of parameters you can pass to the configure script:
 
-| parameter         | default | values                            |
-|-------------------|---------|-----------------------------------|
+| parameter         | default | values                                |
+|-------------------|---------|---------------------------------------|
 | --target          | arc64   | arc64 (for ARCv3), arc (for ARCv2/v1) |
-| --prefix          |         | any path string for installation  |
-| --enable-linux    | no      | yes, no (--disable-linux)         |
-| --enable-multilib | no      | yes, no (--disable-multilib)      |
-| --enable-qemu     | no      | yes, no (--disable-qemu)          |
-| --with-fpu        | none    | none, fpus, fpud                  |
+| --prefix          |         | any path string for installation      |
+| --enable-linux    | no      | yes, no (--disable-linux)             |
+| --enable-multilib | no      | yes, no (--disable-multilib)          |
+| --enable-qemu     | no      | yes, no (--disable-qemu)              |
+| --with-fpu        | none    | none, fpus, fpud                      |
 
 ### Advanced Options
 
