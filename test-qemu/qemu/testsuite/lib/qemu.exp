@@ -1,0 +1,46 @@
+
+proc qemu_version { } {
+    global tool_version
+
+    verbose "In qemu_version...\n"
+
+    if ![info exists tool_version] then {
+	set tool_version 1.1.1
+    }
+    return $tool_version
+}
+
+set qemu_initialized 0
+
+proc qemu_init { args } {
+    global qemu_initialized
+    global target_info
+    # These values are initialized in the local site.exp file.
+    global srcdir objdir tmpdir
+
+    verbose "In qemu_init...\n"
+
+    if { $qemu_initialized == 1 } { return; }
+
+    if ![info exists tmpdir] then {
+        set tmpdir /tmp
+    }
+}
+
+proc qemu_target_compile { source dest type options } {
+    global srcdir objdir subdir
+
+    verbose "In qemu_target_compile...\n"
+
+    verbose "srcdir is $srcdir"
+    lappend options "ldflags=-nostartfiles -I$srcdir/$subdir -L$srcdir/$subdir"
+    return [target_compile $source $dest $type $options]
+}
+
+proc qemu_finish { } {
+    verbose "In qemu_finish...\n"
+}
+
+proc qemu_exit { } {
+    verbose "In qemu_exit...\n"
+}

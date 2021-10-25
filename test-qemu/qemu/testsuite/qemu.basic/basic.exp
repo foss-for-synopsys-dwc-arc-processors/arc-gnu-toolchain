@@ -1,0 +1,16 @@
+load_lib qemu-lib.exp
+
+set exclude_list {
+    check_manip_5_mmu.S
+    check_manip_4_mmu.S
+    check_manip_10_mmu.S
+    check_manip_mmu.S
+    check_mmu.S
+    check_excp_mmu.S
+    check_excp_jumpdl_mmu.S
+    check_ldaw_mmu.S
+    check_lddl.S
+    check_stdl.S
+}
+
+qemu_pass_fail_all -x $exclude_list
