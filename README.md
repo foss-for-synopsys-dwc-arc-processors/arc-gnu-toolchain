@@ -122,7 +122,7 @@ Some of parameters you can pass to the configure script:
 | parameter         | default | values                           |
 |-------------------|---------|----------------------------------|
 | --target          |         | arc64, arc32, arc                |
-| --prefix          |         | any path string for installation |
+| --prefix          | ./NONE  | any path string for installation |
 | --enable-linux    | no      | yes, no (--disable-linux)        |
 | --enable-multilib | no      | yes, no (--disable-multilib)     |
 | --enable-qemu     | no      | yes, no (--disable-qemu)         |
@@ -138,29 +138,29 @@ configure.  See `./configure --help` for more details.
 ### Baremetal
 
 ```sh
-./configure --prefix=/path/to/install --target=arc64
+$ ./configure --target=arc64 --prefix=/path/to/install
 ```
 
 ```sh
-./configure --prefix=/path/to/install \
-            --target=arc32            \
-            --disable-qemu            \
-            --enable-multilib         \
-            --disable-werror
+$ ./configure --target=arc32            \
+              --prefix=/path/to/install \
+              --disable-qemu            \
+              --enable-multilib         \
+              --disable-werror
 ```
 
 ### Linux
 
 ```sh
-./configure --prefix=/path/to/install \
-    --target=arc64 \
-    --enable-linux
+$ ./configure --target=arc64            \
+              --prefix=/path/to/install \
+              --enable-linux
 ```
 
 ### Running GCC Test Suite
 
 ```sh
-./configure --prefix=/path/to/install --disable-linux
-make newlib
-make check-gcc-newlib
+$ ./configure --target=... --prefix=/path/to/install --disable-linux
+$ make newlib
+$ make check-gcc-newlib
 ```
