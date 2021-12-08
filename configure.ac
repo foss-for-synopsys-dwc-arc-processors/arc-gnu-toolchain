@@ -72,17 +72,6 @@ AS_IF([test "x$enable_werror" != xno],
 	[AC_SUBST(werror_flag, --enable-werror)],
 	[AC_SUBST(werror_flag, --disable-werror)])
 
-AC_ARG_WITH(target,
-	[AS_HELP_STRING([--with-target=TARGET],
-		[Sets the ARC target @<:@--with-target=arc64@:>@])],
-	[],
-	[with_target=arc64]
-	)
-
-AS_IF([test "x$with_target" != xarc64],
-	[AC_SUBST(arc_target, arc)],
-	[AC_SUBST(arc_target, arc64)])
-
 AC_ARG_WITH(cpu,
 	[AS_HELP_STRING([--with-cpu=CPU],
 		[Sets the base ARC ISA @<:@--with-cpu=archs@:>@])],

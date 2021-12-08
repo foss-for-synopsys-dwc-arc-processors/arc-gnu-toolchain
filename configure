@@ -594,7 +594,6 @@ with_system_zlib
 configure_host
 with_fpu
 with_cpu
-arc_target
 werror_flag
 qemu_build
 default_target
@@ -660,7 +659,6 @@ enable_option_checking
 enable_linux
 enable_qemu
 enable_werror
-with_target
 with_cpu
 with_fpu
 with_system_zlib
@@ -1312,7 +1310,6 @@ Optional Features:
 Optional Packages:
   --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
   --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-target=TARGET    Sets the ARC target [--with-target=arc64]
   --with-cpu=CPU          Sets the base ARC ISA [--with-cpu=archs]
   --with-fpu=FPU          Sets default FPU support [--with-fpu=fpus]
   --with-system-zlib      use zlib from the system instead of the builtin copy
@@ -3265,24 +3262,6 @@ if test "x$enable_werror" != xno; then :
 
 else
   werror_flag=--disable-werror
-
-fi
-
-
-# Check whether --with-target was given.
-if test "${with_target+set}" = set; then :
-  withval=$with_target;
-else
-  with_target=arc64
-
-fi
-
-
-if test "x$with_target" != xarc64; then :
-  arc_target=arc
-
-else
-  arc_target=arc64
 
 fi
 

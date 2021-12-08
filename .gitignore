@@ -1,5 +1,7 @@
 autom4te.cache
 binutils-gdb
+newlib
+gcc
 build-*
 config.log
 config.status

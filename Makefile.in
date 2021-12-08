@@ -52,18 +52,17 @@ GCC_CHECKING_FLAGS := @gcc_checking@
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
 PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
 
-make_tuple = @arc_target@-$(1)
+make_tuple = @target_alias@-$(1)
 LINUX_TUPLE  ?= $(call make_tuple,linux-gnu)
 LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
 
-ifeq (@arc_target@,arc)
+ifeq (@target_alias@,arc)
 NEWLIB_TUPLE ?= $(call make_tuple,elf32)
 WITH_CPU ?= @with_cpu@
 else
 NEWLIB_TUPLE ?= $(call make_tuple,elf)
 WITH_CPU ?=
 endif
-
 
 ROOT_DIR := $(shell pwd)
 

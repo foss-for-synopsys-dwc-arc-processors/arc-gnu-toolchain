@@ -119,14 +119,14 @@ make install
 
 Some of parameters you can pass to the configure script:
 
-| parameter         | default | values                                |
-|-------------------|---------|---------------------------------------|
-| --target          | arc64   | arc64 (for ARCv3), arc (for ARCv2/v1) |
-| --prefix          |         | any path string for installation      |
-| --enable-linux    | no      | yes, no (--disable-linux)             |
-| --enable-multilib | no      | yes, no (--disable-multilib)          |
-| --enable-qemu     | no      | yes, no (--disable-qemu)              |
-| --with-fpu        | none    | none, fpus, fpud                      |
+| parameter         | default | values                           |
+|-------------------|---------|----------------------------------|
+| --target          |         | arc64, arc32, arc                |
+| --prefix          |         | any path string for installation |
+| --enable-linux    | no      | yes, no (--disable-linux)        |
+| --enable-multilib | no      | yes, no (--disable-multilib)     |
+| --enable-qemu     | no      | yes, no (--disable-qemu)         |
+| --with-fpu        | none    | none, fpus, fpud                 |
 
 ### Advanced Options
 
@@ -138,7 +138,15 @@ configure.  See `./configure --help` for more details.
 ### Baremetal
 
 ```sh
-./configure --prefix=/path/to/install
+./configure --prefix=/path/to/install --target=arc64
+```
+
+```sh
+./configure --prefix=/path/to/install \
+            --target=arc32            \
+            --disable-qemu            \
+            --enable-multilib         \
+            --disable-werror
 ```
 
 ### Linux
