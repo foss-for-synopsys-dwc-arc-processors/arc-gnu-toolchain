@@ -2,6 +2,8 @@ autom4te.cache
 binutils-gdb
 newlib
 gcc
+glibc
+linux
 build-*
 config.log
 config.status
