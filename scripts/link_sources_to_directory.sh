@@ -10,6 +10,7 @@ for i in ${DIRECTORIES}; do
 	if [[ -d ./$i ]]
 	then
 		echo "Skipping $i since directory exists in $(pwd)"
+		continue
 	fi
 	
 	if [[ -d $1/$i ]]
