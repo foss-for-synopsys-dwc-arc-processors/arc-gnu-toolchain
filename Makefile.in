@@ -229,7 +229,7 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		--disable-threads \
 		@with_system_zlib@ \
 		--enable-tls \
-		--enable-languages=c \
+		--enable-languages=c,c++ \
 		--disable-libatomic \
 		--disable-libmudflap \
 		--disable-libssp \
