@@ -6,25 +6,26 @@ on:
   pull_request:
     branches: [master]
   schedule:
-    - cron:  '0 0 * * *'
+    - cron: "0 0 * * *"
   workflow_dispatch:
+  repository_dispatch:
 
 env:
   build_dir: ${{ github.workspace }}/output
 
 jobs:
   build:
-    name: Building ${{ matrix.toolchain.target }} toolchain
+    name: Building ${{ matrix.target }}-${{ matrix.mode }} toolchain
     runs-on: ubuntu-18.04
 
     strategy:
       fail-fast: false
       matrix:
-        toolchain:
-          - target: arc64-elf
-            mode: newlib
-          - target: arc64-linux
-            mode: linux
+        mode: [newlib, linux]
+        target: [arc32, arc64]
+
+        exclude:
+          - { mode: newlib, target: arc32 }
 
     steps:
       - uses: actions/checkout@v2
@@ -49,28 +50,33 @@ jobs:
             patchutils \
             texinfo
 
-      - name: Build toolchain
+      - name: Build ${{ matrix.target }}-${{ matrix.mode }} toolchain
         id: build_toolchain
         run: |
-          echo "::set-output name=toolchain_name::${{ matrix.toolchain.target }}-nightly-$(date --utc '+%Y.%m.%d')"
+          echo ::set-output name=toolchain_name::${{ matrix.target }}-${{ matrix.mode }}-nightly-$(date --utc '+%Y.%m.%d')
 
-          ./configure \
-            --target=${{ matrix.toolchain.target }} \
+          if [ "${{ matrix.mode }}" == "linux" ]; then
+            BUILD_FLAGS="--enable-linux"
+          else
+            BUILD_FLAGS="--enable-multilib"
+          fi
+
+          ${{ github.workspace }}/configure \
+            ${BUILD_FLAGS} \
+            --target=${{ matrix.target }} \
             --prefix=${{ env.build_dir }} \
-            --enable-multilib \
             --disable-qemu \
             --disable-werror
 
-          make ${{ matrix.toolchain.mode }} -j$(nproc)
+          make ${{ matrix.mode }} -j$(nproc)
 
       - name: Create toolchain archive
-        if: github.event_name == 'schedule'
         run: |
           tar -czvf ${{ steps.build_toolchain.outputs.toolchain_name }}.tar.gz --owner=0 --group=0 -C ${{ env.build_dir }} .
 
       - name: Upload artifacts
-        if: github.event_name == 'schedule'
         uses: actions/upload-artifact@v2
         with:
           name: ${{ steps.build_toolchain.outputs.toolchain_name }}
           path: ${{ steps.build_toolchain.outputs.toolchain_name }}.tar.gz
+          retention-days: 7
