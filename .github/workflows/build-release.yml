@@ -1,0 +1,78 @@
+name: Build Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      targets:
+        description: Stringified JSON target list
+        required: false
+        default: >-
+          ["arc", "arc32", "arc64"]
+        type: string
+
+      gcc_branch:
+        description: GCC branch name
+        required: false
+        default: arc64
+        type: string
+
+      binutils_branch:
+        description: Binutils branch name
+        required: false
+        default: arc64
+        type: string
+
+      newlib_branch:
+        description: Newlib branch name
+        required: false
+        default: arc64
+        type: string
+
+      glibc_branch:
+        description: glibc branch name
+        required: false
+        default: arc64
+        type: string
+
+      release_tag:
+        description: Release tag
+        required: false
+        default: "2022.03"
+        type: string
+
+jobs:
+  toolchains:
+    uses: ./.github/workflows/build-toolchains.yml
+    with:
+      targets: ${{ github.event.inputs.targets }}
+      gcc_branch: ${{ github.event.inputs.gcc_branch }}
+      binutils_branch: ${{ github.event.inputs.binutils_branch }}
+      newlib_branch: ${{ github.event.inputs.newlib_branch }}
+      glibc_branch: ${{ github.event.inputs.glibc_branch }}
+      release_tag: ${{ github.event.inputs.release_tag }}
+
+  create-release:
+    needs: toolchains
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v2
+
+      - name: Install pip3 dependencies
+        run: |
+          pip3 install ghapi
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: ${{ github.workspace }}/output
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          ${{ github.workspace }}/.github/scripts/create-release.py \
+           --owner ${{ github.repository_owner }} \
+           --tag ${{ github.event.inputs.release_tag }} \
+           --path ${{ github.workspace }}/output
+
