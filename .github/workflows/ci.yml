@@ -1,82 +1,14 @@
 name: CI
 
 on:
+  repository_dispatch:
   push:
     branches: [master]
   pull_request:
     branches: [master]
   schedule:
-    - cron: "0 0 * * *"
-  workflow_dispatch:
-  repository_dispatch:
-
-env:
-  build_dir: ${{ github.workspace }}/output
+    - cron: "0 0 * * 1-5"
 
 jobs:
-  build:
-    name: Building ${{ matrix.target }}-${{ matrix.mode }} toolchain
-    runs-on: ubuntu-18.04
-
-    strategy:
-      fail-fast: false
-      matrix:
-        mode: [newlib, linux]
-        target: [arc32, arc64]
-
-        exclude:
-          - { mode: newlib, target: arc32 }
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Install apt dependencies
-        run: |
-          sudo apt-get -y update
-          sudo apt-get install -y --no-install-recommends \
-            autoconf \
-            automake \
-            autotools-dev \
-            bc \
-            bison \
-            build-essential \
-            curl \
-            flex \
-            gawk \
-            gperf \
-            libgmp-dev \
-            libmpc-dev \
-            libmpfr-dev \
-            libtool \
-            patchutils \
-            texinfo
-
-      - name: Build ${{ matrix.target }}-${{ matrix.mode }} toolchain
-        id: build_toolchain
-        run: |
-          echo ::set-output name=toolchain_name::${{ matrix.target }}-${{ matrix.mode }}-nightly-$(date --utc '+%Y.%m.%d')
-
-          if [ "${{ matrix.mode }}" == "linux" ]; then
-            BUILD_FLAGS="--enable-linux"
-          else
-            BUILD_FLAGS="--enable-multilib"
-          fi
-
-          ${{ github.workspace }}/configure \
-            ${BUILD_FLAGS} \
-            --target=${{ matrix.target }} \
-            --prefix=${{ env.build_dir }} \
-            --disable-qemu \
-            --disable-werror
-
-          make ${{ matrix.mode }} -j$(nproc)
-
-      - name: Create toolchain archive
-        run: |
-          tar -czvf ${{ steps.build_toolchain.outputs.toolchain_name }}.tar.gz --owner=0 --group=0 -C ${{ env.build_dir }} .
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: ${{ steps.build_toolchain.outputs.toolchain_name }}
-          path: ${{ steps.build_toolchain.outputs.toolchain_name }}.tar.gz
-          retention-days: 7
+  toolchains:
+    uses: ./.github/workflows/build-toolchains.yml

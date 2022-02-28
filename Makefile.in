@@ -19,6 +19,8 @@ GLIBC_BRANCH    	:= arc64
 BUILDROOT_BRANCH	:= arc64
 LINUX_BRANCH 		:= arc64
 
+-include build.config
+
 BINUTILS_SRCDIR		:= $(srcdir)/binutils-gdb
 NEWLIB_SRCDIR		:= $(srcdir)/newlib
 GCC_SRCDIR		:= $(srcdir)/gcc
