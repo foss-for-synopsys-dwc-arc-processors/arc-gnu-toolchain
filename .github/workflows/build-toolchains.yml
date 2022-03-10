@@ -121,6 +121,12 @@ jobs:
         run: |
           strip --strip-debug ${{ env.build_dir }}/bin/* || true
 
+      - name: Strip debug info from Linux' libc.a
+        run: |
+          if [ "${{ matrix.mode }}" == "linux" ]; then
+            ${{ env.build_dir }}/bin/${{ matrix.target }}-linux-gnu-strip --strip-debug ${{ env.build_dir }}/sysroot/usr/lib/libc.a
+          fi
+
       - name: Create toolchain tarball
         run: |
           tar -czvf ${{ steps.build_toolchain.outputs.toolchain_name }}.tar.gz --owner=0 --group=0 -C ${{ env.build_dir }} .
