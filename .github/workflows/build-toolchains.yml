@@ -117,6 +117,10 @@ jobs:
           make ${{ matrix.mode }} -j$(nproc)
         shell: bash
 
+      - name: Strip debug info from host binaries
+        run: |
+          strip --strip-debug ${{ env.build_dir }}/bin/* || true
+
       - name: Create toolchain tarball
         run: |
           tar -czvf ${{ steps.build_toolchain.outputs.toolchain_name }}.tar.gz --owner=0 --group=0 -C ${{ env.build_dir }} .
