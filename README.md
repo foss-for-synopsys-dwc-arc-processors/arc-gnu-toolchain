@@ -127,6 +127,8 @@ Some of parameters you can pass to the configure script:
 | --enable-multilib | no      | yes, no (--disable-multilib)     |
 | --enable-qemu     | no      | yes, no (--disable-qemu)         |
 | --with-fpu        | none    | none, fpus, fpud                 |
+| --with-cpu        | none    | none, hs6x, hs68, hs5x, hs58     |
+
 
 ### Advanced Options
 
