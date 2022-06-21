@@ -122,7 +122,7 @@ Some of parameters you can pass to the configure script:
 | parameter         | default | values                           |
 |-------------------|---------|----------------------------------|
 | --target          |         | arc64, arc32, arc                |
-| --prefix          | ./NONE  | any path string for installation |
+| --prefix          |         | any path string for installation |
 | --enable-linux    | no      | yes, no (--disable-linux)        |
 | --enable-multilib | no      | yes, no (--disable-multilib)     |
 | --enable-qemu     | no      | yes, no (--disable-qemu)         |
