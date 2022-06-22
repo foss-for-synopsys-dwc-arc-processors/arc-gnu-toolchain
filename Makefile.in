@@ -240,6 +240,8 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		--disable-nls \
 		--disable-bootstrap \
 		--disable-lto \
+		$(WITH_CPU) \
+		@with_fpu@ \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
@@ -271,9 +273,10 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 		--disable-libquadmath \
 		--disable-nls \
 		--disable-bootstrap \
+		$(WITH_CPU) \
+		@with_fpu@ \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
-		$(WITH_ABI) \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
 		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
 		--with-gnu-as \
