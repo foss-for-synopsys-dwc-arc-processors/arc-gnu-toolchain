@@ -1,4 +1,4 @@
-# ARC GNU Compiler Toolchain [![Build Status](https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain/actions/workflows/ci.yml/badge.svg)](https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain/actions/workflows/ci.yml)
+# ARC GNU Compiler Toolchain [![Build Status](https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain/actions/workflows/ci.yml/badge.svg)](https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain/actions/workflows/ci.yml) [![Downloads Satus](https://img.shields.io/github/downloads/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain/total?longCache=true&style=flat&label=Downloads&logoColor=fff&logo=GitHub)](https://github.com/foss-for-synopsys-dwc-arc-processors/arc-gnu-toolchain/releases)
 
 This is the ARC C and C++ cross-compiler, based on the [RISC-V scripts](https://github.com/riscv/riscv-gnu-toolchain). It supports two build modes: a generic ELF/Newlib toolchain.
 
