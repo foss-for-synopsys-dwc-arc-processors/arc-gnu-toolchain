@@ -119,15 +119,15 @@ make install
 
 Some of parameters you can pass to the configure script:
 
-| parameter         | default | values                           |
-|-------------------|---------|----------------------------------|
-| --target          |         | arc64, arc32, arc                |
-| --prefix          |         | any path string for installation |
-| --enable-linux    | no      | yes, no (--disable-linux)        |
-| --enable-multilib | no      | yes, no (--disable-multilib)     |
-| --enable-qemu     | no      | yes, no (--disable-qemu)         |
-| --with-fpu        | none    | none, fpus, fpud                 |
-| --with-cpu        | none    | none, hs6x, hs68, hs5x, hs58     |
+| parameter         | default | values                                                                          |
+|-------------------|---------|---------------------------------------------------------------------------------|
+| --target          |         | arc64, arc32, arc                                                               |
+| --prefix          |         | any path string for installation                                                |
+| --enable-linux    | no      | yes, no (--disable-linux)                                                       |
+| --enable-multilib | no      | yes, no (--disable-multilib)                                                    |
+| --enable-qemu     | no      | yes, no (--disable-qemu)                                                        |
+| --with-fpu        | none    | none, fpus, fpud                                                                |
+| --with-cpu        | none    | none, hs6x, hs68, hs5x, hs58, archs, (more at binutils/include/elf/arc-cpu.def) |
 
 
 ### Advanced Options
