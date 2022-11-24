@@ -1,4 +1,4 @@
-AC_INIT(arc-toolchain, 1.0)
+AC_INIT([arc-toolchain],[1.0])
 
 AC_PROG_CC
 AC_PROG_FGREP
@@ -162,8 +162,7 @@ AC_CONFIG_FILES([scripts/wrapper/awk/awk], [chmod +x scripts/wrapper/awk])
 AC_CONFIG_FILES([scripts/wrapper/sed/sed], [chmod +x scripts/wrapper/sed])
 
 AC_ARG_WITH(linux-headers-src,
-	[AC_HELP_STRING([--with-linux-headers-src],
-		[Set linux-headers source path, use builtin source by default])],
+	[AS_HELP_STRING([--with-linux-headers-src],[Set linux-headers source path, use builtin source by default])],
 	[],
 	[with_linux_headers_src=default]
 	)
