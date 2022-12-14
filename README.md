@@ -21,11 +21,14 @@ If they do not exist, it will clone them. You can link your source directories
 from other palces as well:
 
 ```sh
-cd arc-gnu-toolchain
-ln -s /repos/arcgnu/binutils  binutils-gdb
-ln -s /repos/arcgnu/gcc       gcc
-ln -s /repos/arcgnu/newlib    newlib
-ln -s /repos/arcgnu/glibc     glibc
+cd    /repos/arc-gnu-toolchain
+ln -s /repos/tools/binutils  binutils-gdb
+ln -s /repos/tools/gcc       gcc
+ln -s /repos/tools/newlib    newlib
+ln -s /repos/tools/glibc     glibc
+
+cd    /build/arc64
+/repos/arc-gnu-toolchain/configure ...
 ```
 
 For a 64-bit linux build, you will need the following branches:
