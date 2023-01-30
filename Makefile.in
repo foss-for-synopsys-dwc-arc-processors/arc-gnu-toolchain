@@ -80,9 +80,26 @@ GDB_NATIVE_FLAGS := $(GDB_NATIVE_FLAGS_EXTRA)
 GLIBC_TARGET_FLAGS := $(GLIBC_TARGET_FLAGS_EXTRA)
 GLIBC_CC_FOR_TARGET ?= $(LINUX_TUPLE)-gcc
 GLIBC_CXX_FOR_TARGET ?= $(LINUX_TUPLE)-g++
+GLIBC_TARGET_BOARDS ?= arc-sim
 
 NEWLIB_CC_FOR_TARGET ?= $(NEWLIB_TUPLE)-gcc
 NEWLIB_CXX_FOR_TARGET ?= $(NEWLIB_TUPLE)-g++
+NEWLIB_TARGET_BOARDS ?= arc-sim
+
+# QEMU sim setup for running the tests
+ifeq (@target_alias@,arc)
+	QEMU_CPU = archs
+else
+ifeq (@target_alias@,arc32)
+	QEMU_CPU = hs5x
+else
+	QEMU_CPU = hs6x
+endif
+endif
+SIM_PATH:=$(srcdir)/scripts/wrapper/qemu
+SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
+SIM_STAMP:= stamps/build-qemu
+
 
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
@@ -91,6 +108,10 @@ linux: stamps/build-gdbserver-linux
 
 gdbserver: stamps/build-gdbserver-linux
 qemu: stamps/build-qemu
+
+check-gcc: check-gcc-@default_target@
+check-gcc-newlib: stamps/check-gcc-newlib
+check-gcc-linux: stamps/check-gcc-linux
 
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
@@ -414,12 +435,22 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
 		--prefix=${INSTALL_DIR} \
-		--target-list="arc-softmmu,arc64-softmmu" \
+		--target-list="arc-softmmu,arc64-softmmu,arc-linux-user,arc64-linux-user" \
 		--enable-debug \
 		--enable-debug-tcg
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
+
+stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP) #stamps/build-dejagnu
+	$(SIM_PREPARE) $(MAKE) -C build-gcc-linux-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(GLIBC_TARGET_BOARDS)'"
+	mkdir -p $(dir $@)
+	date > $@
+
+stamps/check-gcc-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP) #stamps/build-dejagnu
+	$(SIM_PREPARE) $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
+	mkdir -p $(dir $@)
+	date > $@
 
 clean:
 	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache

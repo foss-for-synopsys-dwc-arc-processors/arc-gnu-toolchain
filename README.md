@@ -167,5 +167,5 @@ $ ./configure --target=arc64            \
 ```sh
 $ ./configure --target=... --prefix=/path/to/install --disable-linux
 $ make newlib
-$ make check-gcc-newlib
+$ make check-gcc
 ```

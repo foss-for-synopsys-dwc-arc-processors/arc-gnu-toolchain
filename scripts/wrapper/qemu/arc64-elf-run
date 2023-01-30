@@ -1,0 +1,21 @@
+#!/bin/bash
+
+qemu_args=()
+while [[ "$1" != "" ]]
+do
+    case "$1" in
+	-Wq,*) qemu_args+=("$echo "$1" | cut -d, -f2-)");;
+	*) break;;
+    esac
+    shift
+done
+
+xlen="$(readelf -h $1 | grep 'Class' | cut -d: -f 2 | xargs echo | sed 's/^ELF//')"
+
+case "$xlen" in
+    64) qemu="64";;
+    *) qemu="";;
+esac
+
+qemu-system-arc$qemu -semihosting -cpu ${QEMU_CPU} -M arc-sim -m 2G -nographic \
+		     -no-reboot -monitor none -kernel "$@"
