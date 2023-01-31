@@ -92,9 +92,8 @@ jobs:
             MODE="elf";
           fi
 
-          if [ -n ${{ inputs.release_tag }} ]; then
-            RELEASE_TAG="${{ inputs.release_tag }}"
-          else
+          RELEASE_TAG="${{ inputs.release_tag }}"
+          if [[ -z $RELEASE_TAG ]]; then
             RELEASE_TAG="$(date --utc '+%Y.%m.%d')"
           fi
 
