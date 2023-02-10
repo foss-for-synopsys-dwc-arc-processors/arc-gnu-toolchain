@@ -109,7 +109,7 @@ linux: stamps/build-gdbserver-linux
 gdbserver: stamps/build-gdbserver-linux
 qemu: stamps/build-qemu
 
-REGRESSION_TEST_LIST = gcc binutils
+REGRESSION_TEST_LIST = gcc binutils newlib
 
 .PHONY: check
 check: check-@default_target@
@@ -124,6 +124,8 @@ check-gcc-linux: stamps/check-gcc-linux
 check-binutils: check-binutils-@default_target@
 check-binutils-linux: stamps/check-binutils-linux
 check-binutils-newlib: stamps/check-binutils-newlib
+
+check-newlib-newlib:stamps/check-newlib-newlib
 
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
@@ -470,6 +472,10 @@ stamps/check-binutils-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
 
 stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-binutils-linux check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(GLIBC_TARGET_BOARDS)'" || true
+	date > $@
+
+stamps/check-newlib-newlib: stamps/build-newlib $(SIM_STAMP)
+	$(SIM_PREPARE) $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
 clean:
