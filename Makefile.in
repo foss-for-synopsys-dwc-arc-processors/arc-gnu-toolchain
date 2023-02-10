@@ -109,9 +109,21 @@ linux: stamps/build-gdbserver-linux
 gdbserver: stamps/build-gdbserver-linux
 qemu: stamps/build-qemu
 
+REGRESSION_TEST_LIST = gcc binutils
+
+.PHONY: check
+check: check-@default_target@
+.PHONY: check-linux check-newlib
+check-linux: $(patsubst %,check-%-linux,$(REGRESSION_TEST_LIST))
+check-newlib: $(patsubst %,check-%-newlib,$(REGRESSION_TEST_LIST))
+
 check-gcc: check-gcc-@default_target@
 check-gcc-newlib: stamps/check-gcc-newlib
 check-gcc-linux: stamps/check-gcc-linux
+
+check-binutils: check-binutils-@default_target@
+check-binutils-linux: stamps/check-binutils-linux
+check-binutils-newlib: stamps/check-binutils-newlib
 
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
@@ -442,14 +454,22 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP) #stamps/build-dejagnu
+stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-linux-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(GLIBC_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
 	date > $@
 
-stamps/check-gcc-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP) #stamps/build-dejagnu
+stamps/check-gcc-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
+	date > $@
+
+stamps/check-binutils-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
+	$(SIM_PREPARE) $(MAKE) -C build-binutils-newlib check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+	date > $@
+
+stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
+	$(SIM_PREPARE) $(MAKE) -C build-binutils-linux check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(GLIBC_TARGET_BOARDS)'" || true
 	date > $@
 
 clean:
