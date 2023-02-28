@@ -1,0 +1,153 @@
+#!/usr/bin/env python3
+
+# This script has been inspired from riscv testsuite-filter
+# https://github.com/riscv-collab/riscv-gnu-toolchain/blob/master/scripts/testsuite-filter
+
+import json
+import os
+import sys
+import re
+
+def read_results(file):
+
+    mapping = {
+        "expected passes": "PASS",
+        "unexpected failures": "FAIL",
+        "unexpected successes": "XPASS",
+        "expected failures": "XFAIL",
+        "unresolved testcases": "UNRESOLVED",
+        "unsupported tests": "UNSUPPORTED"
+    }
+
+    results = dict()
+    
+    with open(file) as f:
+        for l in f.readlines()[-100:]:
+            if "# of" in l:
+                l = l.split()
+                name = " ".join(l[2:-1])
+                num = int(l[-1])
+                results[mapping[name]] = num
+                
+    return results
+
+
+def read_file(file_path):
+    if not os.path.isfile(file_path):
+        print(f"Error: {file_path} is not a valid file.")
+        sys.exit(1)
+    with open(file_path) as f:
+        return f.read()
+
+
+def read_json(file_path):
+    def error():
+        print("Error: Invalid JSON in filter file.")
+        sys.exit(1)
+
+    if not os.path.isfile(file_path):
+        print(f"Error: {file_path} is not a valid file.")
+        sys.exit(1)
+
+    try:
+        with open(file_path) as f:
+            allowlist = json.load(f)
+            expected_dict = {"comment": str, "tests": list}
+            for x in allowlist:
+                for a in allowlist[x]:
+                    if not all(isinstance(a[key], expected_dict[key]) for key in expected_dict):
+                        error()
+            return allowlist
+    except json.JSONDecodeError:
+        error()
+
+
+def parse_sum(sum_data):
+    valid_results = ['FAIL', 'XPASS', 'ERROR']
+    target = "unknown"
+    data = dict()
+    
+    for line in sum_data.split("\n"):
+
+        if "Running target" in line:
+            target = line.split(" ")[-1].strip()
+            continue
+        
+        match = re.match(r"([A-Z]+): (.+)", line)
+        if match:
+            result, scenario = match.group(1,2)
+            if result not in data:
+                if result in valid_results:
+                    data[result] = [scenario]
+            elif result in valid_results:
+                data[result].append(scenario)
+
+    return target, data
+
+
+def filter_results(data, allowlist, libc):
+    detected_errors = 0
+
+    allowlist = {k: v for k, v in allowlist.items() if k in ["common", libc]}
+
+    matching_tests = [test for test_type in allowlist.values() for test in test_type]
+
+    for info in matching_tests:
+        for test_allow in info["tests"]:
+            result_allow, scenario_allow = re.match(r"([A-Z]+): (.+)", test_allow).groups()
+            if result_allow in data:
+                scenarios = data[result_allow]
+                scenarios = [scenario for scenario in scenarios if scenario_allow not in scenario]
+                data[result_allow] = scenarios
+
+    detected_errors = sum(len(errors) for errors in data.values())
+    return detected_errors
+
+
+def print_results(tool_name, target, data):
+
+    print(f"=== {tool_name}: Unexpected fails for {target} ===\n")
+    for result in data:
+        print(f"=== {result} ===")
+        for scenario in data[result]:
+            print(f"    {scenario}")
+
+    print("\n")
+
+
+def print_summary(tests, detected_errors):
+
+    print("# Tests | # Detected Errors")
+    print("--------+------------------")
+    print(f"{tests:7d} | {detected_errors:7d}", end="")
+    print("\n")
+
+def usage():
+    print(f"{sys.argv[0]} <libc>" \
+          " <allowlist.json> <testsuite.sum>")
+
+
+def main():
+    if len(sys.argv) != 4:
+        print("Please provide the libc, allowlist and sum file as arguments.")
+        usage()
+        return
+
+    libc, allowlist_file, sum_file = sys.argv[1:4]
+
+    sum_data        = read_file(sum_file)
+    results         = read_results(sum_file)
+    allowlist       = read_json(allowlist_file)
+
+    tool_name = os.path.basename(sum_file).split(".")[0]
+
+    target, data    = parse_sum(sum_data)
+    detected_errors = filter_results(data, allowlist, libc)
+
+
+    print_results(tool_name, target, data)
+    print_summary(sum(results.values()), detected_errors)
+
+
+if __name__ == '__main__':
+    main()
