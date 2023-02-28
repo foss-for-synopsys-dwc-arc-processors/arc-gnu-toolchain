@@ -1,17 +1,44 @@
-This folder contain all allowlist files for testsuite result,
-it used for `arc-gnu-toolchain/scripts/testsuite-filter`.
 
+The files in this folder are the allowlists for the testsuite results that are passed as an argument for the `arc-gnu-toolchain/scripts/testsuite-filter` script.
 
-
-
-
-
+Here is an example of how the JSON file format for gcc tool may be structured:
 ```json
 {
     "common": [
       {
-        "comment": "",
+        "comment": "These are commons tests 01",
         "tests": [
+            "FAIL: folder/test_01.S compilation"
+            "XPASS: folder/test_02.S compilation"
+            "FAIL: folder/test_03.S compilation"
+        ]
+      },
+      {
+        "comment": "These are commons tests 02",
+        "tests": [
+            "FAIL: folder/test_04.S compilation"
+            "XPASS: folder/test_05.S compilation"
+            "FAIL: folder/test_06.S compilation"
+        ]
+      }
+    ],
+    "glibc": [
+      {
+        "comment": "These are related to glibc",
+        "tests": [
+            "FAIL: folder/test_07.S compilation"
+            "XPASS: folder/test_08.S compilation"
+            "FAIL: folder/test_09.S compilation"
+        ]
+      }
+    ],
+    "newlib": [
+      {
+        "comment": "These are related to newlib",
+        "tests": [
+            "FAIL: folder/test_10.S compilation"
+            "XPASS: folder/test_11.S compilation"
+            "FAIL: folder/test_12.S compilation"
         ]
       }
     ]
@@ -19,43 +46,37 @@ it used for `arc-gnu-toolchain/scripts/testsuite-filter`.
 ```
 
 
+In the JSON file, the first key is used to specify the `libc` used in the testsuite-filter execution (e.i. glibc, newlib). This key is essential for filtering the test results based on the specific library used.
+
+The `common` category in the JSON file represents the common tests that are applicable to all C libraries.
+
+```json
+{
+    "common": [
+        ...
+    ],
+    "glibc": [
+        ...
+    ],
+    "newlib": [
+        ...
+    ]
+}
 ```
-<toolname>/common.log
-<toolname>/[<lib>.][rv(32|64|128).][<ext>.][<abi>.]log
+
+
+The `libc` (e.i. glibc, newlib) key in the JSON file consists of an array that allows multiple objects to be included, each with specific `comment` and related `tests`. 
+
+<!-- Each test object contains two keys: `comment` and `tests`. -->
+- The `comment` key contains a string that describes the purpose or context of the tests.
+```json
+    "comment": "These are commons tests 01",
 ```
-
-- `toolname` can be `gcc`, `binutils` or `gdb`.
-
-- `<toolname>/common.log`: Every target/library combination for the `<toolname>`
-  will use this allowlist file.
-
-- `<toolname>/[<lib>.][rv(32|64|128).][<ext>.][<abi>.]log`: `testsuite-filter`
-  will according the target/library combination to match corresponding allowlist
-  files.
-
-- For example, rv32im,ilp32/newlib will match following 24 files, and ignored if
-  file not exist:
-    - common.log
-    - newlib.log
-    - rv32.log
-    - ilp32.log
-    - rv32.ilp32.log
-    - newlib.rv32.log
-    - newlib.ilp32.log
-    - newlib.rv32.ilp32.log
-    - i.log
-    - rv32.i.log
-    - i.ilp32.log
-    - rv32.i.ilp32.log
-    - newlib.i.log
-    - newlib.rv32.i.log
-    - newlib.i.ilp32.log
-    - newlib.rv32.i.ilp32.log
-    - m.log
-    - rv32.m.log
-    - m.ilp32.log
-    - rv32.m.ilp32.log
-    - newlib.m.log
-    - newlib.rv32.m.log
-    - newlib.m.ilp32.log
-    - newlib.rv32.m.ilp32.log
+- The `tests` key contains a list of strings that represent the individual test results.
+```json
+    "tests": [
+        "FAIL: folder/test_01.S compilation",
+        "XPASS: folder/test_02.S compilation",
+        "FAIL: folder/test_03.S compilation"
+    ]
+```
