@@ -1,0 +1,114 @@
+{
+    "common": [
+      {
+        "comment": "TBD",
+        "tests": [
+	    "FAIL: gcc.dg/Wzero-length-array-bounds-2.c (test for excess errors)",
+	    "FAIL: gcc.dg/ifcvt-4.c scan-rtl-dump ce1",
+	    "FAIL: gcc.dg/pr102892-1.c (test for excess errors)",
+	    "FAIL: gcc.dg/pr44194-1.c scan-rtl-dump dse1",
+	    "FAIL: gcc.dg/pr82274-1.c execution test",
+	    "XPASS: gcc.dg/tree-ssa/20040204-1.c scan-tree-dump-times optimized \"link_error\" 0",
+	    "XPASS: c-c++-common/raw-string-7.c  -Wc++-compat  execution test"
+        ]
+      },
+      {
+	  "comment": "Autovectorization: TBD",
+	  "tests": [
+	      "FAIL: gcc.dg/vect/pr97428.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/pr97428.c scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmax-1.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmax-1.c scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmax-2.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmax-2.c scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmax-3.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmax-3.c scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmin-1.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmin-1.c scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmin-2.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmin-2.c scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmin-3.c -flto -ffat-lto-objects  scan-tree-dump vect",
+	      "FAIL: gcc.dg/vect/vect-fmin-3.c scan-tree-dump vect"
+	  ]
+      },
+      {
+	  "comment": "TBD",
+	  "tests": [
+	      "FAIL: gcc.dg/tree-ssa/gen-vect-11c.c scan-tree-dump-times vect",
+	      "FAIL: gcc.dg/tree-ssa/pr42585.c scan-tree-dump-times optimized",
+	      "FAIL: gcc.dg/tree-ssa/pr42585.c scan-tree-dump-times optimized",
+	      "FAIL: gcc.dg/tree-ssa/ssa-sink-18.c scan-tree-dump-times sink2"
+	  ]
+      }
+    ],
+    "newlib": [
+      {
+	  "comment": "ld: Undefined reference to setjmp/longjmp",
+	  "tests": [
+	      "FAIL: gcc.c-torture/execute/20210505-1.c",
+	      "FAIL: gcc.c-torture/execute/pr56982.c",
+	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O0 -flto -flto-partition=1to1 -fno-use-linker-plugin",
+	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O0 -flto -flto-partition=none -fuse-linker-plugin",
+	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O0 -flto -fuse-linker-plugin -fno-fat-lto-objects",
+	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O2 -flto -flto-partition=1to1 -fno-use-linker-plugin",
+	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O2 -flto -flto-partition=none -fuse-linker-plugin -fno-fat-lto-objects",
+	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O2 -flto -fuse-linker-plugin",
+	      "FAIL: gcc.dg/torture/pr48542.c"
+	  ]
+      },
+      {
+	  "comment": "Undefined reference to dlfcn.h ",
+	  "tests": [
+	      "FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation"
+	  ]
+      },
+      {
+	  "comment": "No profile file (gcda)",
+	  "tests": [
+	      "FAIL: gcc.dg/tree-prof/pr79587.c execution"
+	  ]
+      },
+      {
+	  "comment": "No dl lib",
+	  "tests": [
+	      "FAIL: gcc.dg/tree-prof/pr97461.c compilation"
+	  ]
+      },
+      {
+	  "comment": "No threading support",
+	  "tests": [
+	      "FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation",
+	      "FAIL: gcc.dg/tree-prof/val-profiler-threads-1.c compilation"
+	  ]
+      }
+    ],
+    "linux": [
+      {
+	  "comment": "QEMU Conversion error TBD",
+	  "tests": [
+	      "FAIL: gcc.dg/torture/fp-double-convert-float-1.c",
+	      "FAIL: gcc.dg/torture/fp-int-convert-timode-3.c",
+	      "FAIL: gcc.dg/torture/fp-int-convert-timode-4.c",
+	      "FAIL: gcc.dg/torture/fp-uint64-convert-double-1.c",
+	      "FAIL: gcc.dg/torture/fp-uint64-convert-double-2.c"
+	  ]
+      },
+      {
+	  "comment": "QEMU atomic issue TBD",
+	  "tests": [
+	      "FAIL: gcc.dg/atomic/c11-atomic-exec-4.c"
+	  ]
+      },
+      {
+	  "comment": "Profiler errors",
+	  "tests": [
+	      "FAIL: gcc.dg/tree-prof/time-profiler-2.c scan-ipa-dump-times profile"
+	  ]
+      },
+      {
+	  "comment": "Missing vectorization",
+	  "tests": [
+	  ]
+      }
+    ]
+}

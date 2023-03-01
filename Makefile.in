@@ -127,6 +127,16 @@ check-binutils-newlib: stamps/check-binutils-newlib
 
 check-newlib-newlib:stamps/check-newlib-newlib
 
+.PHONY: report
+report: report-@default_target@
+
+report-linux: $(patsubst %,report-%-linux,$(REGRESSION_TEST_LIST))
+report-newlib: $(patsubst %,report-%-newlib,$(REGRESSION_TEST_LIST))
+
+report-gcc: report-gcc-@default_target@
+report-binutils: report-binutils-@default_target@
+report-newlib: report-newlib-@default_target@
+
 $(addprefix src/original-,$(PACKAGES)):
 	mkdir -p src
 	rm -rf $@ $(subst original-,,$@)-*
@@ -477,6 +487,12 @@ stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 stamps/check-newlib-newlib: stamps/build-newlib $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
+
+report-gcc-newlib: stamps/check-gcc-newlib
+	$(srcdir)/scripts/testsuite-filter newlib $(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json `find build-gcc-newlib-stage2/gcc/testsuite/ -name gcc.sum`
+
+report-gcc-linux: stamps/check-gcc-linux
+	$(srcdir)/scripts/testsuite-filter linux $(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json `find build-gcc-linux-stage2/gcc/testsuite/ -name gcc.sum`
 
 clean:
 	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache
