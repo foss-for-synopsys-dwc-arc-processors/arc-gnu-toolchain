@@ -1,5 +1,9 @@
 	.include "macros.inc"
 
+	#define TIMER0
+	#define TIMER1
+
+
 #include "ivt.inc"
 	start
 	test_name TIMER0vsTIMER1
@@ -57,10 +61,12 @@
 	breq	r5, 0, @.failMe
 	brgt	r4,r5, @.passMe
 .failMe:
-	print	"[FAIL] "
+	; print	"[FAIL] "
+	print	"*** EXIT code 2424\n"
 	b	1f
 .passMe:
-	print	"[PASS] "
+	; print	"[PASS] "
+	print	"*** EXIT code 0\n"
 1:
 	printl	r30
 	end

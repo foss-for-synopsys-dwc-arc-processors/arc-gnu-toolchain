@@ -13,4 +13,15 @@ set exclude_list {
     check_stdl.S
 }
 
+qemu_pass_fail_mmu -x $exclude_list
+
+set exclude_list [concat $exclude_list {
+    check_mmuv48_01_arc64.S
+    check_mmuv48_02_arc64.S
+    check_mmuv48_03_arc64.S
+    check_mmuv48_04_arc64.S
+    check_mmuv48_05_arc64.S
+    check_mmuv48_06_arc64.S
+}]
+
 qemu_pass_fail_all -x $exclude_list

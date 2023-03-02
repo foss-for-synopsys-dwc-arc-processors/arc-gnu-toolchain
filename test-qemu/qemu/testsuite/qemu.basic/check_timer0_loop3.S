@@ -1,6 +1,7 @@
 
 	.include "macros.inc"
 
+#define TIMER0
 #include "ivt.inc"
 .equ LIMIT,  0x1ff
 
@@ -26,13 +27,13 @@
 	brgt	r4,LIMIT,@.fail1
 	j 	@.loop0
 .pass:
-	print	"[PASS]"
+	print "*** EXIT code 0\n"
 	j	@.end
 .fail1:
-	print   "[FAIL]"
+	print "*** EXIT code 2424\n"
 	;; 	print_number r4
 .end:
-	print	" TIMER0: Overflow\n"
+	print " TIMER0: Overflow\n"
 	end
 
 	.align 4

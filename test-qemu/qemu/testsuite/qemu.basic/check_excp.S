@@ -1,5 +1,7 @@
 	.include "macros.inc"
 
+#define SWI
+#define TRAP
 #include "ivt.inc"
 	start
 

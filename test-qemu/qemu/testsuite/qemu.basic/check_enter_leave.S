@@ -1,4 +1,5 @@
 /*  { dg-skip-if "" { arc64-*-elf* } } */
+
 ;; These are the tests cases for verifying the functionality of
 ;; enter_s and leave_s. It is assumed that there are 32 general
 ;; purpose registers available (r0 ... r31). It is also good to
@@ -9,6 +10,8 @@
 
   .include "macros.inc"
 
+#define INSTRUCTIONERROR
+#define MISALIGNED
 #include "ivt.inc"
 
 ;;;;;;;;;;;;;;;;;;; / Exception Verification Helpers \ ;;;;;;;;;;;;;;;;;;;;;;
@@ -86,7 +89,7 @@ EV_Misaligned:
 exc_fail:
   ld   r11, [test_number]
   print_number r11
-  print "[FAIL] :exception is not sane:"
+  print "*** EXIT code 2424\n" ; exception is not sane
   b @endtest
 ;;;;;;;;;;;;;;;;;;; \ Exception Verification Helpers / ;;;;;;;;;;;;;;;;;;;;;;
 
@@ -102,7 +105,7 @@ test00:
   j       @test01
 
 test00_fail:
-  print "[FAIL] :test00:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -123,7 +126,7 @@ test01:
   j       @test02
 
 test01_fail:
-  print "[FAIL] :test01:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -138,7 +141,7 @@ test02:
   j       @test03
 
 test02_fail:
-  print "[FAIL] :test02:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -156,7 +159,7 @@ test03:
   j       @test04
 
 test03_fail:
-  print "[FAIL] :test03:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -223,7 +226,7 @@ test04:
   j       @test05
 
 test04_fail:
-  print "[FAIL] :test04:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -252,7 +255,7 @@ test05_excep_prep:
   mov     sp, TEST05_SP           ; an address which is not 32-bit aligned
 test05_enter:
   enter_s [r13-r26, fp]           ; just being flamboyant
-  print "[FAIL] :test05:"        ; this code must not fall through
+  print "*** EXIT code 2424\n"    ; this code must not fall through
   b @endtest
 
 test05_wrapup:
@@ -286,7 +289,7 @@ test06_delay:
   nop_s
 
 test06_fail:
-  print "[FAIL] :test06:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -371,7 +374,7 @@ test10:
   j       @test11
 
 test10_fail:
-  print "[FAIL] :test10:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -392,7 +395,7 @@ test11:
   j       @test12
 
 test11_fail:
-  print "[FAIL] :test11:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -407,7 +410,7 @@ test12:
   j       @test13
 
 test12_fail:
-  print "[FAIL] :test12:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -424,7 +427,7 @@ test13:
   j       @test14
 
 test13_fail:
-  print "[FAIL] :test13"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -439,7 +442,7 @@ test14_cont:
   j       @test15
 
 test14_fail:
-  print "[FAIL] :test14:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -503,7 +506,7 @@ test15_return:
   j       @test16
 
 test15_fail:
-  print "[FAIL] :test15:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -530,7 +533,7 @@ test16_excep_prep:
   mov     fp, TEST16_FP           ; an address which is not 32-bit aligned
 test16_enter:
   leave_s [r13-r26, fp]           ; first fp's value is put into sp
-  print "[FAIL] :test16:"        ; this code must not fall through
+  print "*** EXIT code 2424\n"    ; this code must not fall through
   b @endtest
 
 test16_wrapup:
@@ -564,7 +567,7 @@ test17_delay:
   nop_s
 
 test17_fail:
-  print "[FAIL] :test17:"
+  print "*** EXIT code 2424\n"
   b @endtest
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -704,14 +707,14 @@ test21_verify:
   breq    r31, @test21_verify, @valhalla
 
 test21_fail:
-  print "[FAIL] :test20:"
+  print "*** EXIT code 2424\n"
   b @endtest
 ;;;;;;;;;;;;;;;;;;;;;;;;; \ Enter/Leave Test / ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 valhalla:
-	print "[PASS]"
+  print "*** EXIT code 0\n"
 endtest:
-	print " enter/leave\n"
+  print " enter/leave\n"
   end
 
 

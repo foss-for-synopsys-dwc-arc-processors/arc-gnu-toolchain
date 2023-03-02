@@ -6,6 +6,8 @@
 
   .include "macros.inc"
 
+#define SWI
+#define TRAP
 #include "ivt.inc"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Test checking routines ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -149,7 +151,7 @@ test_3_outside_loop:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reporting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 valhalla:
-  print "[PASS]"
+  print "*** EXIT code 0\n"
   b @1f
 
 ; If a test fails, it jumps here. Although, for the sake of uniformity,
@@ -159,7 +161,7 @@ valhalla:
 fail:
   ld r0, [test_nr]
   ;print_number r0
-  print "[FAIL]"
+  print "*** EXIT code 2424\n"
 1:
   print " Zero overhead loop: interrupting the loop\n"
   end

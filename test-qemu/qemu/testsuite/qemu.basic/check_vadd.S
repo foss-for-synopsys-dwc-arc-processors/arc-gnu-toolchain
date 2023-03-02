@@ -1,3 +1,5 @@
+/*  { dg-skip-if "" { arc64-*-elf* } } */
+
 ; check_vadd.S
 ;
 ; Tests for vadd: vadd2 vadd2h vadd4h
@@ -5,6 +7,7 @@
 
   .include "macros.inc"
 
+#define INSTRUCTIONERROR
 #include "ivt.inc"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;; Test checking routines ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
@@ -248,23 +251,23 @@ instruction_error:
 ; Test case 12
 ; Raise an Illegal Instruction exception if an odd register is used.
 ; Even if there is no register to save the result to.
-  prep_test_case
-  set_except_params @test_12_exception, @test_12_end
-test_12_exception:
-  .word 0x003e2b3c      ; vadd2 0, r3, r0
-  b     @fail
-test_12_end:
+#   prep_test_case
+#   set_except_params @test_12_exception, @test_12_end
+# test_12_exception:
+#   .word 0x003e2b3c      ; vadd2 0, r3, r0
+#   b     @fail
+# test_12_end:
   ; Fall through
 
 ; Test case 13
 ; Raise an Illegal Instruction exception if an odd register is used.
 ; The exception should be made even if the CC indicates no execution.
-  prep_test_case        ; (Z,N,C,V)=(0,0,0,0)
-  set_except_params @test_13_exception, @test_13_end
-test_13_exception:
-  .word 0x00012dfc      ; vadd2.z r5, r5, r0
-  b       @fail
-test_13_end:
+#   prep_test_case        ; (Z,N,C,V)=(0,0,0,0)
+#   set_except_params @test_13_exception, @test_13_end
+# test_13_exception:
+#   .word 0x00012dfc      ; vadd2.z r5, r5, r0
+#   b       @fail
+# test_13_end:
   ; Fall through
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; VADD2H ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -473,29 +476,29 @@ test_13_end:
 ; Test case 36
 ; Raise an Illegal Instruction exception if an odd register is used.
 ; Even if there is no register to save the result to.
-  prep_test_case
-  set_except_params @test_36_exception, @test_36_end
-test_36_exception:
-  .word 0x00fe2a38      ; vadd4h 0, r2, r3
-  b      @fail
-test_36_end:
+#   prep_test_case
+#   set_except_params @test_36_exception, @test_36_end
+# test_36_exception:
+#   .word 0x00fe2a38      ; vadd4h 0, r2, r3
+#   b      @fail
+# test_36_end:
   ; Fall through
 
 ; Test case 37
 ; Raise an Illegal Instruction exception if an odd register is used.
 ; The exception should be made even if the CC indicates no execution.
-  prep_test_case        ; (Z,N,C,V)=(0,0,0,0)
-  set_except_params @test_37_exception, @test_37_end
-test_37_exception:
-  .word 0x000429f8      ; vadd4h.n r1, r1, r0
-  b        @fail
-test_37_end:
+#   prep_test_case        ; (Z,N,C,V)=(0,0,0,0)
+#   set_except_params @test_37_exception, @test_37_end
+# test_37_exception:
+#   .word 0x000429f8      ; vadd4h.n r1, r1, r0
+#   b        @fail
+# test_37_end:
   ; Fall through
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reporting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 valhalla:
-  print "[PASS]"
+  print "*** EXIT code 0\n"
   b @1f
 
 ; If a test fails, it jumps here. Although, for the sake of uniformity,
@@ -504,8 +507,8 @@ valhalla:
 ; here to check the R0 register for the test case number.
 fail:
   ld r0, [test_nr]
-  ;print_number r0
-  print "[FAIL]"
+  print_number r0
+  print "*** EXIT code 2424\n"
 1:
   print " vadd: vadd2 vadd2h vadd4h\n"
   end

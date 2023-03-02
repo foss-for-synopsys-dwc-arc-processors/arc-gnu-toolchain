@@ -1,5 +1,6 @@
 	.include "macros.inc"
 
+#define IRQ18
 #include "ivt.inc"
 	start
 	;; 	print "Start\n"

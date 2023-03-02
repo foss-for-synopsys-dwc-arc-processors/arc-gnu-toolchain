@@ -1,5 +1,6 @@
   .include "macros.inc"
 
+#define SWI
 #include "ivt.inc"
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; exception facilitators
@@ -56,10 +57,10 @@ EV_SWI:
   sr   r11, [eret]
   rtie
 exc_fail:
-	ld   r11, [test_number]
-	print "[FAIL] "
+  ld   r11, [test_number]
+  print "*** EXIT code 2424\n"
   print_number r11
-  print ": exception is not sane!\n"
+  ;print ": exception is not sane!\n"
   end
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -112,5 +113,5 @@ test03_swi_addr:
 
 
 finish:
-  print "[PASS] Software Interrupt\n"
+  print "*** EXIT code 0\n"
   end
