@@ -1,6 +1,7 @@
 /*  { dg-skip-if "" { arc64-*-elf* } } */
 	.include "macros.inc"
 
+#define IRQ18
 #include "ivt.inc"
 	start
 	;; print	"Check normal IRQ functioning.\n"
@@ -15,7 +16,7 @@
 	;; Enable the interrupt system, and trigger the IRQ 18.
 	seti
 	sr	18, [aux_irq_hint]
-	print "[PASS] IRQ:End\n"
+	print "*** EXIT code 0\n"
 	end
 
 	/* The delay between writing to the AUX_IRQ_HINT register and
@@ -27,7 +28,7 @@
 IRQ_18:
 	clri
 	sr	0, [aux_irq_hint]
-	print "[PASS] IRQ:IRQ\n"
+	print "*** EXIT code 0\n"
 	rtie
-	print "[FAIL] IRQ\n"
+	print "*** EXIT code 2424\n"
 	end

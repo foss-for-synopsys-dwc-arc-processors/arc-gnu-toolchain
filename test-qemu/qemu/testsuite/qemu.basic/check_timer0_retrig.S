@@ -1,4 +1,6 @@
 	.include "macros.inc"
+
+#define TIMER0
 #include "ivt.inc"
 
 	start
@@ -13,7 +15,7 @@
 	seti
 .loop0:
 	brlt	r3, 2, @.loop0
-	print	"*** EXIT code 0\n"
+	print "*** EXIT code 0\n"
 	end
 
 	.align 4

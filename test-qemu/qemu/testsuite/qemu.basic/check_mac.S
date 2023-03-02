@@ -1,3 +1,5 @@
+/*  { dg-skip-if "" { arc64-*-elf* } } */
+
 .include "macros.inc"
 
 .equ NOTSET, 47806

@@ -1,6 +1,8 @@
 /*  { dg-skip-if "" { arc64-*-elf* } } */
 	.include "macros.inc"
 
+#define TIMER0
+#include "ivt.inc"
 	start
 	test_name ZOLvsIRQ
 	;; Program the Timer such that we get fast interrupts

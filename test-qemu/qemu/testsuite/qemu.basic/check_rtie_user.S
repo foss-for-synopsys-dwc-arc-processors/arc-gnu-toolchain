@@ -1,5 +1,6 @@
   .include "macros.inc"
 
+#define PRIVILEGEV
 #include "ivt.inc"
 
   start
@@ -12,7 +13,8 @@ faulty:
   rtie
 
 good:
-  print "You're on a righteous path.\n"
+  ; print "Youre on a righteous path.\n"
+  print "*** EXIT code 0\n"
   end
 
   .align 4
@@ -28,5 +30,6 @@ EV_PrivilegeV:
   rtie
 
 sucks:
-  print "Life sucks. Get over it!\n"
+  ; print "Life sucks. Get over it!\n"
+  print "*** EXIT code 2424\n"
   end

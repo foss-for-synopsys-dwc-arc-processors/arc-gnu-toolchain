@@ -1,5 +1,6 @@
   .include "macros.inc"
 
+#define TIMER0
 #include "ivt.inc"
 
   start

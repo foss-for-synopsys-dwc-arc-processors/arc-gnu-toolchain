@@ -1,5 +1,6 @@
 	.include "macros.inc"
 
+#define IRQ18
 #include "ivt.inc"
 	start
 ;;; 	print "Check if an IRQ gets re-trigger while in ISR:"

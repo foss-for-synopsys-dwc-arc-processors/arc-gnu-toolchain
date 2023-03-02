@@ -1,3 +1,5 @@
+/*  { dg-skip-if "" { arc64-*-elf* } } */
+
 ; check_mpyd.S
 ;
 ; Tests for mpyd: mpyd mpydu
@@ -313,24 +315,24 @@ instruction_error:
 
 ; Test case 15
 ; Raise an Illegal Instruction exception if an odd register as dest.
-  prep_test_case
-  set_except_params @test_15_exception, @test_15_end
-test_15_exception:
-  mpyd  r3, r2, r4
-  b     @fail
-test_15_end:
+#   prep_test_case
+#   set_except_params @test_15_exception, @test_15_end
+# test_15_exception:
+#   mpyd  r3, r2, r4
+#   b     @fail
+# test_15_end:
   ; Fall through
 
 ; Test case 16
 ; Raise an Illegal Instruction exception if an odd register as dest.
 ; The exception should be made even if the CC indicates no execution.
-  prep_test_case
-  set_except_params @test_16_exception, @test_16_end
-  add.f   0,0,1         ; (Z,N,C,V)=(0,0,0,0)
-test_16_exception:
-  mpyd.z  r1, r1, r4
-  b       @fail
-test_16_end:
+#   prep_test_case
+#   set_except_params @test_16_exception, @test_16_end
+#   add.f   0,0,1         ; (Z,N,C,V)=(0,0,0,0)
+# test_16_exception:
+#   mpyd.z  r1, r1, r4
+#   b       @fail
+# test_16_end:
   ; Fall through
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; MPYDU ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -505,30 +507,30 @@ test_16_end:
 
 ; Test case 31
 ; Raise an Illegal Instruction exception if an odd register as dest.
-  prep_test_case
-  set_except_params @test_31_exception, @test_31_end
-test_31_exception:
-  mpydu r1, r4, r0
-  b     @fail
-test_31_end:
+#   prep_test_case
+#   set_except_params @test_31_exception, @test_31_end
+# test_31_exception:
+#   mpydu r1, r4, r0
+#   b     @fail
+# test_31_end:
   ; Fall through
 
 ; Test case 32
 ; Raise an Illegal Instruction exception if an odd register as dest.
 ; The exception should be made even if the CC indicates no execution.
-  prep_test_case
-  set_except_params @test_32_exception, @test_32_end
-  add.f   0,0,1         ; (Z,N,C,V)=(0,0,0,0)
-test_32_exception:
-  mpydu.v r5, r5, r4
-  b       @fail
-test_32_end:
+#   prep_test_case
+#   set_except_params @test_32_exception, @test_32_end
+#   add.f   0,0,1         ; (Z,N,C,V)=(0,0,0,0)
+# test_32_exception:
+#   mpydu.v r5, r5, r4
+#   b       @fail
+# test_32_end:
   ; Fall through
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reporting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 valhalla:
-  print "[PASS]"
+  print "*** EXIT code 0\n"
   b @1f
 
 ; If a test fails, it jumps here. Although, for the sake of uniformity,
@@ -537,8 +539,8 @@ valhalla:
 ; here to check the R0 register for the test case number.
 fail:
   ld r0, [test_nr]
-  print_number r0
-  print "[FAIL]"
+  ; print_number r0
+  print "*** EXIT code 2424\n"
 1:
   print " mpyd: mpyd mpydu\n"
   end

@@ -1,5 +1,7 @@
 /*  { dg-skip-if "" { arc64-*-elf* } } */
 	.include "macros.inc"
+
+#define TRAP
 #include "ivt.inc"
 ;;; Test what is happening when we have a trap_s at the end of a zol
 	start

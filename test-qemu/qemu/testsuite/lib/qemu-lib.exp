@@ -276,7 +276,7 @@ proc qemu_pass_fail_mmu { flag exclude_list } {
 
     set options ""
     lappend options "ldflags=-T tarc_mmu.ld"
-    foreach fullsrcfile [lsort [glob -nocomplain $srcdir/$subdir/*_mmu.S]] {
+    foreach fullsrcfile [lsort [glob -nocomplain $srcdir/$subdir/*_mmuv48_*_arc64.S]] {
 	set srcfile "[file tail $fullsrcfile]"
 	# If we're only testing specific files and this isn't one of them, skip it.
 	if ![runtest_file_p $runtests $srcfile] then {

@@ -685,7 +685,7 @@ test_16_end:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reporting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 valhalla:
-	print	"*** EXIT code 0\n"
+  print "*** EXIT code 0\n"
 	end
 
 ; If a test fails, it jumps here. Although, for the sake of uniformity,
@@ -694,9 +694,6 @@ valhalla:
 ; here to check the R0 register for the test case number.
 fail:
   ld r0, [test_nr]
-  print "[FAIL"
-  print ":"
-  print_number r0
-  print "]"
-  print	"*** EXIT code 2424\n"
+  ; print_number r0
+  print "*** EXIT code 2424\n"
   end
