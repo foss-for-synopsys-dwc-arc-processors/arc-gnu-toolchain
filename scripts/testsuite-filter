@@ -21,14 +21,14 @@ def read_results(file):
 
     results = dict()
     
-    with open(file) as f:
-        for l in f.readlines()[-100:]:
-            if "# of" in l:
-                l = l.split()
-                name = " ".join(l[2:-1])
-                num = int(l[-1])
-                results[mapping[name]] = num
-                
+
+    for l in file.split("\n")[-100:]:
+        if "# of" in l:
+            l = l.split()
+            name = " ".join(l[2:-1])
+            num = int(l[-1])
+            results[mapping[name]] = num
+
     return results
 
 
@@ -64,15 +64,10 @@ def read_json(file_path):
 
 def parse_sum(sum_data):
     valid_results = ['FAIL', 'XPASS', 'ERROR']
-    target = "unknown"
     data = dict()
     
     for line in sum_data.split("\n"):
 
-        if "Running target" in line:
-            target = line.split(" ")[-1].strip()
-            continue
-        
         match = re.match(r"([A-Z]+): (.+)", line)
         if match:
             result, scenario = match.group(1,2)
@@ -82,7 +77,7 @@ def parse_sum(sum_data):
             elif result in valid_results:
                 data[result].append(scenario)
 
-    return target, data
+    return data
 
 
 def filter_results(data, allowlist, libc):
@@ -125,27 +120,50 @@ def print_summary(tests, detected_errors):
 def usage():
     print(f"{sys.argv[0]} <libc>" \
           " <allowlist.json> <testsuite.sum>")
+    print(f"{sys.argv[0]} <libc>" \
+          " <allowlist.json> <testsuite1.sum,testsuite2.sum>")
 
 
 def main():
     if len(sys.argv) != 4:
-        print("Please provide the libc, allowlist and sum file as arguments.")
+        print("Please provide the libc, allowlist and sum files as arguments.")
         usage()
         return
 
-    libc, allowlist_file, sum_file = sys.argv[1:4]
+    libc, allowlist_file, sum_files = sys.argv[1:4]
+    sum_files = sum_files.split(",")
 
-    sum_data        = read_file(sum_file)
-    results         = read_results(sum_file)
+    results = {}
+    tool_names = []
+    target_names = []
+    data = {}
+    for sum_file in sum_files:
+        sum_data = read_file(sum_file)
+
+        for key, value in read_results(sum_data).items():
+            results[key] = results.get(key, 0) + value
+
+        tool_names.append(os.path.splitext(os.path.basename(sum_file))[0])
+
+        match = re.search(r"Running target (\S+)", sum_data)
+        target_names.append(f"{match.group(1)}" if match else "Unknown")
+
+        tmp_data = parse_sum(sum_data)
+        for key in tmp_data:
+            if key in data:
+                data[key].extend(tmp_data[key])
+            else:
+                data[key] = tmp_data[key]
+
+
+    tool_name = ' '.join(list(set(tool_names)))
+    target_name = ' '.join(list(set(target_names)))
+
     allowlist       = read_json(allowlist_file)
-
-    tool_name = os.path.basename(sum_file).split(".")[0]
-
-    target, data    = parse_sum(sum_data)
     detected_errors = filter_results(data, allowlist, libc)
 
 
-    print_results(tool_name, target, data)
+    print_results(tool_name, target_name, data)
     print_summary(sum(results.values()), detected_errors)
 
 
