@@ -133,6 +133,7 @@ report: report-@default_target@
 report-linux: $(patsubst %,report-%-linux,$(REGRESSION_TEST_LIST))
 report-newlib: $(patsubst %,report-%-newlib,$(REGRESSION_TEST_LIST))
 
+.PHONY: report-newlib-@default_target@ report-binutils-@default_target@
 report-gcc: report-gcc-@default_target@
 report-binutils: report-binutils-@default_target@
 report-newlib: report-newlib-@default_target@

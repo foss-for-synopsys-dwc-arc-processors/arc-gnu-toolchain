@@ -43,20 +43,6 @@
     ],
     "newlib": [
       {
-	  "comment": "ld: Undefined reference to setjmp/longjmp",
-	  "tests": [
-	      "FAIL: gcc.c-torture/execute/20210505-1.c",
-	      "FAIL: gcc.c-torture/execute/pr56982.c",
-	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O0 -flto -flto-partition=1to1 -fno-use-linker-plugin",
-	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O0 -flto -flto-partition=none -fuse-linker-plugin",
-	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O0 -flto -fuse-linker-plugin -fno-fat-lto-objects",
-	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O2 -flto -flto-partition=1to1 -fno-use-linker-plugin",
-	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O2 -flto -flto-partition=none -fuse-linker-plugin -fno-fat-lto-objects",
-	      "FAIL: gcc.dg/lto/pr60449 c_lto_pr60449_0.o-c_lto_pr60449_1.o link, -O2 -flto -fuse-linker-plugin",
-	      "FAIL: gcc.dg/torture/pr48542.c"
-	  ]
-      },
-      {
 	  "comment": "Undefined reference to dlfcn.h ",
 	  "tests": [
 	      "FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation"
@@ -79,6 +65,12 @@
 	  "tests": [
 	      "FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation",
 	      "FAIL: gcc.dg/tree-prof/val-profiler-threads-1.c compilation"
+	  ]
+      },
+      {
+	  "comment": "GCC No support for conversion",
+	  "tests": [
+	      "FAIL: gcc.dg/torture/fp-int-convert-float16-timode.c"
 	  ]
       }
     ],
