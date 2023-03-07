@@ -434,8 +434,7 @@ instruction_error:
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; Reporting ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 valhalla:
-  ; print "[PASS]"
-	print	"*** EXIT code 0\n"
+  print	"*** EXIT code 0\n"
   b @1f
 
 ; If a test fails, it jumps here. Although, for the sake of uniformity,
@@ -445,8 +444,7 @@ valhalla:
 fail:
   ld  r0, [test_nr]
   ;print_number r0
-  ; print "[FAIL]"
-	print	"*** EXIT code 2424\n"
+  print	"*** EXIT code 2424\n"
 1:
   print " vmac2h: vmac2h vmac2hu\n"
   end
