@@ -490,10 +490,24 @@ stamps/check-newlib-newlib: stamps/build-newlib $(SIM_STAMP)
 	date > $@
 
 report-gcc-newlib: stamps/check-gcc-newlib
-	$(srcdir)/scripts/testsuite-filter newlib $(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json `find build-gcc-newlib-stage2/gcc/testsuite/ -name gcc.sum`
+	$(srcdir)/scripts/testsuite-filter newlib \
+		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json \
+		`find build-gcc-newlib-stage2 -name *.sum |paste -sd "," -`
 
 report-gcc-linux: stamps/check-gcc-linux
-	$(srcdir)/scripts/testsuite-filter linux $(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json `find build-gcc-linux-stage2/gcc/testsuite/ -name gcc.sum`
+	$(srcdir)/scripts/testsuite-filter linux \
+		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json \
+		`find build-gcc-linux-stage2 -name *.sum |paste -sd "," -`
+
+report-binutils-newlib: stamps/check-binutils-newlib
+	$(srcdir)/scripts/testsuite-filter newlib \
+		$(srcdir)/test/allowlist/binutils/binutils.json \
+		`find build-binutils-newlib -name *.sum |paste -sd "," -`
+
+report-binutils-linux: stamps/check-binutils-linux
+	$(srcdir)/scripts/testsuite-filter linux \
+		$(srcdir)/test/allowlist/binutils/binutils.json \
+		`find build-binutils-linux -name *.sum |paste -sd "," -`
 
 clean:
 	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache
