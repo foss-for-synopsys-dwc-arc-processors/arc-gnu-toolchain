@@ -43,6 +43,20 @@
     ],
     "newlib": [
       {
+          "comment": "Unexpected passing to be investigated",
+          "tests": [
+             "XPASS: g++.dg/torture/pr101373.C",
+	     "XPASS: c-c++-common/raw-string-7.c",
+	     "FAIL: g++.dg/abi/pure-virtual1.C"
+          ]
+      },
+      {
+           "comment": "Requires tls need to investiage dejagnu predicates",
+           "tests": [
+             "XPASS: g++.dg/tls/thread_local-order2.C"
+           ]
+      },
+      {
 	  "comment": "Undefined reference to dlfcn.h ",
 	  "tests": [
 	      "FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation"
