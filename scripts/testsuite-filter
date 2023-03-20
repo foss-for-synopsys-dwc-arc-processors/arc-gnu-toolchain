@@ -15,13 +15,12 @@ def read_results(file):
         "unexpected failures": "FAIL",
         "unexpected successes": "XPASS",
         "expected failures": "XFAIL",
+        "untested testcases": "UNTESTED",
         "unresolved testcases": "UNRESOLVED",
         "unsupported tests": "UNSUPPORTED"
     }
 
     results = dict()
-    
-
     for l in file.split("\n")[-100:]:
         if "# of" in l:
             l = l.split()
