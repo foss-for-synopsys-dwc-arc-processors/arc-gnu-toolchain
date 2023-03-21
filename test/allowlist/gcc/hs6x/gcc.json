@@ -100,7 +100,8 @@
 	  ]
       },
       {
-	  "comment": "QEMU atomic issue TBD",
+	  "comment": "QEMU user mode atomic issue. The LF is not clear when switching tasks.
+                      [https://github.com/foss-for-synopsys-dwc-arc-processors/qemu/issues/48]",
 	  "tests": [
 	      "FAIL: gcc.dg/atomic/c11-atomic-exec-4.c"
 	  ]
