@@ -7,9 +7,7 @@
 	    "FAIL: gcc.dg/ifcvt-4.c scan-rtl-dump ce1",
 	    "FAIL: gcc.dg/pr102892-1.c (test for excess errors)",
 	    "FAIL: gcc.dg/pr44194-1.c scan-rtl-dump dse1",
-	    "FAIL: gcc.dg/pr82274-1.c execution test",
-	    "XPASS: gcc.dg/tree-ssa/20040204-1.c scan-tree-dump-times optimized \"link_error\" 0",
-	    "XPASS: c-c++-common/raw-string-7.c  -Wc++-compat  execution test"
+	    "XPASS: gcc.dg/tree-ssa/20040204-1.c scan-tree-dump-times optimized \"link_error\" 0"
         ]
       },
       {
@@ -46,26 +44,13 @@
           "comment": "Unexpected passing to be investigated",
           "tests": [
              "XPASS: g++.dg/torture/pr101373.C",
-	     "XPASS: c-c++-common/raw-string-7.c",
 	     "FAIL: g++.dg/abi/pure-virtual1.C"
           ]
-      },
-      {
-           "comment": "Requires tls need to investiage dejagnu predicates",
-           "tests": [
-             "XPASS: g++.dg/tls/thread_local-order2.C"
-           ]
       },
       {
 	  "comment": "Undefined reference to dlfcn.h ",
 	  "tests": [
 	      "FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation"
-	  ]
-      },
-      {
-	  "comment": "No profile file (gcda)",
-	  "tests": [
-	      "FAIL: gcc.dg/tree-prof/pr79587.c execution"
 	  ]
       },
       {
@@ -79,12 +64,6 @@
 	  "tests": [
 	      "FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation",
 	      "FAIL: gcc.dg/tree-prof/val-profiler-threads-1.c compilation"
-	  ]
-      },
-      {
-	  "comment": "GCC No support for conversion",
-	  "tests": [
-	      "FAIL: gcc.dg/torture/fp-int-convert-float16-timode.c"
 	  ]
       }
     ],
