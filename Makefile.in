@@ -338,6 +338,7 @@ stamps/build-gdbserver-linux: $(BINUTILS_SRCDIR) stamps/build-gcc-linux-stage2
 	cd $(notdir $@) && $</configure                  \
 		--host=$(LINUX_TUPLE)                        \
 		--prefix=/usr                                \
+		--disable-gdb                                \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
 		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
 	$(MAKE) -C $(notdir $@) all-gdbserver
