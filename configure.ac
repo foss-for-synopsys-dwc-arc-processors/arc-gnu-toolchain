@@ -72,6 +72,16 @@ AS_IF([test "x$enable_werror" != xno],
 	[AC_SUBST(werror_flag, --enable-werror)],
 	[AC_SUBST(werror_flag, --disable-werror)])
 
+AC_ARG_ENABLE(debug,
+        [AS_HELP_STRING([--enable-debug],
+		[enable building with debug info @<:@--disable-debug@:>@])],
+        [],
+        [enable_debug=yes]
+        )
+
+AS_IF([test "x$enable_debug" != xno],
+	[AC_SUBST(debug_flag, -g) AC_SUBST(debug_flag3, -g3)])
+
 AC_ARG_WITH(cpu,
 	[AS_HELP_STRING([--with-cpu=CPU],
 		[Sets the base ARC ISA @<:@--with-cpu=archs@:>@])],
