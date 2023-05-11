@@ -41,6 +41,27 @@
     ],
     "newlib": [
       {
+      "comment": "TLS is expected to FAIL on baremetal applications due to the missing OS",
+      "tests": [
+         "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++14 execution test",
+         "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++17 execution test",
+         "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++20 execution test"
+      ]
+      },
+      {
+      "comment": "Raw string literals are expected to FAIL on all architectures due to the wrong conversion of tab character",
+      "tests": [
+         "XPASS: c-c++-common/raw-string-7.c  -Wc++-compat  execution test",
+         "XPASS: c-c++-common/raw-string-7.c   execution test"
+      ]
+      },
+      {
+      "comment": "GCC correctly detects integer overflow and aborts the program as expected when the `ftrapv` flag is enabled",
+      "tests": [
+         "FAIL: gcc.dg/pr82274-1.c execution test"
+      ]
+      },
+      {
           "comment": "Unexpected passing to be investigated",
           "tests": [
              "XPASS: g++.dg/torture/pr101373.C",
