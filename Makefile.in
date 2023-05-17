@@ -34,6 +34,8 @@ SHELL := /bin/sh
 AWK := @GAWK@
 SED := @GSED@
 PATH := $(INSTALL_DIR)/bin:$(PATH)
+DEBUG_INFO := @debug_info@
+DEBUG_INFO_GLIBC := @debug_info_glibc@
 
 # Check to see if we need wrapper scripts for awk/sed (which point to
 # gawk/gsed on platforms where these aren't the default), otherwise
@@ -215,7 +217,12 @@ stamps/build-binutils-linux: $(BINUTILS_SRCDIR) stamps/check-write-permission
 		--disable-nls \
 		$(BINUTILS_TARGET_FLAGS) \
 		--disable-sim \
-		CFLAGS="-g3"
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -243,9 +250,6 @@ stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 	cd $(notdir $@) && \
 		CC="$(GLIBC_CC_FOR_TARGET) $($@_CFLAGS)" \
 		CXX="$(GLIBC_CXX_FOR_TARGET) $($@_CFLAGS)" \
-		CFLAGS="$(CFLAGS_FOR_TARGET) @debug_flag@ -O2 $($@_CFLAGS)" \
-		CXXFLAGS="$(CXXFLAGS_FOR_TARGET) @debug_flag@ -O2 $($@_CFLAGS)" \
-		ASFLAGS="$(ASFLAGS_FOR_TARGET) $($@_CFLAGS)" \
 		$</configure \
 		--host=${LINUX_TUPLE} \
 		--prefix=/usr \
@@ -256,7 +260,13 @@ stamps/build-glibc-linux: $(GLIBC_SRCDIR) stamps/build-gcc-linux-stage1
 		$(MULTILIB_FLAGS) \
 		$(GLIBC_TARGET_FLAGS) \
 		$($@_LIBDIROPTS) \
-		CFLAGS="-O2 @debug_flag3@"
+		ASFLAGS="$(ASFLAGS_FOR_TARGET) $($@_CFLAGS)" \
+		CFLAGS="$(CFLAGS) -O2 $(DEBUG_INFO_GLIBC) $($@_CFLAGS) " \
+		CFLAGS_FOR_TARGET="$(CFLAGS_FOR_TARGET) $(DEBUG_INFO_GLIBC)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO_GLIBC)" \
+		CXXFLAGS="$(CXXFLAGS) -O2 $(DEBUG_INFO_GLIBC) $($@_CFLAGS)" \
+		CXXFLAGS_FOR_TARGET="$(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO_GLIBC)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO_GLIBC)"
 	$(MAKE) -C $(notdir $@)
 	+flock $(SYSROOT)/.lock $(MAKE) -C $(notdir $@) install install_root=$(SYSROOT)
 	mkdir -p $(dir $@) && touch $@
@@ -290,10 +300,14 @@ stamps/build-gcc-linux-stage1: $(GCC_SRCDIR) stamps/build-binutils-linux \
 		@with_fpu@ \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
 		--with-gnu-as \
-		--with-gnu-ld
+		--with-gnu-ld \
+		CFLAGS="$(CFLAGS)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD)" \
+		CXXFLAGS="$(CXXFLAGS)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD)"
 	$(MAKE) -C $(notdir $@) inhibit-libc=true all-gcc
 	$(MAKE) -C $(notdir $@) inhibit-libc=true install-gcc
 	$(MAKE) -C $(notdir $@) inhibit-libc=true all-target-libgcc
@@ -323,10 +337,14 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 		@with_fpu@ \
 		$(GCC_CHECKING_FLAGS) \
 		$(MULTILIB_FLAGS) \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
 		--with-gnu-as \
-		--with-gnu-ld
+		--with-gnu-ld \
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
@@ -339,8 +357,12 @@ stamps/build-gdbserver-linux: $(BINUTILS_SRCDIR) stamps/build-gcc-linux-stage2
 		--host=$(LINUX_TUPLE)                        \
 		--prefix=/usr                                \
 		--disable-gdb                                \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
 	$(MAKE) -C $(notdir $@) all-gdbserver
 	$(MAKE) -C $(notdir $@) install-gdbserver DESTDIR=$(SYSROOT)
 	mkdir -p $(dir $@) && touch $@
@@ -372,8 +394,13 @@ stamps/build-binutils-newlib: $(BINUTILS_SRCDIR)
 		--disable-python \
 		@multilib_flags@ \
 		@werror_flag@ \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
+
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -403,8 +430,12 @@ stamps/build-gcc-newlib-stage1: $(GCC_SRCDIR) stamps/build-binutils-newlib
 		@with_fpu@ \
 		--with-gnu-as \
 		--with-gnu-ld \
+		CFLAGS="$(CFLAGS)" \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD)" \
+		CXXFLAGS="$(CXXFLAGS)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD)"
 	$(MAKE) -C $(notdir $@) all-gcc
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
@@ -418,8 +449,13 @@ stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-newlib-stage1
 		@configure_host@ \
 		@multilib_flags@ \
 		--prefix=$(INSTALL_DIR) \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
+
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -450,8 +486,12 @@ stamps/build-gcc-newlib-stage2: $(GCC_SRCDIR) stamps/build-newlib
 		@with_fpu@ \
 		--with-gnu-as \
 		--with-gnu-ld \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)"
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@

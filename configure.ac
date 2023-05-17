@@ -72,15 +72,16 @@ AS_IF([test "x$enable_werror" != xno],
 	[AC_SUBST(werror_flag, --enable-werror)],
 	[AC_SUBST(werror_flag, --disable-werror)])
 
-AC_ARG_ENABLE(debug,
-        [AS_HELP_STRING([--enable-debug],
-		[enable building with debug info @<:@--disable-debug@:>@])],
+AC_ARG_ENABLE(debug_info,
+        [AS_HELP_STRING([--enable-debug-info],
+		[disable building with debug info @<:@--disable-debug@:>@])],
         [],
-        [enable_debug=yes]
+        [enable_debug_info=yes]
         )
 
-AS_IF([test "x$enable_debug" != xno],
-	[AC_SUBST(debug_flag, -g) AC_SUBST(debug_flag3, -g3)])
+AS_IF([test "x$enable_debug_info" != xno],
+	[AC_SUBST(debug_info_glibc, "-Og -g3 -fvar-tracking-assignments") 
+	AC_SUBST(debug_info, "-O0 -g3 -fvar-tracking-assignments")])
 
 AC_ARG_WITH(cpu,
 	[AS_HELP_STRING([--with-cpu=CPU],
