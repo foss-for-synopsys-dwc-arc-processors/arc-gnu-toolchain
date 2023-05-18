@@ -74,9 +74,9 @@ AS_IF([test "x$enable_werror" != xno],
 
 AC_ARG_ENABLE(debug_info,
         [AS_HELP_STRING([--enable-debug-info],
-		[disable building with debug info @<:@--disable-debug@:>@])],
+		[enable building with debug info @<:@--disable-debug-info@:>@])],
         [],
-        [enable_debug_info=yes]
+        [enable_debug_info=no]
         )
 
 AS_IF([test "x$enable_debug_info" != xno],
