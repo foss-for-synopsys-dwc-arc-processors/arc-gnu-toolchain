@@ -41,6 +41,17 @@
     ],
     "newlib": [
       {
+      "comment": "Expected to FAIL due to the missing exception handler from the OS",
+      "tests": [
+        "FAIL: g++.dg/contracts/contracts-ignore2.C   execution test",
+        "FAIL: g++.dg/contracts/contracts-post3.C   execution test",
+        "FAIL: g++.dg/contracts/contracts15.C   execution test",
+        "FAIL: g++.dg/contracts/contracts17.C   execution test",
+        "FAIL: g++.dg/contracts/contracts3.C   execution test",
+        "FAIL: g++.dg/contracts/contracts5.C   execution test"
+      ]
+      },
+      {
       "comment": "TLS is expected to FAIL on baremetal applications due to the missing OS",
       "tests": [
          "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++14 execution test",
