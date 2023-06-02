@@ -1,0 +1,29 @@
+#!/bin/bash
+
+$NSIM_HOME/bin/nsimdrv \
+            -on nsim_isa_enable_timer_0             \
+            -on nsim_isa_enable_timer_1             \
+            -off invalid_instruction_interrupt      \
+            -off memory_exception_interrupt         \
+            -on nsim_download_elf_sections          \
+            -prop=nsim_emt=1                        \
+            -p nsim_isa_family=av2hs                \
+            -p nsim_isa_core=4                      \
+            -p nsim_isa_div_rem_option=2            \
+            -p nsim_isa_mpy64=1                     \
+            -p nsim_isa_div64_option=1              \
+            -p nsim_isa_unaligned_option=1          \
+            -p nsim_isa_atomic_option=1             \
+            -p nsim_isa_shift_option=0              \
+            -p nsim_isa_bitscan_option=0            \
+            -p nsim_isa_ll64_option=1               \
+            -p nsim_isa_fmp_sat_option=1            \
+            -p nsim_isa_mpy_option=9                \
+            -p nsim_isa_fpus_option=1               \
+            -p nsim_isa_fpud_option=1               \
+            -p nsim_isa_m128_option=1               \
+            -p nsim_isa_fpud_div_option=1           \
+            -p nsim_isa_fpu_mac_option=1            \
+            "$@"
+
+

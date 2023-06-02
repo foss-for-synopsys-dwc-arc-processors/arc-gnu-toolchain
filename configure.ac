@@ -61,6 +61,18 @@ AS_IF([test "x$enable_qemu" != xno],
 	[AC_SUBST(qemu_build, qemu)],
 	[])
 
+AC_ARG_WITH(sim,
+		[AS_HELP_STRING([--with-sim=SIM],
+		[Sets the base ARC Simulator @<:@--with-cpu=qemu@:>@])],
+		[],
+		[with_sim=default]
+		)
+
+AS_IF([test "x$with_sim" != xdefault],
+	    [AC_SUBST(with_sim, $with_sim)],
+	    [AC_SUBST(with_sim,"qemu")])
+
+
 AC_ARG_ENABLE(werror,
         [AS_HELP_STRING([--enable-werror],
 		[controls if build is compiled with werror or not @<:@--disable-werror@:>@])],

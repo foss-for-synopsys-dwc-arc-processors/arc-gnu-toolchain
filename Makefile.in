@@ -30,6 +30,8 @@ QEMU_SRCDIR		:= $(srcdir)/qemu
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
+SIM ?= @with_sim@
+
 SHELL := /bin/sh
 AWK := @GAWK@
 SED := @GSED@
@@ -96,9 +98,24 @@ else
 	QEMU_CPU = hs6x
 endif
 endif
-SIM_PATH:=$(srcdir)/scripts/wrapper/qemu
+
+ifeq ($(SIM),qemu)
+  # Using qemu simulator.
+  SIM_STAMP:= stamps/build-qemu
+else
+ifeq ($(SIM),nsim)
+  # Using nsim simulator.
+  ifeq (@default_target@, linux)
+    $(error nSIM not supported)
+  endif
+  SIM_STAMP:= nsim-validation
+else
+  $(error Only support SIM=nsim, or SIM=qemu (default))
+endif
+endif
+
+SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
 SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
-SIM_STAMP:= stamps/build-qemu
 
 
 all: @default_target@ @qemu_build@
@@ -489,6 +506,11 @@ stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 stamps/check-newlib-newlib: stamps/build-newlib $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
+
+nsim-validation:
+  ifeq (,$(shell command -v nsimdrv))
+    $(error nSIM not detected. Please add the tool to PATH)
+  endif
 
 report-gcc-newlib: stamps/check-gcc-newlib
 	$(srcdir)/scripts/testsuite-filter newlib \
