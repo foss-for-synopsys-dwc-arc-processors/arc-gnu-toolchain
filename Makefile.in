@@ -400,7 +400,6 @@ stamps/build-binutils-newlib: $(BINUTILS_SRCDIR)
 		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
 		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
 		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
-
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
@@ -455,7 +454,6 @@ stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-newlib-stage1
 		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
 		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
 		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
-
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
