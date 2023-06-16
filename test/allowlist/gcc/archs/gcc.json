@@ -1,0 +1,115 @@
+{
+    "common": [
+    ],
+    "newlib": [
+    {
+      "comment": "Fix SDA linker relocation issue during compilation with: -sdata (small data)",
+      "tests": [
+        "FAIL: gcc.dg/compat/struct-by-value-2 c_compat_x_tst.o-c_compat_y_tst.o link",
+        "FAIL: gcc.dg/compat/struct-by-value-3 c_compat_x_tst.o-c_compat_y_tst.o link",
+        "FAIL: gcc.dg/compat/struct-return-3 c_compat_x_tst.o-c_compat_y_tst.o link",
+        "FAIL: gcc.dg/compat/struct-by-value-4 c_compat_x_tst.o-c_compat_y_tst.o link",
+        "FAIL: tmpdir-gcc.dg-struct-layout-1/t001 c_compat_x_tst.o-c_compat_y_tst.o link",
+        "FAIL: gcc.dg/torture/pr105665.c   -O3 -fomit-frame-pointer -funroll-loops -fpeel-loops -ftracer -finline-functions  (test for excess errors)",
+        "FAIL: gcc.dg/torture/pr60115.c   -O0  (test for excess errors)",
+        "FAIL: gcc.dg/torture/pr60115.c   -Os  (test for excess errors)",
+        "FAIL: gcc.dg/torture/pr105665.c   -O3 -g  (test for excess errors)"
+      ]
+      },
+      {
+      "comment": "To be removed - CLAUDIU",
+      "tests": [
+        "FAIL: gcc.target/arc/mtune-ARC600.c scan-assembler .cpu ARC700",
+        "FAIL: gcc.target/arc/mtune-ARC601.c scan-assembler .cpu ARC700",
+        "FAIL: gcc.target/arc/mtune-ARC700.c scan-assembler .cpu ARC700",
+        "FAIL: gcc.target/arc/mtune-ARC725D.c scan-assembler .cpu ARC700",
+        "FAIL: gcc.target/arc/mtune-ARC750D.c scan-assembler .cpu ARC700",
+        "FAIL: gcc.target/arc/add_n-combine.c scan-assembler @at2\\\\+2",
+        "FAIL: gcc.target/arc/firq-4.c scan-assembler mov_s.*fp,sp",
+        "FAIL: gcc.target/arc/firq-6.c scan-assembler mov_s.*fp,sp"
+      ]
+      },
+      {
+      "comment": "Modify test to EXPECTED TO FAIL",
+      "tests": [
+        "FAIL: gcc.target/arc/uncached-7.c scan-assembler-times st.di 1"
+      ]
+      },
+      {
+      "comment": "Expected ERROR due to overflow",
+      "tests": [
+        "FAIL: gcc.dg/pr82274-1.c execution test"
+      ]
+      },
+      {
+      "comment": "Bogus warning are indifference",
+      "tests": [
+        "FAIL: gcc.dg/uninit-pred-9_b.c bogus warning (test for bogus messages, line 20)"
+      ]
+      },
+      {
+      "comment": "Expected to fail in newlib due to missing OS",
+      "tests": [
+        "FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-generate -D_PROFILE_GENERATE",
+        "FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation,  -fprofile-generate -D_PROFILE_GENERATE"
+      ]
+      },
+      {
+      "comment": "To be investigating - .gcda not being generated in QEMU",
+      "tests": [
+        "FAIL: gcc.dg/tree-prof/pr79587.c execution: file pr79587.gcda does not exist,  -fprofile-generate -D_PROFILE_GENERATE",
+        "FAIL: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-generate -D_PROFILE_GENERATE",
+        "FAIL: gcc.dg/tree-prof/va-arg-pack-1.c execution: file va-arg-pack-1.gcda does not exist,  -fprofile-generate -D_PROFILE_GENERATE"
+      ]
+      },
+      {
+      "comment": "To be investigating - Missing vectorization",
+      "tests": [
+        "FAIL: gcc.dg/tree-ssa/gen-vect-11c.c scan-tree-dump-times vect \"vectorized 0 loops\" 1",
+        "FAIL: gcc.dg/tree-ssa/gen-vect-2.c scan-tree-dump-times vect \"Vectorizing an unaligned access\" 0",
+        "FAIL: gcc.dg/tree-ssa/gen-vect-25.c scan-tree-dump-times vect \"Vectorizing an unaligned access\" 0"
+      ]
+      },
+      {
+      "comment": "To be Defined",
+      "tests": [
+        "FAIL: gcc.target/arc/store-merge-1.c scan-assembler-times std\\\\s*0,\\\\[r 1"
+      ]
+      },
+      {
+      "comment": "To be investigating",
+      "tests": [
+        "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000003[\t ]+[^\n]*btt_info 2",
+        "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0[\t ]+[^\n]*bts_offset 7",
+        "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times ascii \".data.0\"[\t ]+[^\n]*btf_aux_string 1"
+      ]
+      },
+      {
+      "comment": "To be investigating",
+      "tests": [
+         "FAIL: gcc.dg/tree-prof/stringop-1.c scan-ipa-dump profile \"Transformation done: single value 4 stringop\"",
+         "FAIL: gcc.dg/tree-prof/stringop-1.c scan-tree-dump optimized \" = MEM.*&b\"",
+         "FAIL: gcc.dg/tree-prof/stringop-1.c scan-tree-dump optimized \"MEM.*&a\\\\] = \""
+      ]
+      },
+      {
+      "comment": "To be investigating - memory related",
+      "tests": [
+        "FAIL: gcc.dg/strlenopt-10.c scan-tree-dump-times strlen1",
+        "FAIL: gcc.dg/strlenopt-11.c scan-tree-dump-times strlen1 \"memcpy \\\\(\" 6",
+        "FAIL: gcc.dg/strlenopt-13.c scan-tree-dump-times strlen1 \"memcpy \\\\(\" 6"
+      ]
+      },
+      {
+      "comment": "To be investigating - memory related",
+      "tests": [
+        "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000003[\\t ]+[^\\n]*btt_info 2",
+        "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0[\\t ]+[^\\n]*bts_offset 7",
+        "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times ascii \".data.0\"[\\t ]+[^\\n]*btf_aux_string 1"
+      ]
+      }
+    ],
+    "linux": [
+    ]
+}
+
