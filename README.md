@@ -163,10 +163,58 @@ $ ./configure --target=arc64            \
               --enable-linux
 ```
 
-### Running GCC Test Suite
+## Running Test Suite
 
+At present, the testing environment comprises three integrated testsuites: `gcc/g++`, `binutils`, and `newlib`. Testing is possible for both Baremetal Toolchain Distribution and Linux Toolchain Distribution (user-mode), via two simulators, QEMU and nSIM.
+
+### Setting up the Simulator
+
+During the toolchain compilation process, you can choose the simulator to use for testing. There are two options available: QEMU, an open-source simulator, and nSIM, a proprietary simulator provided by Synopsys. By default, QEMU is the chosen simulator.
+
+1. If the selected simulator is QEMU, the testing will clone QEMU’s repository from the official Synopsys QEMU repository and build it  by   according to the branch specified in the Makefile file. The simulator will be installed based on the prefix path provided during the toolchain distribution’s configuration stage.
 ```sh
-$ ./configure --target=... --prefix=/path/to/install --disable-linux
-$ make newlib
-$ make check-gcc
+$ ./configure --target=... --prefix=/path/to/install --with-sim=qemu
 ```
+2. If nSIM is preferred over QEMU, ensure that the simulator is defined in the PATH environment variable before executing the testing.
+```sh
+$ ./configure --target=... --prefix=/path/to/install --with-sim=nsim
+```
+
+### Executing Test Suite
+
+#### Execution of Full Test Suite
+
+In order to execute all the associated testsuite with the toolchain distribution, execute the following command:
+```sh
+$ make check -j $(NPROC)
+```
+
+This command automatically invokes the GCC/G++, Binutils and Newlib testsuites to perform the respective tests.
+
+#### Individual Execution of Test Suite
+
+Refer to the table below to determine the suitable command for running an individual testsuite based on the current toolchain distribution.
+
+| Toolchain Distribution | Test Suite | Command                        |
+|:-----------------------|:-----------|:-------------------------------|
+| Baremetal              | gcc        | `$ make check-gcc-newlib`      |
+| Baremetal              | binutils   | `$ make check-binutils-newlib` |
+| Baremetal              | newlib     | `$ make check-newlib-newlib`   |
+| Linux                  | gcc        | `$ make check-gcc-linux`       |
+| Linux                  | binutils   | `$ make check-binutils-linux`  |
+
+Note that `-newlib` suffix designates tests for the Baremetal toolchain distribution, and `-linux` denotes tests for the Linux toolchain distribution.
+
+
+#### Execution of Full Test Suite with a Report
+
+An alternate option to `$ make check` command is available, which executes all the tests discussed earlier and generates a report at the end of the execution. This report is generated through a testsuite filter script that filters known errors and exclusively displays the unknown ones. Different filters with JSON format files will be utilized based on the testsuite tool and CPU used for testing execution. These files can be accessed through `arc-gnu-toolchain/test/allowlist` folder.
+
+To generate the report, execute the following command:
+```sh
+$ make report -j $(NPROC)
+```
+
+#### Execution of Test Suite with Parallelization
+
+This testing environment allows for DejaGNU parallelization by dividing the testsuite into multiple folders and executing several DejaGNU instances. After completing the execution process, the results are concatenated into a single .sum and .log file that corresponds to the appropriate tool. To achieve this, indicate the maximum number of jobs (commands) that can be executed concurrently with `-j ($NPROC)` in the `make` invocation as demonstrated earlier.
