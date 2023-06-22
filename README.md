@@ -131,6 +131,7 @@ Some of parameters you can pass to the configure script:
 | --enable-qemu     | no      | yes, no (--disable-qemu)                                                        |
 | --with-fpu        | none    | none, fpus, fpud                                                                |
 | --with-cpu        | none    | none, hs6x, hs68, hs5x, hs58, archs, (more at binutils/include/elf/arc-cpu.def) |
+| --with-sim        | qemu    | qemu, nsim                                                                      |
 
 
 ### Advanced Options
