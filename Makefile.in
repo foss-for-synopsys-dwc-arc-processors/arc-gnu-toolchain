@@ -130,25 +130,25 @@ REGRESSION_TEST_LIST = gcc binutils newlib
 
 .PHONY: check
 check: check-@default_target@
-.PHONY: check-linux check-newlib
+.PHONY: check-linux check-baremetal
 check-linux: $(patsubst %,check-%-linux,$(REGRESSION_TEST_LIST))
-check-newlib: $(patsubst %,check-%-newlib,$(REGRESSION_TEST_LIST))
+check-baremetal: $(patsubst %,check-%-baremetal,$(REGRESSION_TEST_LIST))
 
 check-gcc: check-gcc-@default_target@
-check-gcc-newlib: stamps/check-gcc-newlib
+check-gcc-baremetal: stamps/check-gcc-baremetal
 check-gcc-linux: stamps/check-gcc-linux
 
 check-binutils: check-binutils-@default_target@
 check-binutils-linux: stamps/check-binutils-linux
-check-binutils-newlib: stamps/check-binutils-newlib
+check-binutils-baremetal: stamps/check-binutils-baremetal
 
-check-newlib-newlib:stamps/check-newlib-newlib
+check-newlib-baremetal:stamps/check-newlib-baremetal
 
 .PHONY: report
 report: report-@default_target@
 
 report-linux: $(patsubst %,report-%-linux,$(REGRESSION_TEST_LIST))
-report-newlib: $(patsubst %,report-%-newlib,$(REGRESSION_TEST_LIST))
+report-baremetal: $(patsubst %,report-%-baremetal,$(REGRESSION_TEST_LIST))
 
 .PHONY: report-newlib-@default_target@ report-binutils-@default_target@
 report-gcc: report-gcc-@default_target@
@@ -490,12 +490,12 @@ stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	mkdir -p $(dir $@)
 	date > $@
 
-stamps/check-gcc-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
+stamps/check-gcc-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
 	date > $@
 
-stamps/check-binutils-newlib: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
+stamps/check-binutils-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-binutils-newlib check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
@@ -503,7 +503,7 @@ stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-binutils-linux check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(GLIBC_TARGET_BOARDS)'" || true
 	date > $@
 
-stamps/check-newlib-newlib: stamps/build-newlib $(SIM_STAMP)
+stamps/check-newlib-baremetal: stamps/build-newlib $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
@@ -512,7 +512,7 @@ ifeq ($(shell command -v nsimdrv),)
 	$(error nsimdrv not detected)
 endif
 
-report-gcc-newlib: stamps/check-gcc-newlib
+report-gcc-baremetal: stamps/check-gcc-baremetal
 	$(srcdir)/scripts/testsuite-filter newlib \
 		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json \
 		`find build-gcc-newlib-stage2 -name *.sum |paste -sd "," -`
@@ -522,7 +522,7 @@ report-gcc-linux: stamps/check-gcc-linux
 		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json \
 		`find build-gcc-linux-stage2 -name *.sum |paste -sd "," -`
 
-report-binutils-newlib: stamps/check-binutils-newlib
+report-binutils-baremetal: stamps/check-binutils-baremetal
 	$(srcdir)/scripts/testsuite-filter newlib \
 		$(srcdir)/test/allowlist/binutils/binutils.json \
 		`find build-binutils-newlib -name *.sum |paste -sd "," -`

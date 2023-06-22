@@ -48,7 +48,7 @@ AC_ARG_ENABLE(linux,
 
 AS_IF([test "x$enable_linux" != xno],
 	[AC_SUBST(default_target, linux)],
-	[AC_SUBST(default_target, newlib)])
+	[AC_SUBST(default_target, baremetal)])
 
 AC_ARG_ENABLE(qemu,
         [AS_HELP_STRING([--enable-qemu],
