@@ -122,7 +122,7 @@ SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROO
 
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
-newlib: stamps/build-gcc-newlib-stage2
+baremetal: stamps/build-gcc-newlib-stage2
 linux: stamps/build-gdbserver-linux
 
 gdbserver: stamps/build-gdbserver-linux
