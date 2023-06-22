@@ -50,12 +50,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        mode: [newlib, linux]
+        mode: [baremetal, linux]
         target: ${{ fromJSON(inputs.targets) }}
 
         # exclude arc32 bare-metal toolchain because it is built by arc64 multilib toolchain
         exclude:
-          - { mode: newlib, target: arc32 }
+          - { mode: baremetal, target: arc32 }
 
     steps:
       - uses: actions/checkout@v2
