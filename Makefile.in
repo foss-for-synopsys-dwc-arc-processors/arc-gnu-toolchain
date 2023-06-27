@@ -117,8 +117,7 @@ endif
 endif
 
 SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
-SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
-
+SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)" QEMU_BINPATH="$(INSTALL_DIR)/bin"
 
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
@@ -129,7 +128,7 @@ gdbserver: stamps/build-gdbserver-linux
 qemu: stamps/build-qemu
 
 ifeq (@default_target@,linux)
-REGRESSION_TEST_LIST = gcc binutils
+REGRESSION_TEST_LIST = gcc binutils glibc
 else
 REGRESSION_TEST_LIST = gcc binutils newlib
 endif
@@ -147,6 +146,8 @@ check-gcc-linux: stamps/check-gcc-linux
 check-binutils: check-binutils-@default_target@
 check-binutils-linux: stamps/check-binutils-linux
 check-binutils-baremetal: stamps/check-binutils-baremetal
+
+check-glibc-linux: stamps/check-glibc-linux
 
 check-newlib-baremetal:stamps/check-newlib-baremetal
 
@@ -529,6 +530,13 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 
 stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-linux-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(GLIBC_TARGET_BOARDS)'"
+	mkdir -p $(dir $@)
+	date > $@
+
+stamps/check-glibc-linux: stamps/build-glibc-linux $(SIM_STAMP)
+	$(eval $@_BUILD_DIR := $(notdir $@))
+	$(eval $@_BUILD_DIR := $(subst check-,build-,$($@_BUILD_DIR)))
+	$(SIM_PREPARE) $(MAKE) -C $($@_BUILD_DIR) check
 	mkdir -p $(dir $@)
 	date > $@
 
