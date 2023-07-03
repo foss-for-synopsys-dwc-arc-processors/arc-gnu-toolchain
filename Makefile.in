@@ -31,6 +31,7 @@ QEMU_SRCDIR		:= $(srcdir)/qemu
 SYSROOT := $(INSTALL_DIR)/sysroot
 
 SIM ?= @with_sim@
+WITH_CPU ?= @with_cpu@
 
 SHELL := /bin/sh
 AWK := @GAWK@
@@ -64,10 +65,8 @@ LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
 
 ifeq (@target_alias@,arc)
 NEWLIB_TUPLE ?= $(call make_tuple,elf32)
-WITH_CPU ?= @with_cpu@
 else
 NEWLIB_TUPLE ?= $(call make_tuple,elf)
-WITH_CPU ?=
 endif
 
 ROOT_DIR := $(shell pwd)
