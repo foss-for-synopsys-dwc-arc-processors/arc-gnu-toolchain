@@ -521,6 +521,7 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 	cd $(notdir $@) && $</configure \
 		--prefix=${INSTALL_DIR} \
 		--target-list="arc-softmmu,arc64-softmmu,arc-linux-user,arc64-linux-user" \
+		@werror_flag@ \
 		--enable-debug \
 		--enable-debug-tcg
 	$(MAKE) -C $(notdir $@)
