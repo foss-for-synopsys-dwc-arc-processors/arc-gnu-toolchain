@@ -119,6 +119,70 @@ SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
 SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
 
 
+# Default compatibility test flags
+# ALT is by default ccac
+GCC_COMMON_OPTS:=-O0 -g -Wl,-zmuldefs -Wl,--no-warn-mismatch -lgcc -lnsim -lg -lm
+CCAC_COMMON_OPTS:=-O0 -g -Xbasecase -Hnocopyr -Hnosdata -fstrict-abi
+#  ArcV2
+ifeq (@target_alias@,arc)
+	GCC_METAWARE_LIB:=arc/lib/av2em/le
+	GCC_COMPAT_GCC_OPTIONS_DEFAULT:=-mcpu=em4_dmips -mno-sdata -fshort-enums
+	GCC_COMPAT_CCAC_OPTIONS_DEFAULT:=-av2em
+else
+#  hs5x
+ifeq (@target_alias@,arc32)
+	GCC_METAWARE_LIB:=arc/lib/av3hs/le
+	GCC_COMPAT_GCC_OPTIONS_DEFAULT:=-mcpu=hs5x
+	GCC_COMPAT_CCAC_OPTIONS_DEFAULT:=-arcv3hs
+
+#  hs6x
+else
+	GCC_METAWARE_LIB:=arc/lib/av2em/le
+	GCC_COMPAT_GCC_OPTIONS_DEFAULT:= -mcpu=hs6x
+	GCC_COMPAT_CCAC_OPTIONS_DEFAULT:=-arc64
+endif
+endif
+
+GCC_COMPAT_GCC_OPTIONS_DEFAULT:=$(GCC_COMMON_OPTS) $(GCC_COMPAT_GCC_OPTIONS_DEFAULT)
+GCC_COMPAT_CCAC_OPTIONS_DEFAULT:=$(CCAC_COMMON_OPTS) $(GCC_COMPAT_CCAC_OPTIONS_DEFAULT)
+
+# Check for GCC compat flags
+ifndef GCC_COMPAT_GCC_OPTIONS
+	GCC_COMPAT_GCC_OPTIONS:=$(GCC_COMPAT_GCC_OPTIONS_DEFAULT)
+endif
+
+# Check for added GCC compat flags (so we can add to the defaults)
+ifdef GCC_COMPAT_EXTRA_GCC_OPTIONS
+	GCC_COMPAT_GCC_OPTIONS:=$(GCC_COMPAT_GCC_OPTIONS) $(GCC_COMPAT_EXTRA_GCC_OPTIONS)
+endif
+
+# Use alternate if available
+ifdef GCC_COMPAT_ALT_PATH
+
+	# We can use some defaults for MetaWares' CCAC
+	ifeq ($(shell echo $(GCC_COMPAT_ALT_PATH) | grep -q ccac && echo 1 || echo 0), 1)
+		ifndef GCC_COMPAT_ALT_OPTIONS
+			GCC_COMPAT_ALT_OPTIONS:=$(GCC_COMPAT_CCAC_OPTIONS_DEFAULT)
+		endif
+
+		# Default to use metaware libraries if available
+		ifdef GCC_METAWARE_ROOT
+			GCC_COMPAT_GCC_OPTIONS:=$(GCC_COMPAT_GCC_OPTIONS) -L$(GCC_METAWARE_ROOT)/$(GCC_METAWARE_LIB) -lmw
+		endif
+	endif
+	ALT_CC_UNDER_TEST:=$(GCC_COMPAT_ALT_PATH)
+
+	COMPAT_PREPARE := ALT_CC_UNDER_TEST="$(ALT_CC_UNDER_TEST)" GCC_COMPAT_ALT_OPTIONS="$(GCC_COMPAT_ALT_OPTIONS)" GCC_COMPAT_GCC_OPTIONS="$(GCC_COMPAT_GCC_OPTIONS)" $(SIM_PREPARE)
+
+# No alternate compiler provided, do self sanity checks
+else
+
+	ALT_CC_UNDER_TEST:="same"
+	COMPAT_PREPARE := ALT_CC_UNDER_TEST="$(ALT_CC_UNDER_TEST)" GCC_COMPAT_GCC_OPTIONS="$(GCC_COMPAT_GCC_OPTIONS)" $(SIM_PREPARE)
+
+endif
+
+
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
 baremetal: stamps/build-gcc-newlib-stage2
@@ -141,6 +205,7 @@ check-baremetal: $(patsubst %,check-%-baremetal,$(REGRESSION_TEST_LIST))
 
 check-gcc: check-gcc-@default_target@
 check-gcc-baremetal: stamps/check-gcc-baremetal
+check-gcc-compat: stamps/check-gcc-compat
 check-gcc-linux: stamps/check-gcc-linux
 
 check-binutils: check-binutils-@default_target@
@@ -534,6 +599,11 @@ stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 
 stamps/check-gcc-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
+	mkdir -p $(dir $@)
+	date > $@
+
+stamps/check-gcc-compat: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
+	$(COMPAT_PREPARE) $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS='compat.exp'$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
 	date > $@
 

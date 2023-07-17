@@ -34,4 +34,26 @@ if ![ info exists HOSTCFLAGS ] {
     set HOSTCFLAGS "-g -O2"
 }
 
+if { [info exists env(GCC_COMPAT_GCC_OPTIONS)] } {
+    set is_gcc_compat_suite "1"
+    set GCC_COMPAT_GCC_OPTIONS $env(GCC_COMPAT_GCC_OPTIONS)
+
+    set ALT_CC_UNDER_TEST   "$env(ALT_CC_UNDER_TEST)"
+    set ALT_CXX_UNDER_TEST	"$ALT_CC_UNDER_TEST"
+
+    # MetaWare specs are defined
+    if { [info exists env(GCC_COMPAT_ALT_OPTIONS)] } {
+        set GCC_COMPAT_ALT_OPTIONS $env(GCC_COMPAT_ALT_OPTIONS)
+
+        set COMPAT_OPTIONS [list [list $GCC_COMPAT_GCC_OPTIONS $GCC_COMPAT_ALT_OPTIONS]]
+
+    # No MetaWare specs, perform sanity (self) compatibility checks
+    } else {
+        set COMPAT_OPTIONS [list [list $GCC_COMPAT_GCC_OPTIONS $GCC_COMPAT_GCC_OPTIONS]]
+
+    }
+    # Disable tests with packed structures to avoid unaligned access errors.
+    set COMPAT_SKIPS [list {ATTRIBUTE}]
+}
+
 # vim: noexpandtab sts=4 ts=8:
