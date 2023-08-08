@@ -100,6 +100,19 @@ else
 endif
 endif
 
+ifeq (@default_target@,linux)
+	TARGET_ALIAS = $(call make_tuple,linux-gnu)
+	TARGET_TRIPLET = $(call make_tupple,unknown-linux-gnu)
+else
+ifeq (@target_alias@,arc)
+	TARGET_ALIAS = $(call make_tuple,elf32)
+	TARGET_TRIPLET = $(call make_tuple,unknown-elf32)
+else
+	TARGET_ALIAS = $(call make_tuple,elf)
+	TARGET_TRIPLET = $(call make_tuple,unknown-elf)
+endif
+endif
+
 ifeq ($(SIM),qemu)
 	# Using qemu simulator.
 	SIM_STAMP:= stamps/build-qemu
@@ -146,6 +159,9 @@ check-gcc-linux: stamps/check-gcc-linux
 check-binutils: check-binutils-@default_target@
 check-binutils-linux: stamps/check-binutils-linux
 check-binutils-baremetal: stamps/check-binutils-baremetal
+
+check-qemu: check-qemu-@default_target@
+check-qemu-baremetal: stamps/check-qemu-baremetal
 
 check-newlib-baremetal:stamps/check-newlib-baremetal
 
@@ -526,6 +542,19 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
+
+stamps/build-test-qemu: $(srcdir)/test-qemu
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--with-alias=$(TARGET_ALIAS) \
+		--with-triplet=$(TARGET_TRIPLET)
+	mkdir -p $(dir $@) && touch $@
+
+stamps/check-qemu-baremetal: stamps/build-gcc-newlib-stage2 stamps/build-qemu stamps/build-test-qemu
+	$(SIM_PREPARE) $(MAKE) -C build-test-qemu check "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+	mkdir -p $(dir $@)
+	date > $@
 
 stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-linux-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(GLIBC_TARGET_BOARDS)'"

@@ -33,7 +33,7 @@ proc qemu_target_compile { source dest type options } {
     verbose "In qemu_target_compile...\n"
 
     verbose "srcdir is $srcdir"
-    lappend options "ldflags=-nostartfiles -I$srcdir/$subdir -L$srcdir/$subdir"
+    lappend options "ldflags=-Wl,--no-warn-rwx-segments -nostartfiles -I$srcdir/$subdir -L$srcdir/$subdir"
     return [target_compile $source $dest $type $options]
 }
 
