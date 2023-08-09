@@ -4,7 +4,7 @@ qemu_args=()
 while [[ "$1" != "" ]]
 do
     case "$1" in
-	-Wq,*) qemu_args+=("$echo "$1" | cut -d, -f2-)");;
+	-Wq,*) qemu_args+=("$(echo "$1" | cut -d, -f2-)");;
 	*) break;;
     esac
     shift
@@ -19,5 +19,5 @@ case "$xlen" in
 	mem="2G";;
 esac
 
-qemu-system-arc$qemu -semihosting -cpu ${QEMU_CPU} -M arc-sim -m $mem -nographic \
+qemu-system-arc$qemu -cpu ${QEMU_CPU} -M arc-sim -m $mem "${qemu_args[@]}" -nographic \
 		     -no-reboot -monitor none -kernel "$@"
