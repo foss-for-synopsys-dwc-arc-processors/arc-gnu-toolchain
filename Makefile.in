@@ -172,6 +172,7 @@ report-linux: $(patsubst %,report-%-linux,$(REGRESSION_TEST_LIST))
 report-baremetal: $(patsubst %,report-%-baremetal,$(REGRESSION_TEST_LIST))
 
 .PHONY: report-newlib-@default_target@ report-binutils-@default_target@
+report-qemu: report-qemu-@default_target@
 report-gcc: report-gcc-@default_target@
 report-binutils: report-binutils-@default_target@
 report-newlib: report-newlib-@default_target@
@@ -585,6 +586,11 @@ nsim-validation:
 ifeq ($(shell command -v nsimdrv),)
 	$(error nsimdrv not detected)
 endif
+
+report-qemu-baremetal: stamps/check-qemu-baremetal
+	$(srcdir)/scripts/testsuite-filter newlib \
+		$(srcdir)/test/allowlist/qemu/$(QEMU_CPU)/qemu.json \
+		`find build-test-qemu -name *.sum |paste -sd "," -`
 
 report-gcc-baremetal: stamps/check-gcc-baremetal
 	$(srcdir)/scripts/testsuite-filter newlib \
