@@ -149,7 +149,7 @@ pt_l4_base:
   start
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;; FOR NOW SKIP THIS TEST;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-  b @1f
+  b @2f
 
 
 ; Planting data in physical addresess for the tests
@@ -258,5 +258,12 @@ fail:
 1:
   ;flag  0x1                        ; for now: nSIM ends here
   ;brk
+  print " MMUv48_04: 16K page size test.\n"
+  end
+
+2:
+  ;; This is a temporary fix for DejaGNU. The exit code must be
+  ;; printed otherwise is stated as PASS.
+  print "*** EXIT code 4242"
   print " MMUv48_04: 16K page size test. Currently disabled until TCG tests support passing the appropriate mmu cpu flag\n"
   end
