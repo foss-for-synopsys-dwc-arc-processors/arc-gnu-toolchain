@@ -244,13 +244,12 @@ proc qemu_pass_fail { srcfile options } {
     }
 }
 
-proc qemu_pass_fail_all { flag exclude_list } {
+proc qemu_pass_fail_all { flag exclude_list mmu_flag mmu_list } {
     global srcdir objdir subdir runtests
-
     dg-init
 
-    set options ""
-    lappend options "ldflags=-T tarc.ld"
+    set linker_options_all "ldflags=-T tarc.ld"
+    set linker_options_mmu "ldflags=-T tarc_mmu.ld"
     foreach fullsrcfile [lsort [glob -nocomplain $srcdir/$subdir/*.S]] {
 	set srcfile "[file tail $fullsrcfile]"
 	# If we're only testing specific files and this isn't one of them, skip it.
@@ -264,29 +263,14 @@ proc qemu_pass_fail_all { flag exclude_list } {
 		continue
 	    }
 	}
-	qemu_pass_fail "$srcfile" "$options"
-    }
-    dg-finish
-}
 
-proc qemu_pass_fail_mmu { flag exclude_list } {
-    global srcdir objdir subdir runtests
-
-    dg-init
-
-    set options ""
-    lappend options "ldflags=-T tarc_mmu.ld"
-    foreach fullsrcfile [lsort [glob -nocomplain $srcdir/$subdir/*_mmuv48_*_arc64.S]] {
-	set srcfile "[file tail $fullsrcfile]"
-	# If we're only testing specific files and this isn't one of them, skip it.
-	if ![runtest_file_p $runtests $srcfile] then {
-	    continue
-	}
-
-	# Exclude tests listed in exclude_list.
-	if { $flag == "-x" } then {
-	    if {[lsearch $exclude_list "$srcfile"] != -1} then {
-		continue
+	# Selects which tarc file to use accordingly with the mmu_list
+	set options ""
+	if { $mmu_flag == "-u" } then {
+	    if {[lsearch $mmu_list "$srcfile"] != -1} then {
+		lappend options $linker_options_mmu
+	    } else {
+		lappend options $linker_options_all
 	    }
 	}
 	qemu_pass_fail "$srcfile" "$options"

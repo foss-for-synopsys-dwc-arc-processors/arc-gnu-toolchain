@@ -100,9 +100,24 @@ else
 endif
 endif
 
+ifeq (@default_target@,linux)
+	TARGET_ALIAS = $(call make_tuple,linux-gnu)
+	TARGET_TRIPLET = $(call make_tupple,unknown-linux-gnu)
+else
+ifeq (@target_alias@,arc)
+	TARGET_ALIAS = $(call make_tuple,elf32)
+	TARGET_TRIPLET = $(call make_tuple,unknown-elf32)
+else
+	TARGET_ALIAS = $(call make_tuple,elf)
+	TARGET_TRIPLET = $(call make_tuple,unknown-elf)
+endif
+endif
+
 ifeq ($(SIM),qemu)
 	# Using qemu simulator.
 	SIM_STAMP:= stamps/build-qemu
+	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
+	SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" QEMU_CPU="$(QEMU_CPU)"
 else
 ifeq ($(SIM),nsim)
 	# Using nsim simulator.
@@ -110,14 +125,12 @@ ifeq ($(SIM),nsim)
 		$(error nSIM not supported)
 	endif
 	SIM_STAMP:= nsim-validation
+	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
+	SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
 else
 	$(error Only support SIM=nsim, or SIM=qemu (default))
 endif
 endif
-
-SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
-SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
-
 
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
@@ -147,6 +160,9 @@ check-binutils: check-binutils-@default_target@
 check-binutils-linux: stamps/check-binutils-linux
 check-binutils-baremetal: stamps/check-binutils-baremetal
 
+check-qemu: check-qemu-@default_target@
+check-qemu-baremetal: stamps/check-qemu-baremetal
+
 check-newlib-baremetal:stamps/check-newlib-baremetal
 
 .PHONY: report
@@ -156,6 +172,7 @@ report-linux: $(patsubst %,report-%-linux,$(REGRESSION_TEST_LIST))
 report-baremetal: $(patsubst %,report-%-baremetal,$(REGRESSION_TEST_LIST))
 
 .PHONY: report-newlib-@default_target@ report-binutils-@default_target@
+report-qemu: report-qemu-@default_target@
 report-gcc: report-gcc-@default_target@
 report-binutils: report-binutils-@default_target@
 report-newlib: report-newlib-@default_target@
@@ -527,6 +544,22 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
+stamps/build-test-qemu: $(srcdir)/test-qemu
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--with-alias=$(TARGET_ALIAS) \
+		--with-triplet=$(TARGET_TRIPLET)
+	mkdir -p $(dir $@) && touch $@
+
+stamps/check-qemu-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP) stamps/build-test-qemu
+ifneq ($(SIM),qemu)
+	$(error QEMU simulator must be used)
+endif
+	$(SIM_PREPARE) DEJAGNU_SIM_OPTIONS="-Wq,-serial -Wq,stdio" $(MAKE) -C build-test-qemu check "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+	mkdir -p $(dir $@)
+	date > $@
+
 stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-gcc-linux-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(GLIBC_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
@@ -553,6 +586,11 @@ nsim-validation:
 ifeq ($(shell command -v nsimdrv),)
 	$(error nsimdrv not detected)
 endif
+
+report-qemu-baremetal: stamps/check-qemu-baremetal
+	$(srcdir)/scripts/testsuite-filter newlib \
+		$(srcdir)/test/allowlist/qemu/$(QEMU_CPU)/qemu.json \
+		`find build-test-qemu -name *.sum |paste -sd "," -`
 
 report-gcc-baremetal: stamps/check-gcc-baremetal
 	$(srcdir)/scripts/testsuite-filter newlib \
