@@ -165,7 +165,7 @@ $ ./configure --target=arc64            \
 
 ## Running Test Suite
 
-At present, the testing environment comprises three integrated testsuites: `gcc/g++`, `binutils`, and `newlib`. Testing is possible for both Baremetal Toolchain Distribution and Linux Toolchain Distribution (user-mode), via two simulators, QEMU and nSIM.
+At present, the testing environment comprises four integrated testsuites: `gcc/g++`, `binutils`, `newlib`, and `qemu`. Testing is possible for both Baremetal Toolchain Distribution and Linux Toolchain Distribution (user-mode), via two simulators, QEMU and nSIM.
 
 ### Setting up the Simulator
 
@@ -224,6 +224,7 @@ Refer to the table below to determine the suitable command for running an indivi
 | Baremetal              | gcc        | `$ make check-gcc-baremetal`      |
 | Baremetal              | binutils   | `$ make check-binutils-baremetal` |
 | Baremetal              | newlib     | `$ make check-newlib-baremetal`   |
+| Baremetal              | qemu       | `$ make check-qemu-baremetal`     |
 | Linux                  | gcc        | `$ make check-gcc-linux`          |
 | Linux                  | binutils   | `$ make check-binutils-linux`     |
 
