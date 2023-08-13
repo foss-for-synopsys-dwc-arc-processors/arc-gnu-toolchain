@@ -21,12 +21,31 @@ LINUX_BRANCH 		:= arc64
 
 -include build.config
 
+
+BINUTILS_SRCDIR		:= @with_binutils_src@
+ifeq ($(BINUTILS_SRCDIR),)
 BINUTILS_SRCDIR		:= $(srcdir)/binutils-gdb
+endif
+NEWLIB_SRCDIR		:= @with_newlib_src@
+ifeq ($(NEWLIB_SRCDIR),)
 NEWLIB_SRCDIR		:= $(srcdir)/newlib
+endif
+GCC_SRCDIR		:= @with_gcc_src@
+ifeq ($(GCC_SRCDIR),)
 GCC_SRCDIR		:= $(srcdir)/gcc
+endif
+GLIBC_SRCDIR		:= @with_glibc_src@
+ifeq ($(GLIBC_SRCDIR),)
 GLIBC_SRCDIR		:= $(srcdir)/glibc
+endif
+LINUX_SRCDIR		:= @with_linux_src@
+ifeq ($(LINUX_SRCDIR),)
 LINUX_SRCDIR		:= $(srcdir)/linux
+endif
+QEMU_SRCDIR		:= @with_qemu_src@
+ifeq ($(QEMU_SRCDIR),)
 QEMU_SRCDIR		:= $(srcdir)/qemu
+endif
 
 SYSROOT := $(INSTALL_DIR)/sysroot
 
