@@ -135,8 +135,6 @@ endif
 ifeq ($(SIM),qemu)
 	# Using qemu simulator.
 	SIM_STAMP:= stamps/build-qemu
-	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
-	SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" QEMU_CPU="$(QEMU_CPU)"
 else
 ifeq ($(SIM),nsim)
 	# Using nsim simulator.
@@ -144,12 +142,13 @@ ifeq ($(SIM),nsim)
 		$(error nSIM not supported)
 	endif
 	SIM_STAMP:= nsim-validation
-	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
-	SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
 else
 	$(error Only support SIM=nsim, or SIM=qemu (default))
 endif
 endif
+
+SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
+SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
 
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
@@ -585,12 +584,12 @@ stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	date > $@
 
 stamps/check-gcc-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
-	$(SIM_PREPARE) $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
+	$(SIM_PREPARE) DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" (MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
 	date > $@
 
 stamps/check-binutils-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
-	$(SIM_PREPARE) $(MAKE) -C build-binutils-newlib check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+	$(SIM_PREPARE) DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" $(MAKE) -C build-binutils-newlib check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
 stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
@@ -598,7 +597,7 @@ stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	date > $@
 
 stamps/check-newlib-baremetal: stamps/build-newlib $(SIM_STAMP)
-	$(SIM_PREPARE) $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+	$(SIM_PREPARE) DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
 nsim-validation:
