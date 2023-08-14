@@ -584,7 +584,7 @@ stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	date > $@
 
 stamps/check-gcc-baremetal: stamps/build-gcc-newlib-stage2 $(SIM_STAMP)
-	$(SIM_PREPARE) DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" (MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
+	$(SIM_PREPARE) DEJAGNU_SIM_OPTIONS="-Wq,-semihosting" $(MAKE) -C build-gcc-newlib-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
 	date > $@
 
