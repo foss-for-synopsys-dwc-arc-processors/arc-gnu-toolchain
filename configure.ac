@@ -177,12 +177,22 @@ AC_DEFUN([AX_ARG_WITH_SRC],
 	  m4_popdef([opt_name])
 	}])
 
-AX_ARG_WITH_SRC(binutils, binutils)
+AX_ARG_WITH_SRC(binutils, binutils-gdb)
 AX_ARG_WITH_SRC(newlib, newlib)
 AX_ARG_WITH_SRC(gcc, gcc)
 AX_ARG_WITH_SRC(glibc, glibc)
 AX_ARG_WITH_SRC(linux, linux)
 AX_ARG_WITH_SRC(qemu, qemu)
+
+AC_ARG_WITH(src,
+	[AS_HELP_STRING([--with-src],
+		[Select parent source path, use `arc-gnu-toolchain` as parent source path by default])],
+	[],
+	[]
+	)
+AS_IF([test "x$with_src" != x],
+    [AC_SUBST(with_src, $with_src)],
+	[AC_SUBST(with_src, "")])
 
 
 AC_ARG_WITH(target_cflags,
