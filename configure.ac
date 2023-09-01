@@ -153,6 +153,16 @@ AS_IF([test "x$enable_gcc_checking" != xno],
 	[AC_SUBST(gcc_checking, --enable-checking=yes)],
 	[AC_SUBST(gcc_checking, --enable-checking=release)])
 
+AC_ARG_ENABLE(compat-tests,
+        [AS_HELP_STRING([--enable-compat-tests],
+		[Enable gcc compatibility tests, Linux toolchain is not supported @<:@--disable-compact-tests@:>@])],
+        [],
+        [enable_compat_tests=no]
+        )
+AS_IF([test "x$enable_compat_tests" != xno],
+	[AC_SUBST(compat_tests, --enable-compat-tests)],
+	[AC_SUBST(compat_tests, --disable-compat-tests)])
+
 AC_ARG_WITH(cmodel,
 	[AS_HELP_STRING([--with-cmodel],
 		[Select the code model to use when building libc and libgcc @<:@--with-cmodel=medlow@:>@])],

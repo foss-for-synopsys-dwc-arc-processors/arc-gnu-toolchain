@@ -52,8 +52,6 @@ if { [info exists env(GCC_COMPAT_GCC_OPTIONS)] } {
         set COMPAT_OPTIONS [list [list $GCC_COMPAT_GCC_OPTIONS $GCC_COMPAT_GCC_OPTIONS]]
 
     }
-    # Disable tests with packed structures to avoid unaligned access errors.
-    set COMPAT_SKIPS [list {ATTRIBUTE}]
 }
 
 # vim: noexpandtab sts=4 ts=8:
