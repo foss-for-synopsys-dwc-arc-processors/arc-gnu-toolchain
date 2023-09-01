@@ -174,6 +174,37 @@ AS_IF([test "x$with_cmodel" != x],
 	[AC_SUBST(cmodel, "")])
 #	[AC_SUBST(cmodel, -mcmodel=medlow)])
 
+AC_DEFUN([AX_ARG_WITH_SRC],
+	[{m4_pushdef([opt_name], with_$1_src)
+	  AC_ARG_WITH($1-src,
+		[AS_HELP_STRING([--with-$1-src],[Set $1 source path, use builtin source by default])],
+		[],
+		[opt_name=default]
+		)
+	  AS_IF([test "x$opt_name" != xdefault],
+		[AC_SUBST(opt_name,$opt_name)],
+		[AC_SUBST(opt_name,"\$(srcdir)/$2")])
+	  m4_popdef([opt_name])
+	}])
+
+AX_ARG_WITH_SRC(binutils, binutils-gdb)
+AX_ARG_WITH_SRC(newlib, newlib)
+AX_ARG_WITH_SRC(gcc, gcc)
+AX_ARG_WITH_SRC(glibc, glibc)
+AX_ARG_WITH_SRC(linux, linux)
+AX_ARG_WITH_SRC(qemu, qemu)
+
+AC_ARG_WITH(src,
+	[AS_HELP_STRING([--with-src],
+		[Select parent source path, use `arc-gnu-toolchain` as parent source path by default])],
+	[],
+	[]
+	)
+AS_IF([test "x$with_src" != x],
+    [AC_SUBST(with_src, $with_src)],
+	[AC_SUBST(with_src, "")])
+
+
 AC_ARG_WITH(target_cflags,
 	[AS_HELP_STRING([--with-target-cflags],
 		[Add extra target flags for C for library code])],

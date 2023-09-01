@@ -56,6 +56,11 @@ set_board_info noargs 1
 set_board_info gdb,nosignals 1
 set_board_info sim_time_limit 300
 
+# Provides options to the simulator's execution call.
+if {[info exists ::env(DEJAGNU_SIM_OPTIONS)]} {
+    set_board_info sim,options "$env(DEJAGNU_SIM_OPTIONS)"
+}
+
 # skip gdb.reverse
 set_board_info gdb,can_reverse 0
 set_board_info gdb,use_precord 0

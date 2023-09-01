@@ -17,18 +17,22 @@ newlib
 glibc
 ```
 
-If they do not exist, it will clone them. You can link your source directories
-from other palces as well:
+If they do not exist, it will clone them.
 
-```sh
-cd    /repos/arc-gnu-toolchain
-ln -s /repos/tools/binutils  binutils-gdb
-ln -s /repos/tools/gcc       gcc
-ln -s /repos/tools/newlib    newlib
-ln -s /repos/tools/glibc     glibc
+The `arc-gnu-toolchain` also provides the capability to build the toolchain using source code located outside of the main repository. There are specific configuration options available to define the source directory for each component or for a parent directory.
 
-cd    /build/arc64
-/repos/arc-gnu-toolchain/configure ...
+As an example, if you have an external GCC source, you can use the `--with-gcc-src` option to specify it:
+
+```bash
+
+./configure --with-gcc-src=/path/to/gcc
+```
+
+Similarly, if you have an external parent directory that encompasses all the sources, you can use the `--with-src` option to inicate its location:
+
+```bash
+
+./configure --with-src=/path/to/parent
 ```
 
 For a 64-bit linux build, you will need the following branches:
@@ -122,17 +126,24 @@ make install
 
 Some of parameters you can pass to the configure script:
 
-| parameter           | default | values                                                                          |
-|---------------------|---------|---------------------------------------------------------------------------------|
-| --target            |         | arc64, arc32, arc                                                               |
-| --prefix            |         | any path string for installation                                                |
-| --enable-linux      | no      | yes, no (--disable-linux)                                                       |
-| --enable-multilib   | no      | yes, no (--disable-multilib)                                                    |
-| --enable-qemu       | no      | yes, no (--disable-qemu)                                                        |
-| --enable-debug-info | no      | yes, no (--disable-debug-info)                                                  |
-| --with-fpu          | none    | none, fpus, fpud                                                                |
-| --with-cpu          | none    | none, hs6x, hs68, hs5x, hs58, archs, (more at binutils/include/elf/arc-cpu.def) |
-| --with-sim          | qemu    | qemu, nsim                                                                      |
+| parameter           | default           | values                                                                          |
+|---------------------|-------------------|---------------------------------------------------------------------------------|
+| --target            |                   | arc64, arc32, arc                                                               |
+| --prefix            |                   | any path string for installation                                                |
+| --enable-linux      | no                | yes, no (--disable-linux)                                                       |
+| --enable-multilib   | no                | yes, no (--disable-multilib)                                                    |
+| --enable-qemu       | no                | yes, no (--disable-qemu)                                                        |
+| --enable-debug-info | no                | yes, no (--disable-debug-info)                                                  |
+| --with-fpu          | none              | none, fpus, fpud                                                                |
+| --with-cpu          | none              | none, hs6x, hs68, hs5x, hs58, archs, (more at binutils/include/elf/arc-cpu.def) |
+| --with-sim          | qemu              | qemu, nsim                                                                      |
+| --with-src          | arc-gnu-toolchain | /path/to/parent                                                                 |
+| --with-binutils-src | ./binutils-gdb    | /path/to/binutils-gdb                                                           |
+| --with-newlib-src   | ./newlib          | /path/to/newlib                                                                 |
+| --with-gcc-src      | ./gcc             | /path/to/gcc                                                                    |
+| --with-glibc-src    | ./glibc           | /path/to/glibc                                                                  |
+| --with-linux-src    | ./linux           | /path/to/linux                                                                  |
+| --with-qemu-src     | ./qemu            | /path/to/qemu                                                                   |
 
 ### Advanced Options
 
@@ -165,7 +176,7 @@ $ ./configure --target=arc64            \
 
 ## Running Test Suite
 
-At present, the testing environment comprises three integrated testsuites: `gcc/g++`, `binutils`, and `newlib`. Testing is possible for both Baremetal Toolchain Distribution and Linux Toolchain Distribution (user-mode), via two simulators, QEMU and nSIM.
+At present, the testing environment comprises four integrated testsuites: `gcc/g++`, `binutils`, `newlib`, and `qemu`. Testing is possible for both Baremetal Toolchain Distribution and Linux Toolchain Distribution (user-mode), via two simulators, QEMU and nSIM.
 
 ### Setting up the Simulator
 
@@ -224,6 +235,7 @@ Refer to the table below to determine the suitable command for running an indivi
 | Baremetal              | gcc        | `$ make check-gcc-baremetal`      |
 | Baremetal              | binutils   | `$ make check-binutils-baremetal` |
 | Baremetal              | newlib     | `$ make check-newlib-baremetal`   |
+| Baremetal              | qemu       | `$ make check-qemu-baremetal`     |
 | Linux                  | gcc        | `$ make check-gcc-linux`          |
 | Linux                  | binutils   | `$ make check-binutils-linux`     |
 
