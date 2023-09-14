@@ -1,5 +1,11 @@
 {
     "common": [
+     {
+      "comment": "TBD",
+      "tests": [
+        "XPASS: gcc.dg/tree-ssa/20040204-1.c scan-tree-dump-times optimized \"link_error\" 0"
+      ]
+      }
     ],
     "newlib": [
     {
@@ -106,6 +112,38 @@
         "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000003[\\t ]+[^\\n]*btt_info 2",
         "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0[\\t ]+[^\\n]*bts_offset 7",
         "FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times ascii \".data.0\"[\\t ]+[^\\n]*btf_aux_string 1"
+      ]
+      },
+      {
+      "comment": "Expected to FAIL due to the missing exception handler from the OS",
+      "tests": [
+        "FAIL: g++.dg/contracts/contracts-ignore2.C   execution test",
+        "FAIL: g++.dg/contracts/contracts-post3.C   execution test",
+        "FAIL: g++.dg/contracts/contracts15.C   execution test",
+        "FAIL: g++.dg/contracts/contracts17.C   execution test",
+        "FAIL: g++.dg/contracts/contracts3.C   execution test",
+        "FAIL: g++.dg/contracts/contracts5.C   execution test"
+      ]
+      },
+      {
+      "comment": "TLS is expected to FAIL on baremetal applications due to the missing OS",
+      "tests": [
+        "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++14 execution test",
+        "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++17 execution test",
+        "XPASS: g++.dg/tls/thread_local-order2.C  -std=c++20 execution test"
+      ]
+      },
+      {
+      "comment": "Raw string literals are expected to FAIL on all architectures due to the wrong conversion of tab character",
+      "tests": [
+        "XPASS: c-c++-common/raw-string-7.c  -Wc++-compat  execution test",
+        "XPASS: c-c++-common/raw-string-7.c   execution test"
+      ]
+      },
+      {
+      "comment": "Unexpected passing to be investigated",
+      "tests": [
+        "XPASS: g++.dg/torture/pr101373.C"
       ]
       }
     ],
