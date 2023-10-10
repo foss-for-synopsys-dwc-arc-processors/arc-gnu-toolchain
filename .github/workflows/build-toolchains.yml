@@ -58,7 +58,7 @@ jobs:
           - { mode: baremetal, target: arc32 }
 
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - name: Install apt dependencies
         run: |
           sudo apt-get -y update
@@ -92,13 +92,12 @@ jobs:
             MODE="elf";
           fi
 
-          if [ -n ${{ inputs.release_tag }} ]; then
-            RELEASE_TAG="${{ inputs.release_tag }}"
-          else
+          RELEASE_TAG="${{ inputs.release_tag }}"
+          if [[ -z $RELEASE_TAG ]]; then
             RELEASE_TAG="$(date --utc '+%Y.%m.%d')"
           fi
 
-          echo ::set-output name=toolchain_name::${{ matrix.target }}-${MODE}-${RELEASE_TAG}
+          echo "toolchain_name=${{ matrix.target }}-${MODE}-${RELEASE_TAG}" >> $GITHUB_OUTPUT
 
           autoconf
 
