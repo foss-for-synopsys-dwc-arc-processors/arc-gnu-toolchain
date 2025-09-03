@@ -11,12 +11,12 @@ newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
 
 # SNPS toolchains
 SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
-BINUTILS_BRANCH 	:= arc-2025.06
-GCC_BRANCH      	:= arc-2025.06
-NEWLIB_BRANCH   	:= arc-2025.06
-GDB_BRANCH 		:= arc-2025.06-gdb
+BINUTILS_BRANCH 	:= arc-2025.09
+GCC_BRANCH      	:= arc-2025.09
+NEWLIB_BRANCH   	:= arc-2025.09
+GDB_BRANCH 		:= arc-2025.09-gdb
 QEMU_BRANCH     	:= master
-GLIBC_BRANCH    	:= arc-2025.06
+GLIBC_BRANCH    	:= arc-2025.09
 BUILDROOT_BRANCH	:= arc64
 LINUX_BRANCH 		:= arc64
 
