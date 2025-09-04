@@ -156,7 +156,9 @@ ifeq ($(SIM),nsim)
 	ifeq (@default_target@, linux)
 		$(error nSIM not supported)
 	endif
-	SIM_STAMP:= nsim-validation
+        ifeq ($(shell command -v nsimdrv),)
+		$(error nsimdrv not detected)
+        endif
 	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
 	SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
 else
@@ -677,11 +679,6 @@ stamps/check-gdb-linux: stamps/build-gcc-linux-stage2 stamps/build-gdb-linux $(S
 stamps/check-newlib-baremetal: stamps/build-newlib $(SIM_STAMP)
 	$(SIM_PREPARE) $(MAKE) -C build-newlib check -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
-
-nsim-validation:
-ifeq ($(shell command -v nsimdrv),)
-	$(error nsimdrv not detected)
-endif
 
 report-qemu-baremetal: stamps/check-qemu-baremetal
 	$(srcdir)/scripts/testsuite-filter newlib \
