@@ -14,7 +14,6 @@ SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
 BINUTILS_BRANCH 	:= arc-2025.09
 GCC_BRANCH      	:= arc-2025.09
 NEWLIB_BRANCH   	:= arc-2025.09
-GDB_BRANCH 		:= arc-2025.09-gdb
 QEMU_BRANCH     	:= master
 GLIBC_BRANCH    	:= arc-2025.09
 BUILDROOT_BRANCH	:= arc64
@@ -37,8 +36,8 @@ ifneq ($(PARENT_SRCDIR),)
 ifeq ($(BINUTILS_SRCDIR),$(srcdir)/binutils)
 BINUTILS_SRCDIR = $(PARENT_SRCDIR)/binutils
 endif
-ifeq ($(GDB_SRCDIR),$(srcdir)/gdb)
-GDB_SRCDIR = $(PARENT_SRCDIR)/gdb
+ifeq ($(GDB_SRCDIR),$(srcdir)/binutils-gdb)
+GDB_SRCDIR = $(PARENT_SRCDIR)/binutils-gdb
 endif
 ifeq ($(NEWLIB_SRCDIR),$(srcdir)/newlib)
 NEWLIB_SRCDIR = $(PARENT_SRCDIR)/newlib
@@ -240,9 +239,6 @@ patches: $(addprefix $(srcdir)/patches/,$(PACKAGES))
 
 $(BINUTILS_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(BINUTILS_BRANCH) $(SNPS_GIT_URL)/binutils-gdb.git $@
-
-$(GDB_SRCDIR):
-	git clone --depth 1 --single-branch --branch $(GDB_BRANCH) $(SNPS_GIT_URL)/binutils-gdb.git $@
 
 $(GCC_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(GCC_BRANCH) $(SNPS_GIT_URL)/gcc.git $@
