@@ -1,37 +1,27 @@
 #!/usr/bin/env python3
 
-# This script has been inspired from riscv testsuite-filter
-# https://github.com/riscv-collab/riscv-gnu-toolchain/blob/master/scripts/testsuite-filter
+"""
+ARC GNU Toolchain Testsuite Filter
 
-import json
+This script filters testsuite results against allowlists and generates
+a summary report. It supports gcc, binutils, newlib, and qemu testsuites.
+
+The allowlist files are in .log format with:
+  - Lines starting with # are comments (ignored)
+  - Test case entries in the format: "STATUS: test.name ..."
+  - Empty lines are ignored
+
+This script has been inspired from riscv testsuite-filter:
+https://github.com/riscv-collab/riscv-gnu-toolchain/blob/master/scripts/testsuite-filter
+"""
+
 import os
 import sys
 import re
 
-def read_results(file):
-
-    mapping = {
-        "expected passes": "PASS",
-        "unexpected failures": "FAIL",
-        "unexpected successes": "XPASS",
-        "expected failures": "XFAIL",
-        "untested testcases": "UNTESTED",
-        "unresolved testcases": "UNRESOLVED",
-        "unsupported tests": "UNSUPPORTED"
-    }
-
-    results = dict()
-    for l in file.split("\n")[-100:]:
-        if "# of" in l:
-            l = l.split()
-            name = " ".join(l[2:-1])
-            num = int(l[-1])
-            results[mapping[name]] = num
-
-    return results
-
 
 def read_file(file_path):
+    """Read and return the contents of a file."""
     if not os.path.isfile(file_path):
         print(f"Error: {file_path} is not a valid file.")
         sys.exit(1)
@@ -39,131 +29,299 @@ def read_file(file_path):
         return f.read()
 
 
-def read_json(file_path):
-    def error():
-        print("Error: Invalid JSON in filter file.")
-        sys.exit(1)
-
+def read_allowlist_log(file_path):
+    """
+    Read an allowlist log file and return a list of test cases.
+    Lines starting with # are treated as comments and ignored.
+    Empty lines are also ignored.
+    """
     if not os.path.isfile(file_path):
-        print(f"Error: {file_path} is not a valid file.")
-        sys.exit(1)
+        return []
 
-    try:
-        with open(file_path) as f:
-            allowlist = json.load(f)
-            expected_dict = {"comment": str, "tests": list}
-            for x in allowlist:
-                for a in allowlist[x]:
-                    if not all(isinstance(a[key], expected_dict[key]) for key in expected_dict):
-                        error()
-            return allowlist
-    except json.JSONDecodeError:
-        error()
+    tests = []
+    with open(file_path) as f:
+        for line in f:
+            line = line.strip()
+            # Skip comments and empty lines
+            if line and not line.startswith('#'):
+                tests.append(line)
+
+    return tests
 
 
 def parse_sum(sum_data):
-    valid_results = ['FAIL', 'XPASS', 'ERROR']
-    data = dict()
-    
-    for line in sum_data.split("\n"):
+    """
+    Parse sum data and return unexpected results.
+    Returns a list of unexpected result strings and a set of unique test case keys.
+    """
+    valid_results = ['FAIL', 'XPASS', 'ERROR', 'UNRESOLVED']
+    unexpected_results = []
+    unique_cases = set()
 
+    for line in sum_data.split("\n"):
         match = re.match(r"([A-Z]+): (.+)", line)
         if match:
-            result, scenario = match.group(1,2)
-            if result not in data:
-                if result in valid_results:
-                    data[result] = [scenario]
-            elif result in valid_results:
-                data[result].append(scenario)
+            result, scenario = match.groups()
+            if result in valid_results:
+                unexpected_results.append(line.strip())
+                # Extract the test case name (second field after status)
+                parts = line.split()
+                if len(parts) >= 2:
+                    unique_cases.add(parts[1])
 
-    return data
-
-
-def filter_results(data, allowlist, libc):
-    detected_errors = 0
-
-    allowlist = {k: v for k, v in allowlist.items() if k in ["common", libc]}
-
-    matching_tests = [test for test_type in allowlist.values() for test in test_type]
-
-    for info in matching_tests:
-        for test_allow in info["tests"]:
-            result_allow, scenario_allow = re.match(r"([A-Z]+): (.+)", test_allow).groups()
-            if result_allow in data:
-                scenarios = data[result_allow]
-                scenarios = [scenario for scenario in scenarios if scenario_allow not in scenario]
-                data[result_allow] = scenarios
-
-    detected_errors = sum(len(errors) for errors in data.values())
-    return detected_errors
+    return unexpected_results, unique_cases
 
 
-def print_results(tool_name, target, data):
+def filter_results(unexpected_results, unique_cases, allowlist):
+    """Filter out allowlisted test cases from the results."""
+    # Build a dictionary mapping test case names to their allowlist entries
+    allowlist_dict = {}
+    for entry in allowlist:
+        match = re.match(r"([A-Z]+): (.+)", entry)
+        if match:
+            parts = entry.split()
+            if len(parts) >= 2:
+                test_name = parts[1]
+                if test_name not in allowlist_dict:
+                    allowlist_dict[test_name] = []
+                allowlist_dict[test_name].append(entry)
 
-    print(f"=== {tool_name}: Unexpected fails for {target} ===\n")
-    for result in data:
-        print(f"=== {result} ===")
-        for scenario in data[result]:
-            print(f"    {scenario}")
+    # Filter unexpected results
+    filtered_results = []
+    filtered_cases = set()
 
-    print("\n")
+    for result in unexpected_results:
+        parts = result.split()
+        if len(parts) >= 2:
+            test_name = parts[1]
+            # Check if this result is in the allowlist
+            if test_name in allowlist_dict:
+                # Check if any allowlist entry matches this result
+                if any(result.startswith(allowed) for allowed in allowlist_dict[test_name]):
+                    continue  # Skip this result, it's allowlisted
+
+            filtered_results.append(result)
+            filtered_cases.add(test_name)
+
+    return filtered_results, filtered_cases
 
 
-def print_summary(tests, detected_errors):
+def parse_arch_config(target_variation):
+    """
+    Parse architecture configuration from target variation string.
+    Example: "arc-sim/-mcpu=archs/-matomic" or just "arc-sim"
+    """
+    cpu = ""
+    cmodel = ""
+    other_args = []
+    target = ""
 
-    print("# Tests | # Detected Errors")
-    print("--------+------------------")
-    print(f"{tests:7d} | {detected_errors:7d}", end="")
-    print("\n")
+    # Split by '/' to get individual components
+    parts = target_variation.split('/')
+
+    for part in parts:
+        if part.startswith('-mcpu='):
+            cpu = part[6:]
+        elif part.startswith('-mcmodel='):
+            cmodel = part[9:]
+        elif part and (part.startswith('arc-') or part.startswith('qemu') or part in ['sim', 'board', 'nsim']):
+            # This is the target name (e.g., arc-sim, arc-qemu, qemu, nsim)
+            if not target:
+                target = part
+        elif part and part.startswith('-'):
+            # Other flags (e.g., -matomic, -mll64, etc.)
+            other_args.append(part)
+
+    return {
+        'target': target,
+        'cpu': cpu,
+        'cmodel': cmodel,
+        'other_args': other_args
+    }
+
+
+def format_arch_config(config):
+    """Format architecture configuration for display (27 characters)."""
+    if config is None:
+        return " " * 20 + "unknown"
+
+    cpu = config.get('cpu', '')
+    cmodel = config.get('cmodel', '')
+    target = config.get('target', '')
+
+    # Build a descriptive configuration string
+    parts = []
+
+    if target:
+        parts.append(target)
+
+    if cpu:
+        parts.append(f"-mcpu={cpu}")
+
+    if cmodel:
+        parts.append(f"-mcmodel={cmodel}")
+
+    # Join parts with separator
+    if parts:
+        config_str = "/".join(parts)
+        # If too long, truncate intelligently
+        if len(config_str) > 27:
+            config_str = config_str[:24] + "..."
+        return f"{config_str:>27}"
+
+    # Fallback
+    return f"{'default':>27}"
+
+
+def print_unexpected_results(tool_name, target, results):
+    """Print unexpected test results."""
+    if results:
+        print(f"\t\t=== {tool_name}: Unexpected fails for {target} ===")
+        for result in results:
+            print(result)
+
+
+def print_summary(tool, tool_results, config="default"):
+    """Print summary table with test results."""
+    # Determine tool list and format based on the main tool
+    if tool == 'gcc':
+        all_tools = ['gcc', 'g++', 'gfortran']
+        is_gcc_style = True
+    elif tool == 'binutils':
+        all_tools = ['binutils', 'ld', 'gas']
+        is_gcc_style = False
+    elif tool == 'newlib':
+        all_tools = ['newlib']
+        is_gcc_style = False
+    elif tool == 'qemu':
+        all_tools = ['qemu']
+        is_gcc_style = False
+    else:
+        print(f"Warning: Unknown tool '{tool}', using default format")
+        all_tools = list(tool_results.keys())
+        is_gcc_style = True
+
+    # Create the bar header
+    bar_items = [f"{t:>13}" for t in all_tools]
+    bar = " |".join(bar_items)
+
+    print(f"\n               ========= Summary of {tool} testsuite =========")
+    if is_gcc_style:
+        print("                            | # of unexpected case / # of unique unexpected case")
+    else:
+        print("                            | # of unexpected case")
+    print(f"                            |{bar} |")
+
+    # Print the results row
+    # config is already formatted to 27 characters
+    print(f"{config} |", end='')
+    for toolname in all_tools:
+        if toolname in tool_results:
+            fail_count, case_count = tool_results[toolname]
+            if is_gcc_style:
+                print(f"{fail_count:>5} / {case_count:>5} |", end='')
+            else:
+                print(f"{fail_count:>13} |", end='')
+        else:
+            print(f"{'-':>13} |", end='')
+    print("")
 
 def usage():
-    print(f"{sys.argv[0]} <libc>" \
-          " <allowlist.json> <testsuite.sum>")
-    print(f"{sys.argv[0]} <libc>" \
-          " <allowlist.json> <testsuite1.sum,testsuite2.sum>")
+    """Print usage information."""
+    print(f"Usage: {sys.argv[0]} <tool> <libc> <allowlist_dir> <testsuite.sum>")
+    print(f"       {sys.argv[0]} <tool> <libc> <allowlist_dir> <testsuite1.sum,testsuite2.sum>")
+    print("\nSupported tools: gcc, binutils, newlib, qemu")
+    print("\nExamples:")
+    print(f"  {sys.argv[0]} gcc newlib test/allowlist/gcc/archs gcc.sum,g++.sum,gfortran.sum")
+    print(f"  {sys.argv[0]} binutils newlib test/allowlist/binutils binutils.sum,ld.sum,gas.sum")
+    print(f"  {sys.argv[0]} qemu newlib test/allowlist/qemu qemu.sum")
 
 
 def main():
-    if len(sys.argv) != 4:
-        print("Please provide the libc, allowlist and sum files as arguments.")
+    """Main entry point for the testsuite filter."""
+    # Validate arguments
+    if len(sys.argv) != 5:
+        print("Error: Incorrect number of arguments.")
         usage()
-        return
+        sys.exit(1)
 
-    libc, allowlist_file, sum_files = sys.argv[1:4]
+    tool, libc, allowlist_dir, sum_files = sys.argv[1:5]
+
+    # Validate tool
+    supported_tools = ['gcc', 'binutils', 'newlib', 'qemu']
+    if tool not in supported_tools:
+        print(f"Error: Unsupported tool '{tool}'")
+        print(f"Supported tools: {', '.join(supported_tools)}")
+        sys.exit(1)
+
     sum_files = sum_files.split(",")
 
-    results = {}
-    tool_names = []
+    # Step 1: Load allowlist files
+    allowlist = []
+
+    # Read common.log if it exists
+    common_log = os.path.join(allowlist_dir, "common.log")
+    if os.path.isfile(common_log):
+        allowlist.extend(read_allowlist_log(common_log))
+
+    # Read libc-specific log file (e.g., newlib.log, glibc.log)
+    libc_log = os.path.join(allowlist_dir, f"{libc}.log")
+    if os.path.isfile(libc_log):
+        allowlist.extend(read_allowlist_log(libc_log))
+
+    if not allowlist:
+        print(f"Warning: No allowlist files found in {allowlist_dir}")
+        print(f"  Looked for: common.log and {libc}.log")
+
+    # Step 2: Process each sum file
+    tool_results = {}  # Maps tool name to (fail_count, unique_case_count)
     target_names = []
-    data = {}
+    arch_config = None
+    any_failures = False
+
     for sum_file in sum_files:
         sum_data = read_file(sum_file)
 
-        for key, value in read_results(sum_data).items():
-            results[key] = results.get(key, 0) + value
+        # Extract tool name (e.g., gcc, g++, gfortran)
+        tool_name = os.path.splitext(os.path.basename(sum_file))[0]
 
-        tool_names.append(os.path.splitext(os.path.basename(sum_file))[0])
-
+        # Extract target/variation
         match = re.search(r"Running target (\S+)", sum_data)
-        target_names.append(f"{match.group(1)}" if match else "Unknown")
+        target_name = match.group(1) if match else "Unknown"
+        target_names.append(target_name)
 
-        tmp_data = parse_sum(sum_data)
-        for key in tmp_data:
-            if key in data:
-                data[key].extend(tmp_data[key])
-            else:
-                data[key] = tmp_data[key]
+        # Parse arch/abi/cmodel from target variation (if not already set)
+        if arch_config is None:
+            arch_config = parse_arch_config(target_name)
 
+        # Parse the sum file
+        unexpected_results, unique_cases = parse_sum(sum_data)
 
-    tool_name = ' '.join(list(set(tool_names)))
-    target_name = ' '.join(list(set(target_names)))
+        # Filter with allowlist
+        filtered_results, filtered_cases = filter_results(
+            unexpected_results, unique_cases, allowlist
+        )
 
-    allowlist       = read_json(allowlist_file)
-    detected_errors = filter_results(data, allowlist, libc)
+        # Print unexpected results for this tool
+        print_unexpected_results(tool_name, target_name, filtered_results)
 
+        # Store counts for summary
+        tool_results[tool_name] = (len(filtered_results), len(filtered_cases))
 
-    print_results(tool_name, target_name, data)
-    print_summary(sum(results.values()), detected_errors)
+        # Track if there are any failures
+        if len(filtered_results) > 0:
+            any_failures = True
+
+    # Step 3: Print summary table
+    config_str = format_arch_config(arch_config)
+    print_summary(tool, tool_results, config_str)
+
+    # Step 4: Return appropriate exit code
+    # Exit with 1 if there are failures or no results, 0 if all tests passed
+    if any_failures or len(tool_results) == 0:
+        sys.exit(1)
+    else:
+        sys.exit(0)
 
 
 if __name__ == '__main__':
