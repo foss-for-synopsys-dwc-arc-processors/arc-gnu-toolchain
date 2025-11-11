@@ -1,0 +1,42 @@
+#
+# Expected to FAIL due to the missing exception handler from the OS
+#
+FAIL: g++.dg/contracts/contracts-ignore2.C   execution test
+FAIL: g++.dg/contracts/contracts-post3.C   execution test
+FAIL: g++.dg/contracts/contracts15.C   execution test
+FAIL: g++.dg/contracts/contracts17.C   execution test
+FAIL: g++.dg/contracts/contracts3.C   execution test
+FAIL: g++.dg/contracts/contracts5.C   execution test
+#
+# TLS is expected to FAIL on baremetal applications due to the missing OS
+#
+XPASS: g++.dg/tls/thread_local-order2.C  -std=c++14 execution test
+XPASS: g++.dg/tls/thread_local-order2.C  -std=c++17 execution test
+XPASS: g++.dg/tls/thread_local-order2.C  -std=c++20 execution test
+#
+# Raw string literals are expected to FAIL on all architectures due to the wrong conversion of tab character
+#
+XPASS: c-c++-common/raw-string-7.c  -Wc++-compat  execution test
+XPASS: c-c++-common/raw-string-7.c   execution test
+#
+# GCC correctly detects integer overflow and aborts the program as expected when the `ftrapv` flag is enabled
+#
+FAIL: gcc.dg/pr82274-1.c execution test
+#
+# Unexpected passing to be investigated
+#
+XPASS: g++.dg/torture/pr101373.C
+FAIL: g++.dg/abi/pure-virtual1.C
+#
+# Undefined reference to dlfcn.h 
+#
+FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation
+#
+# No dl lib
+#
+FAIL: gcc.dg/tree-prof/pr97461.c compilation
+#
+# No threading support
+#
+FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation
+FAIL: gcc.dg/tree-prof/val-profiler-threads-1.c compilation
