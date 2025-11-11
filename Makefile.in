@@ -680,28 +680,28 @@ ifeq ($(shell command -v nsimdrv),)
 endif
 
 report-qemu-baremetal: stamps/check-qemu-baremetal
-	$(srcdir)/scripts/testsuite-filter newlib \
-		$(srcdir)/test/allowlist/qemu/$(QEMU_CPU)/qemu.json \
+	$(srcdir)/scripts/testsuite-filter qemu newlib \
+		$(srcdir)/test/allowlist/qemu/ \
 		`find build-test-qemu -name *.sum |paste -sd "," -`
 
 report-gcc-baremetal: stamps/check-gcc-baremetal
-	$(srcdir)/scripts/testsuite-filter newlib \
-		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json \
+	$(srcdir)/scripts/testsuite-filter gcc newlib \
+		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/ \
 		`find build-gcc-newlib-stage2 -name *.sum |paste -sd "," -`
 
 report-gcc-linux: stamps/check-gcc-linux
-	$(srcdir)/scripts/testsuite-filter linux \
-		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/gcc.json \
+	$(srcdir)/scripts/testsuite-filter gcc glibc \
+		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/ \
 		`find build-gcc-linux-stage2 -name *.sum |paste -sd "," -`
 
 report-binutils-baremetal: stamps/check-binutils-baremetal
-	$(srcdir)/scripts/testsuite-filter newlib \
-		$(srcdir)/test/allowlist/binutils/binutils.json \
+	$(srcdir)/scripts/testsuite-filter binutils newlib \
+		$(srcdir)/test/allowlist/binutils/$(QEMU_CPU)/ \
 		`find build-binutils-newlib -name *.sum |paste -sd "," -`
 
 report-binutils-linux: stamps/check-binutils-linux
-	$(srcdir)/scripts/testsuite-filter linux \
-		$(srcdir)/test/allowlist/binutils/binutils.json \
+	$(srcdir)/scripts/testsuite-filter binutils glibc \
+		$(srcdir)/test/allowlist/binutils/$(QEMU_CPU)/  \
 		`find build-binutils-linux -name *.sum |paste -sd "," -`
 
 clean:
