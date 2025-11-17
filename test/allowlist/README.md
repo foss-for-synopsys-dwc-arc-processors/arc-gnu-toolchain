@@ -1,82 +1,90 @@
 
 The files in this folder are the allowlists for the testsuite results that are passed as an argument for the `arc-gnu-toolchain/scripts/testsuite-filter` script.
 
-Here is an example of how the JSON file format for gcc tool may be structured:
-```json
-{
-    "common": [
-      {
-        "comment": "These are commons tests 01",
-        "tests": [
-            "FAIL: folder/test_01.S compilation"
-            "XPASS: folder/test_02.S compilation"
-            "FAIL: folder/test_03.S compilation"
-        ]
-      },
-      {
-        "comment": "These are commons tests 02",
-        "tests": [
-            "FAIL: folder/test_04.S compilation"
-            "XPASS: folder/test_05.S compilation"
-            "FAIL: folder/test_06.S compilation"
-        ]
-      }
-    ],
-    "glibc": [
-      {
-        "comment": "These are related to glibc",
-        "tests": [
-            "FAIL: folder/test_07.S compilation"
-            "XPASS: folder/test_08.S compilation"
-            "FAIL: folder/test_09.S compilation"
-        ]
-      }
-    ],
-    "newlib": [
-      {
-        "comment": "These are related to newlib",
-        "tests": [
-            "FAIL: folder/test_10.S compilation"
-            "XPASS: folder/test_11.S compilation"
-            "FAIL: folder/test_12.S compilation"
-        ]
-      }
-    ]
-}
+## Format
+
+Allowlists use a simple log file format with `.log` extensions. This format aligns with the approach used by [riscv-gnu-toolchain](https://github.com/riscv-collab/riscv-gnu-toolchain).
+
+### Log File Structure
+
+Each allowlist directory contains separate log files for different C libraries:
+- `common.log` - Tests common to all C libraries
+- `newlib.log` - Tests specific to newlib
+- `glibc.log` - Tests specific to glibc
+
+### Log File Format
+
+Log files follow these rules:
+- Lines starting with `#` are treated as comments
+- Empty lines are ignored
+- Test entries follow the format: `STATUS: test.name ...`
+
+Valid status values include: `FAIL`, `XPASS`, `ERROR`, `UNRESOLVED`
+
+### Example
+
+Here is an example of how a log file may be structured:
+
+```
+#
+# Common tests that fail on all configurations
+#
+FAIL: folder/test_01.S compilation
+XPASS: folder/test_02.S compilation
+FAIL: folder/test_03.S compilation
+
+#
+# Tests related to optimization flags
+#
+FAIL: folder/test_04.S   -O2  execution test
+XPASS: folder/test_05.S   -O3  execution test
+
+#
+# Known issues with specific test cases
+#
+FAIL: folder/test_06.S scan-assembler pattern
 ```
 
+## Directory Structure
 
-In the JSON file, the first key is used to specify the `libc` used in the testsuite-filter execution (e.i. glibc, newlib). This key is essential for filtering the test results based on the specific library used.
-
-The `common` category in the JSON file represents the common tests that are applicable to all C libraries.
-
-```json
-{
-    "common": [
-        ...
-    ],
-    "glibc": [
-        ...
-    ],
-    "newlib": [
-        ...
-    ]
-}
+```
+test/allowlist/
+├── gcc/
+│   ├── archs/
+│   │   ├── common.log
+│   │   ├── newlib.log
+│   │   └── glibc.log
+│   └── hs6x/
+│       ├── common.log
+│       ├── newlib.log
+│       └── glibc.log
+├── binutils/
+│   ├── archs/
+│   │   ├── common.log
+│   │   ├── newlib.log
+│   │   └── glibc.log
+│   └── hs6x/
+│       └── ...
+└── qemu/
+    ├── archs/
+    │   ├── ...
+    └── hs6x/
+        └── ...
 ```
 
+## Usage
 
-The `libc` (e.i. glibc, newlib) key in the JSON file consists of an array that allows multiple objects to be included, each with specific `comment` and related `tests`. 
+The `testsuite-filter` script automatically loads:
+1. `common.log` (if it exists) - applied to all libc configurations
+2. `<libc>.log` (e.g., `newlib.log` or `glibc.log`) - libc-specific tests
 
-<!-- Each test object contains two keys: `comment` and `tests`. -->
-- The `comment` key contains a string that describes the purpose or context of the tests.
-```json
-    "comment": "These are commons tests 01",
+Both files are combined to create the complete allowlist for filtering.
+
+Example:
+```bash
+scripts/testsuite-filter gcc newlib test/allowlist/gcc/archs/ gcc.sum,g++.sum
 ```
-- The `tests` key contains a list of strings that represent the individual test results.
-```json
-    "tests": [
-        "FAIL: folder/test_01.S compilation",
-        "XPASS: folder/test_02.S compilation",
-        "FAIL: folder/test_03.S compilation"
-    ]
-```
+
+This will load:
+- `test/allowlist/gcc/archs/common.log`
+- `test/allowlist/gcc/archs/newlib.log`
