@@ -1,0 +1,222 @@
+#
+# hs58 CPU (2025.09 release known failures.)
+#
+FAIL: gcc.c-torture/compile/20000804-1.c   -O0  (test for excess errors)
+FAIL: gcc.dg/atomic-compare-exchange-4.c (test for excess errors)
+FAIL: gcc.dg/atomic-exchange-4.c (test for excess errors)
+FAIL: gcc.dg/atomic-load-4.c (test for excess errors)
+FAIL: gcc.dg/atomic-op-4.c (test for excess errors)
+FAIL: gcc.dg/atomic-store-4.c (test for excess errors)
+FAIL: gcc.dg/c23-stdarg-6.c execution test
+FAIL: gcc.dg/c23-stdarg-8.c execution test
+FAIL: gcc.dg/c23-stdarg-9.c execution test
+FAIL: gcc.dg/di-longlong64-sync-1.c (test for excess errors)
+FAIL: gcc.dg/pr114713.c execution test
+FAIL: gcc.dg/pr87954.c scan-tree-dump-times optimized " \\*w? |WIDEN_MULT_PLUS_EXPR" 1
+FAIL: gcc.dg/simulate-thread/atomic-load-longlong.c   -O0 -g  (test for excess errors)
+FAIL: gcc.dg/simulate-thread/atomic-load-longlong.c   -O2 -g  (test for excess errors)
+FAIL: gcc.dg/simulate-thread/atomic-load-longlong.c   -O3 -g  (test for excess errors)
+FAIL: gcc.dg/simulate-thread/atomic-other-longlong.c   -O0 -g  (test for excess errors)
+FAIL: gcc.dg/simulate-thread/atomic-other-longlong.c   -O2 -g  (test for excess errors)
+FAIL: gcc.dg/simulate-thread/atomic-other-longlong.c   -O3 -g  (test for excess errors)
+FAIL: gcc.dg/torture/pr113026-1.c   -O3 -fomit-frame-pointer -funroll-loops -fpeel-loops -ftracer -finline-functions   (test for bogus messages, line 10)
+FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-ssa/forwprop-41.c scan-tree-dump-times optimized "BIT_INSERT_EXPR" 1
+FAIL: gcc.dg/tree-ssa/forwprop-41.c scan-tree-dump-times optimized "BIT_FIELD_REF" 0
+FAIL: gcc.dg/tree-ssa/gen-vect-11a.c scan-tree-dump-times vect "vectorized 1 loops" 1
+FAIL: gcc.dg/tree-ssa/gen-vect-11c.c scan-tree-dump-times vect "vectorized 0 loops" 1
+FAIL: gcc.dg/tree-ssa/gen-vect-2.c scan-tree-dump-times vect "Vectorizing an unaligned access" 0
+FAIL: gcc.dg/tree-ssa/gen-vect-25.c scan-tree-dump-times vect "Vectorizing an unaligned access" 0
+FAIL: gcc.dg/tree-ssa/pr42585.c scan-tree-dump-times optimized "struct _fat_ptr _ans" 0
+FAIL: gcc.dg/tree-ssa/pr42585.c scan-tree-dump-times optimized "struct _fat_ptr _T2" 0
+FAIL: gcc.dg/tree-ssa/vrp-loop-1.c scan-tree-dump-not optimized "foo "
+FAIL: gcc.target/arc64/cmodel-large-cpp-thunk.cpp scan-assembler movhl_s\\sr13,@.LTHUNK0
+FAIL: gcc.target/arc64/interrupt-5.c scan-assembler st.a\\s+blink,
+FAIL: gcc.target/arc64/interrupt-5.c scan-assembler ld.ab\\s+blink,
+FAIL: gcc.target/arc64/mac-move-optimize.c scan-assembler mov\\s+r0,r58
+FAIL: gcc.target/arc64/mac-move-optimize.c scan-assembler vmac2h\\s+0,
+FAIL: gcc.target/arc64/mac-move-optimize.c scan-assembler mac\\s+0,
+
+UNRESOLVED: gcc.dg/atomic-compare-exchange-4.c compilation failed to produce executable
+UNRESOLVED: gcc.dg/atomic-exchange-4.c compilation failed to produce executable
+UNRESOLVED: gcc.dg/atomic-load-4.c compilation failed to produce executable
+UNRESOLVED: gcc.dg/atomic-op-4.c compilation failed to produce executable
+UNRESOLVED: gcc.dg/atomic-store-4.c compilation failed to produce executable
+UNRESOLVED: gcc.dg/di-longlong64-sync-1.c compilation failed to produce executable
+UNRESOLVED: gcc.dg/torture/pr23821.c   -Os   scan-tree-dump ivcanon "Added canonical iv"
+UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c execution,    -fprofile-generate -D_PROFILE_GENERATE
+UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c execution,    -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/pr97461.c execution,    -fprofile-generate -D_PROFILE_GENERATE
+UNRESOLVED: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/pr97461.c execution,    -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c execution,    -fprofile-generate -D_PROFILE_GENERATE
+UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c compilation,  -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c execution,    -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-ssa/ldist-37.c scan-tree-dump ldist "split to 0 loops and 1 library calls"
+
+#
+# g++
+#
+FAIL: g++.dg/coroutines/pr110871.C output pattern test
+FAIL: g++.dg/coroutines/pr110872.C output pattern test
+FAIL: g++.dg/musttail8.C    (test for errors, line 9)
+FAIL: g++.dg/musttail8.C   (test for excess errors)
+FAIL: g++.dg/musttail9.C    (test for errors, line 9)
+FAIL: g++.dg/musttail9.C   (test for excess errors)
+FAIL: g++.dg/contracts/contracts-access1.C   output pattern test
+FAIL: g++.dg/contracts/contracts-config1.C   output pattern test
+FAIL: g++.dg/contracts/contracts-constexpr1.C   output pattern test
+FAIL: g++.dg/contracts/contracts-deduced2.C   output pattern test
+FAIL: g++.dg/contracts/contracts-friend1.C   output pattern test
+FAIL: g++.dg/contracts/contracts-multiline1.C   output pattern test
+FAIL: g++.dg/contracts/contracts-post3.C   output pattern test
+FAIL: g++.dg/contracts/contracts-pre10.C   output pattern test
+FAIL: g++.dg/contracts/contracts-pre2.C   output pattern test
+FAIL: g++.dg/contracts/contracts-pre2a2.C  -std=c++11 output pattern test
+FAIL: g++.dg/contracts/contracts-pre2a2.C  -std=c++17 output pattern test
+FAIL: g++.dg/contracts/contracts-pre2a2.C  -std=c++26 output pattern test
+FAIL: g++.dg/contracts/contracts-pre4.C   output pattern test
+FAIL: g++.dg/contracts/contracts-pre5.C   output pattern test
+FAIL: g++.dg/contracts/contracts-pre7.C   output pattern test
+FAIL: g++.dg/contracts/contracts-pre9.C   output pattern test
+FAIL: g++.dg/contracts/contracts-redecl3.C   output pattern test
+FAIL: g++.dg/contracts/contracts-redecl4.C   output pattern test
+FAIL: g++.dg/contracts/contracts-redecl6.C   output pattern test
+FAIL: g++.dg/contracts/contracts-redecl7.C   output pattern test
+FAIL: g++.dg/contracts/contracts-tmpl-spec1.C   output pattern test
+FAIL: g++.dg/contracts/contracts-tmpl-spec2.C   output pattern test
+FAIL: g++.dg/contracts/contracts-tmpl-spec3.C   output pattern test
+FAIL: g++.dg/contracts/contracts10.C   output pattern test
+FAIL: g++.dg/contracts/contracts15.C   output pattern test
+FAIL: g++.dg/contracts/contracts19.C   output pattern test
+FAIL: g++.dg/contracts/contracts25.C   output pattern test
+FAIL: g++.dg/contracts/contracts3.C   output pattern test
+FAIL: g++.dg/contracts/contracts35.C   output pattern test
+FAIL: g++.dg/contracts/contracts5.C   output pattern test
+FAIL: g++.dg/contracts/contracts7.C   output pattern test
+FAIL: g++.dg/contracts/contracts9.C   output pattern test
+FAIL: g++.dg/contracts/pr110159.C   output pattern test
+FAIL: g++.dg/contracts/pr115434.C   output pattern test
+FAIL: g++.dg/contracts/pr116490.C   output pattern test
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++11  (test for warnings, line 17)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++11  (test for warnings, line 23)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++11  (test for warnings, line 31)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++11 (test for excess errors)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++17  (test for warnings, line 17)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++17  (test for warnings, line 23)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++17  (test for warnings, line 31)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++17 (test for excess errors)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++26  (test for warnings, line 17)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++26  (test for warnings, line 23)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++26  (test for warnings, line 31)
+FAIL: g++.dg/ext/musttail1.C  -std=gnu++26 (test for excess errors)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++11  (test for warnings, line 17)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++11  (test for warnings, line 23)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++11  (test for warnings, line 31)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++11 (test for excess errors)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++17  (test for warnings, line 17)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++17  (test for warnings, line 23)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++17  (test for warnings, line 31)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++17 (test for excess errors)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++26  (test for warnings, line 17)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++26  (test for warnings, line 23)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++26  (test for warnings, line 31)
+FAIL: g++.dg/ext/musttail2.C  -std=gnu++26 (test for excess errors)
+FAIL: g++.dg/ext/musttail3.C  -std=c++11  (test for warnings, line 16)
+FAIL: g++.dg/ext/musttail3.C  -std=c++11  (test for warnings, line 30)
+FAIL: g++.dg/ext/musttail3.C  -std=c++11 (test for excess errors)
+FAIL: g++.dg/ext/musttail3.C  -std=c++17  (test for warnings, line 16)
+FAIL: g++.dg/ext/musttail3.C  -std=c++17  (test for warnings, line 30)
+FAIL: g++.dg/ext/musttail3.C  -std=c++17 (test for excess errors)
+FAIL: g++.dg/ext/musttail3.C  -std=c++26  (test for warnings, line 16)
+FAIL: g++.dg/ext/musttail3.C  -std=c++26  (test for warnings, line 30)
+FAIL: g++.dg/ext/musttail3.C  -std=c++26 (test for excess errors)
+FAIL: g++.dg/opt/musttail3.C  -std=gnu++11 (test for excess errors)
+FAIL: g++.dg/opt/musttail3.C  -std=gnu++17 (test for excess errors)
+FAIL: g++.dg/opt/musttail3.C  -std=gnu++26 (test for excess errors)
+FAIL: g++.dg/opt/musttail4.C  -std=gnu++11  (test for errors, line 13)
+FAIL: g++.dg/opt/musttail4.C  -std=gnu++11 (test for excess errors)
+FAIL: g++.dg/opt/musttail4.C  -std=gnu++17  (test for errors, line 13)
+FAIL: g++.dg/opt/musttail4.C  -std=gnu++17 (test for excess errors)
+FAIL: g++.dg/opt/musttail4.C  -std=gnu++26  (test for errors, line 13)
+FAIL: g++.dg/opt/musttail4.C  -std=gnu++26 (test for excess errors)
+FAIL: g++.dg/opt/musttail5.C  -std=gnu++11 (test for excess errors)
+FAIL: g++.dg/opt/musttail5.C  -std=gnu++17 (test for excess errors)
+FAIL: g++.dg/opt/musttail5.C  -std=gnu++26 (test for excess errors)
+FAIL: g++.dg/opt/pr119613.C  -std=gnu++11 (test for excess errors)
+FAIL: g++.dg/opt/pr119613.C  -std=gnu++17 (test for excess errors)
+FAIL: g++.dg/opt/pr119613.C  -std=gnu++26 (test for excess errors)
+FAIL: c-c++-common/musttail19.c  -std=c++17  (test for warnings, line 17)
+FAIL: c-c++-common/musttail19.c  -std=c++17 (test for excess errors)
+FAIL: c-c++-common/musttail19.c  -std=c++98  (test for warnings, line 17)
+FAIL: c-c++-common/musttail19.c  -std=c++98 (test for excess errors)
+FAIL: c-c++-common/musttail19.c  -std=c++26  (test for warnings, line 17)
+FAIL: c-c++-common/musttail19.c  -std=c++26 (test for excess errors)
+FAIL: c-c++-common/musttail28.c  -std=c++11  (test for warnings, line 20)
+FAIL: c-c++-common/musttail28.c  -std=c++11  (test for warnings, line 40)
+FAIL: c-c++-common/musttail28.c  -std=c++11  (test for warnings, line 45)
+FAIL: c-c++-common/musttail28.c  -std=c++11  (test for warnings, line 78)
+FAIL: c-c++-common/musttail28.c  -std=c++11  (test for warnings, line 83)
+FAIL: c-c++-common/musttail28.c  -std=c++11 (test for excess errors)
+FAIL: c-c++-common/musttail28.c  -std=c++17  (test for warnings, line 20)
+FAIL: c-c++-common/musttail28.c  -std=c++17  (test for warnings, line 40)
+FAIL: c-c++-common/musttail28.c  -std=c++17  (test for warnings, line 45)
+FAIL: c-c++-common/musttail28.c  -std=c++17  (test for warnings, line 78)
+FAIL: c-c++-common/musttail28.c  -std=c++17  (test for warnings, line 83)
+FAIL: c-c++-common/musttail28.c  -std=c++17 (test for excess errors)
+FAIL: c-c++-common/musttail28.c  -std=c++26  (test for warnings, line 20)
+FAIL: c-c++-common/musttail28.c  -std=c++26  (test for warnings, line 40)
+FAIL: c-c++-common/musttail28.c  -std=c++26  (test for warnings, line 45)
+FAIL: c-c++-common/musttail28.c  -std=c++26  (test for warnings, line 78)
+FAIL: c-c++-common/musttail28.c  -std=c++26  (test for warnings, line 83)
+FAIL: c-c++-common/musttail28.c  -std=c++26 (test for excess errors)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 21)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 36)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 41)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 46)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 52)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 74)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 79)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 84)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11  (test for warnings, line 90)
+FAIL: c-c++-common/musttail30.c  -std=gnu++11 (test for excess errors)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 21)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 36)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 41)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 46)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 52)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 74)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 79)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 84)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17  (test for warnings, line 90)
+FAIL: c-c++-common/musttail30.c  -std=gnu++17 (test for excess errors)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 21)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 36)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 41)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 46)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 52)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 74)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 79)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 84)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26  (test for warnings, line 90)
+FAIL: c-c++-common/musttail30.c  -std=gnu++26 (test for excess errors)
+FAIL: c-c++-common/musttail8.c  -std=c++11  (test for warnings, line 17)
+FAIL: c-c++-common/musttail8.c  -std=c++11 (test for excess errors)
+FAIL: c-c++-common/musttail8.c  -std=c++17  (test for warnings, line 17)
+FAIL: c-c++-common/musttail8.c  -std=c++17 (test for excess errors)
+FAIL: c-c++-common/musttail8.c  -std=c++26  (test for warnings, line 17)
+FAIL: c-c++-common/musttail8.c  -std=c++26 (test for excess errors)
+FAIL: g++.dg/lto/pr62026 cp_lto_pr62026_0.o-cp_lto_pr62026_0.o link, -flto -O3 -r -Wno-return-type
+FAIL: g++.dg/torture/musttail1.C   -O0  (test for excess errors)
+FAIL: g++.dg/torture/musttail1.C   -O0   scan-tree-dump-times optimized "  [^\n\r]* = foo \\([^\n\r]*\\); \\[tail call\\] \\[must tail call\\]" 1
+
+XPASS: g++.dg/torture/pr101373.C   -O0  execution test
+XPASS: g++.dg/torture/pr101373.C   -O1  execution test
+XPASS: g++.dg/torture/pr101373.C   -O2  execution test
+XPASS: g++.dg/torture/pr101373.C   -O3 -g  execution test
+XPASS: g++.dg/torture/pr101373.C   -Os  execution test
+XPASS: g++.dg/torture/pr101373.C   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+XPASS: g++.dg/torture/pr101373.C   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
