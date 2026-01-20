@@ -1,30 +1,37 @@
 #
-# archs CPU (2025.09 release known failures.)
+# arcem CPU (2025.09 release known failures.)
 #
-
-#
-# Fix SDA linker relocation issue during compilation with: -sdata (small data)
-#
-FAIL: gcc.dg/compat/struct-by-value-2 c_compat_x_tst.o-c_compat_y_tst.o link
-FAIL: gcc.dg/compat/struct-by-value-3 c_compat_x_tst.o-c_compat_y_tst.o link
-FAIL: gcc.dg/compat/struct-return-3 c_compat_x_tst.o-c_compat_y_tst.o link
-FAIL: gcc.dg/compat/struct-by-value-4 c_compat_x_tst.o-c_compat_y_tst.o link
-FAIL: tmpdir-gcc.dg-struct-layout-1/t001 c_compat_x_tst.o-c_compat_y_tst.o link
-
-#
-# Expected to fail in newlib due to missing OS
-#
-FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
-FAIL: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
-
-FAIL: gcc.dg/compat/struct-return-2 c_compat_x_tst.o-c_compat_y_tst.o link
-FAIL: tmpdir-gcc.dg-struct-layout-1/t002 c_compat_x_tst.o-c_compat_y_tst.o link
 FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000003[\t ]+[^\n]*btt_info 2
+FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000001[\t ]+[^\n]*btt_info 1
 FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0[\t ]+[^\n]*bts_offset 7
 FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times ascii ".data.0"[\t ]+[^\n]*btf_aux_string 1
+FAIL: gcc.dg/memcmp-1.c execution test
 FAIL: gcc.dg/pr114713.c execution test
 FAIL: gcc.dg/pr87954.c scan-tree-dump-times optimized " \\*w? |WIDEN_MULT_PLUS_EXPR" 1
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O0  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O1  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O2  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O3 -g  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -Os  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O0  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O1  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O2  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O3 -g  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -Os  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O0  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O1  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O2  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O3 -g  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -Os  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
 FAIL: gcc.dg/torture/pr113026-1.c   -O3 -fomit-frame-pointer -funroll-loops -fpeel-loops -ftracer -finline-functions   (test for bogus messages, line 10)
+FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
 FAIL: gcc.dg/tree-prof/stringop-1.c scan-ipa-dump profile "Transformation done: single value 4 stringop"
 FAIL: gcc.dg/tree-prof/stringop-1.c scan-tree-dump optimized " = MEM.*&b"
 FAIL: gcc.dg/tree-prof/stringop-1.c scan-tree-dump optimized "MEM.*&a\\] = "
@@ -33,7 +40,9 @@ FAIL: gcc.dg/tree-ssa/pr83403-1.c scan-tree-dump-times lim2 "Executing store mot
 FAIL: gcc.dg/tree-ssa/pr83403-2.c scan-tree-dump-times lim2 "Executing store motion of" 10
 FAIL: gcc.dg/tree-ssa/update-threading.c scan-tree-dump-times optimized "Invalid sum" 0
 FAIL: gcc.dg/tree-ssa/vrp-loop-1.c scan-tree-dump-not optimized "foo "
-FAIL: gcc.target/arc/store-merge-1.c scan-assembler-times std\\s*0,\\[r 1
+FAIL: gcc.target/arc/add_n-combine.c scan-assembler @at1\\+1
+FAIL: gcc.target/arc/jumptable.c scan-assembler-times b_s 6
+FAIL: gcc.target/arc/mov-cnst-size.c scan-assembler lsl16\\s+r0,63
 
 UNRESOLVED: gcc.dg/torture/pr23821.c   -Os   scan-tree-dump ivcanon "Added canonical iv"
 UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c execution,    -fprofile-generate -D_PROFILE_GENERATE
@@ -51,9 +60,6 @@ UNRESOLVED: gcc.dg/tree-ssa/ldist-37.c scan-tree-dump ldist "split to 0 loops an
 # g++
 #
 FAIL: tmpdir-g++.dg-struct-layout-1/t001 cp_compat_x_tst.o-cp_compat_y_tst.o link
-FAIL: tmpdir-g++.dg-struct-layout-1/t002 cp_compat_x_tst.o-cp_compat_y_tst.o link
-FAIL: tmpdir-g++.dg-struct-layout-1/t032 cp_compat_x_tst.o-cp_compat_y_tst.o link
-FAIL: tmpdir-g++.dg-struct-layout-1/t033 cp_compat_x_tst.o-cp_compat_y_tst.o link
 FAIL: g++.dg/coroutines/pr110871.C output pattern test
 FAIL: g++.dg/coroutines/pr110872.C output pattern test
 FAIL: g++.dg/debug/dwarf2/non-virtual-thunk.C  -std=gnu++17  scan-assembler thunk.C:30
@@ -209,7 +215,6 @@ FAIL: c-c++-common/musttail8.c  -std=c++26 (test for excess errors)
 FAIL: g++.dg/lto/pr62026 cp_lto_pr62026_0.o-cp_lto_pr62026_0.o link, -flto -O3 -r -Wno-return-type
 FAIL: g++.dg/torture/musttail1.C   -O0  (test for excess errors)
 FAIL: g++.dg/torture/musttail1.C   -O0   scan-tree-dump-times optimized "  [^\n\r]* = foo \\([^\n\r]*\\); \\[tail call\\] \\[must tail call\\]" 1
-
 
 XPASS: g++.dg/torture/pr101373.C   -O0  execution test
 XPASS: g++.dg/torture/pr101373.C   -O1  execution test
