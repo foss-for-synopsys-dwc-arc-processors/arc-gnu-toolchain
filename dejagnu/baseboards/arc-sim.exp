@@ -29,22 +29,21 @@ setup_sim arc
 # No multilib flags are set by default.
 process_multilib_options ""
 
-# Select the right spec file
-set xldflags ""
-case "$target_triplet" in {
-    { arc*-*elf* } {
-	set xldflags "--specs=nsim.specs -Wl,--defsym=__DEFAULT_HEAP_SIZE=256m \
-	    -Wl,--defsym=__DEFAULT_STACK_SIZE=1024m"
-    }
-}
-
 # The compiler used to build for this board. This has *nothing* to do
 # with what compiler is tested if we're testing gcc.
 set_board_info compiler "[find_gcc]"
 
+if {[info exists ::env(DEJAGNU_CFLAGS)]} {
+    set xcflags $env(DEJAGNU_CFLAGS)
+}
+
+if {[info exists ::env(DEJAGNU_LDFLAGS)]} {
+    set xldflags $env(DEJAGNU_LDFLAGS)
+}
+
 # The basic set of flags needed to build "hello world" for this
 # board. This board uses libgloss and newlib.
-set_board_info cflags	"[libgloss_include_flags] [newlib_include_flags]"
+set_board_info cflags	"[libgloss_include_flags] $xcflags [newlib_include_flags]"
 set_board_info ldflags	"[libgloss_link_flags] $xldflags [newlib_link_flags]"
 
 # This board doesn't use a linker script.
