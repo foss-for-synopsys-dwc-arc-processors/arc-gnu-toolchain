@@ -50,6 +50,14 @@ AS_IF([test "x$enable_linux" != xno],
 	[AC_SUBST(default_target, linux)],
 	[AC_SUBST(default_target, baremetal)])
 
+AC_ARG_WITH(baremetal_libc,
+		[AS_HELP_STRING([--with-baremetal-libc=LIBC],
+		[Sets the default libc for baremetal targets @<:@--with-baremetal-libc=newlib@:>@])],
+		[],
+		[with_baremetal_libc=newlib]
+		)
+AC_SUBST(baremetal_libc, $with_baremetal_libc)
+
 AC_ARG_ENABLE(qemu,
         [AS_HELP_STRING([--enable-qemu],
 		[enable building ARC QEMU @<:@--disable-qemu@:>@])],
@@ -180,6 +188,7 @@ AC_DEFUN([AX_ARG_WITH_SRC],
 AX_ARG_WITH_SRC(binutils, binutils-gdb)
 AX_ARG_WITH_SRC(gdb, binutils-gdb)
 AX_ARG_WITH_SRC(newlib, newlib)
+AX_ARG_WITH_SRC(picolibc, picolibc)
 AX_ARG_WITH_SRC(gcc, gcc)
 AX_ARG_WITH_SRC(glibc, glibc)
 AX_ARG_WITH_SRC(linux, linux)
