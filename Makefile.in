@@ -80,14 +80,14 @@ GCC_CHECKING_FLAGS := @gcc_checking@
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
 PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
 
-make_tuple = @target_alias@-$(1)
-LINUX_TUPLE  ?= $(call make_tuple,linux-gnu)
+LINUX_TUPLE ?= @target_alias@-snps-linux-gnu
+LINUX_TUPLE_ALIAS ?= @target_alias@-linux-gnu
 LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
-
+NEWLIB_TUPLE ?= @target_alias@-snps-elf
 ifeq (@target_alias@,arc)
-NEWLIB_TUPLE ?= $(call make_tuple,elf32)
+NEWLIB_TUPLE_ALIAS ?= @target_alias@-elf32
 else
-NEWLIB_TUPLE ?= $(call make_tuple,elf)
+NEWLIB_TUPLE_ALIAS ?= @target_alias@-elf
 endif
 
 ROOT_DIR := $(shell pwd)
@@ -122,16 +122,11 @@ endif
 endif
 
 ifeq (@default_target@,linux)
-	TARGET_ALIAS = $(call make_tuple,linux-gnu)
-	TARGET_TRIPLET = $(call make_tupple,unknown-linux-gnu)
+	TARGET_ALIAS = LINUX_TUPLE_ALIAS
+	TARGET_TRIPLET = LINUX_TUPLE
 else
-ifeq (@target_alias@,arc)
-	TARGET_ALIAS = $(call make_tuple,elf32)
-	TARGET_TRIPLET = $(call make_tuple,unknown-elf32)
-else
-	TARGET_ALIAS = $(call make_tuple,elf)
-	TARGET_TRIPLET = $(call make_tuple,unknown-elf)
-endif
+	TARGET_ALIAS = NEWLIB_TUPLE_ALIAS
+	TARGET_TRIPLET = NEWLIB_TUPLE
 endif
 
 ifeq ($(SIM),qemu)
@@ -419,6 +414,11 @@ stamps/build-gcc-linux-stage2: $(GCC_SRCDIR) stamps/build-glibc-linux \
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	cp -a $(INSTALL_DIR)/$(LINUX_TUPLE)/lib* $(SYSROOT)
+	cd $(INSTALL_DIR)/bin && for file_name in $(LINUX_TUPLE)-*; \
+	do \
+		link_name=`echo $${file_name} | sed 's/$(LINUX_TUPLE)/$(LINUX_TUPLE_ALIAS)/g'`; \
+		ln -sf $${file_name} $${link_name}; \
+	done
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-gdbserver-linux: $(GDB_SRCDIR) stamps/build-gcc-linux-stage2
@@ -570,6 +570,11 @@ stamps/build-gcc-newlib-stage2: $(GCC_SRCDIR) stamps/build-newlib
 		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
+	cd $(INSTALL_DIR)/bin && for file_name in $(NEWLIB_TUPLE)-*; \
+	do \
+		link_name=`echo $${file_name} | sed 's/$(NEWLIB_TUPLE)/$(NEWLIB_TUPLE_ALIAS)/g'`; \
+		ln -sf $${file_name} $${link_name}; \
+	done
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-qemu: $(QEMU_SRCDIR)
