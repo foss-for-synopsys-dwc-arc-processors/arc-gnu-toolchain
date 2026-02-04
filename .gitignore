@@ -4,6 +4,8 @@ newlib
 gcc
 glibc
 linux
+qemu
+picolibc
 build-*
 config.log
 config.status
