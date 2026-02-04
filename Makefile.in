@@ -2,13 +2,6 @@ srcdir := @abs_top_srcdir@
 builddir := @abs_top_builddir@
 INSTALL_DIR := @prefix@
 
-PACKAGES :=
-
-DISTDIR ?= /var/cache/distfiles
-GNU_MIRROR := http://mirrors.kernel.org/gnu
-gcc_url := $(GNU_MIRROR)/gcc/gcc-$(gcc_version)/gcc-$(gcc_version).tar.gz
-newlib_url := ftp://sourceware.org/pub/newlib/newlib-$(newlib_version).tar.gz
-
 # SNPS toolchains
 SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
 BINUTILS_BRANCH 	:= arc-2026.03
@@ -214,28 +207,6 @@ report-qemu: report-qemu-@default_target@
 report-gcc: report-gcc-@default_target@
 report-binutils: report-binutils-@default_target@
 report-newlib: report-newlib-@default_target@
-
-$(addprefix src/original-,$(PACKAGES)):
-	mkdir -p src
-	rm -rf $@ $(subst original-,,$@)-*
-	cd src && (cat $(DISTDIR)/$(subst src/original-,,$@)-$($(subst src/original-,,$@)_version).tar.gz || @FETCHER@ $($(subst src/original-,,$@)_url)) | tar zxf -
-	mv $(subst original-,,$@)-$($(subst src/original-,,$@)_version) $@
-
-$(addprefix src/,$(PACKAGES)): src/%: src/original-%
-	rm -rf $@ $@.tmp
-	cp -a $< $@.tmp
-	$(srcdir)/scripts/cp_s $(srcdir)/$(notdir $@) $@.tmp
-	cd $@.tmp && patch -p1 < $(srcdir)/patches/$(notdir $@)
-	if test -f $@.tmp/contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" == "true"; then cd $@.tmp && ./contrib/download_prerequisites; fi
-	mv $@.tmp $@
-
-.PHONY: patches $(addprefix $(srcdir)/patches/,$(PACKAGES))
-$(addprefix $(srcdir)/patches/,$(PACKAGES)): $(srcdir)/patches/%: src/%
-	-cd src/$(notdir $@) && rm `cd $(srcdir)/$(notdir $@) && find . -type f`
-	-cd src && diff --exclude=manual --exclude=autom4te.cache -rupN original-$(notdir $@) $(notdir $@) | filterdiff --remove-timestamps > $@
-	$(srcdir)/scripts/cp_s $(srcdir)/$(notdir $@) $<
-
-patches: $(addprefix $(srcdir)/patches/,$(PACKAGES))
 
 $(BINUTILS_SRCDIR):
 	git clone --depth 1 --single-branch --branch $(BINUTILS_BRANCH) $(SNPS_GIT_URL)/binutils-gdb.git $@
@@ -467,20 +438,6 @@ stamps/build-gdbserver-linux: $(GDB_SRCDIR) stamps/build-gcc-linux-stage2
 	$(MAKE) -C $(notdir $@) install-gdbserver DESTDIR=$(SYSROOT)
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-buildroot-linux: $(BUILDROOT_SRCDIR) $(LINUX_SRCDIR) #stamps/build-gcc-linux-stage2
-	export PATH=$(ORIGINAL_PATH)
-	unset AWK SED
-	rm -rf $@ $(notdir $@)
-	cd ${ROOT_DIR} && tar cfz /tmp/arc-linux.tar.gz arc-linux
-	$(SED) 's.%INSTALL_DIR%.$(INSTALL_DIR).' scripts/buildroot_defconfig > /tmp/buildroot_defconfig
-	$(SED) -i 's.%LINUX_SRCDIR%.$(LINUX_SRCDIR).' /tmp/buildroot_defconfig
-	cd ${BUILDROOT_SRCDIR} && make defconfig BR2_DEFCONFIG=/tmp/buildroot_defconfig O=${ROOT_DIR}/$(notdir $@)
-	@echo ""
-	@echo " ========= IMPORTANT NOTICE ============"
-	@echo "Buildroot is setup complete. Further continue by going to $(notdir $@) and executing make."
-	@echo ""
-	mkdir -p $(dir $@) && touch $@
-
 #
 # NEWLIB
 #
@@ -705,10 +662,7 @@ report-binutils-linux: stamps/check-binutils-linux
 		`find build-binutils-linux -name *.sum |paste -sd "," -`
 
 clean:
-	rm -rf build-* $(addprefix src/,$(PACKAGES)) stamps autom4te.cache
-
-distclean: clean
-	rm -rf src
+	rm -rf build-* stamps autom4te.cache
 
 # All of the packages install themselves, so our install target does nothing.
 install:
