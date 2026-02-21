@@ -64,4 +64,5 @@ nsimdrv \
     -p nsim_isa_atomic_option=1             \
     -p nsim_isa_shift_option=0              \
     -p nsim_isa_bitscan_option=0            \
+    -p nsim_isa_ll64_option=1               \
     "$@"
