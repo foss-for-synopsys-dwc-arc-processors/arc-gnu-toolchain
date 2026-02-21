@@ -22,4 +22,5 @@ nsimdrv \
     -p nsim_isa_fp_wide_option=1            \
     -p nsim_isa_shift_option=0              \
     -p nsim_isa_bitscan_option=0            \
+    -p nsim_isa_m128_option=1               \
     "$@"
