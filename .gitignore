@@ -4,7 +4,7 @@ newlib
 gcc
 glibc
 linux
-qemu
+/qemu
 picolibc
 build-*
 config.log
