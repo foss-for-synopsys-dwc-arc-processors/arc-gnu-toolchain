@@ -781,6 +781,11 @@ stamps/build-gcc-picolibc-stage2: $(GCC_SRCDIR) stamps/build-picolibc
 		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
+	cd $(INSTALL_DIR)/bin && for file_name in $(NEWLIB_TUPLE)-*; \
+	do \
+		link_name=`echo $${file_name} | sed 's/$(NEWLIB_TUPLE)/$(NEWLIB_TUPLE_ALIAS)/g'`; \
+		ln -sf $${file_name} $${link_name}; \
+	done
 	mkdir -p $(dir $@) && touch $@
 
 stamps/build-picolibc-test: $(PICOLIBC_SRCDIR) stamps/build-gcc-picolibc-stage2
