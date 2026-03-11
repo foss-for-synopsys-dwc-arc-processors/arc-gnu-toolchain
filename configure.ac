@@ -151,6 +151,23 @@ AS_IF([test "x$enable_multilib" != xno],
         [AC_SUBST(multilib_flags,--enable-multilib)],
 	[AC_SUBST(multilib_flags,--disable-multilib)])
 
+AC_ARG_WITH(multilib_list,
+	[AS_HELP_STRING([--with-multilib-list=LIST],
+		[select specific multilibs to build (e.g., reduced, release) - only for arc target @<:@--with-multilib-list=default@:>@])],
+	[],
+	[with_multilib_list=default]
+	)
+
+# Only apply --with-multilib-list for classic ARC target, not arc32 or arc64
+AS_IF([test "x$target_alias" = xarc],
+	[AS_IF([test "x$with_multilib_list" != xdefault],
+		[AC_SUBST(multilib_list_flags,--with-multilib-list=$with_multilib_list)
+		 AC_SUBST(multilib_flags,--enable-multilib)],
+		[AC_SUBST(multilib_list_flags,"")])],
+	[AS_IF([test "x$with_multilib_list" != xdefault],
+		[AC_MSG_WARN([--with-multilib-list is only supported for arc target, ignoring for $target_alias])])
+	 AC_SUBST(multilib_list_flags,"")])
+
 AC_ARG_ENABLE(gcc-checking,
         [AS_HELP_STRING([--enable-gcc-checking],
 		[Enable gcc internal checking, it will make gcc very slow, only enable it when developing gcc @<:@--disable-gcc-checking@:>@])],
