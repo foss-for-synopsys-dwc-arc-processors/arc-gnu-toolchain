@@ -80,6 +80,7 @@ endif
 export PATH AWK SED
 
 MULTILIB_FLAGS := @multilib_flags@
+MULTILIB_LIST_FLAGS := @multilib_list_flags@
 ifeq ($(MULTILIB_FLAGS),--enable-multilib)
 PICOLIBC_MULTILIB_FLAGS := -Dmultilib=true
 else
@@ -564,6 +565,7 @@ stamps/build-gcc-newlib-stage1: $(GCC_SRCDIR) stamps/build-binutils-newlib
 		@werror_flag@ \
 		$(WITH_CPU) \
 		@with_fpu@ \
+		$(MULTILIB_LIST_FLAGS) \
 		CFLAGS="$(CFLAGS)" \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
 		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD)" \
@@ -617,6 +619,7 @@ stamps/build-gcc-newlib-stage2: $(GCC_SRCDIR) stamps/build-newlib
 		@werror_flag@ \
 		$(WITH_CPU) \
 		@with_fpu@ \
+		$(MULTILIB_LIST_FLAGS) \
 		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
 		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
@@ -704,6 +707,7 @@ stamps/build-gcc-picolibc-stage1: $(GCC_SRCDIR) stamps/build-binutils-picolibc
 		@werror_flag@ \
 		$(WITH_CPU) \
 		@with_fpu@ \
+		$(MULTILIB_LIST_FLAGS) \
 		CFLAGS="$(CFLAGS)" \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
 		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD)" \
@@ -773,6 +777,7 @@ stamps/build-gcc-picolibc-stage2: $(GCC_SRCDIR) stamps/build-picolibc
 		@werror_flag@ \
 		$(WITH_CPU) \
 		@with_fpu@ \
+		$(MULTILIB_LIST_FLAGS) \
 		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
 		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
 		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
