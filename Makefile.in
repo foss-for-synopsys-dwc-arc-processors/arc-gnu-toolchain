@@ -180,7 +180,7 @@ DEJAGNU_LDFLAGS := \
 	-specs=picolibcpp.specs \
 	--crt0=semihost-trap \
 	--oslib=semihost \
-	-Wl,-defsym=__f4lash=0x0 \
+	-Wl,-defsym=__flash=0x0 \
 	-Wl,-defsym=__flash_size=0x80000000 \
 	-Wl,-defsym=__ram=0x80000000 \
 	-Wl,-defsym=__ram_size=0x80000000 \
