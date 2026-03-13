@@ -102,14 +102,8 @@ endif
 
 ROOT_DIR := $(shell pwd)
 
-ifeq (@baremetal_libc@,picolibc)
-ifeq (@target_alias@,arc)
-CFLAGS_NO_SDATA := -mno-sdata
-endif
-endif
-
-CFLAGS_FOR_TARGET := -ffunction-sections $(CFLAGS_NO_SDATA) $(CFLAGS_FOR_TARGET_EXTRA) @target_cflags@ @cmodel@
-CXXFLAGS_FOR_TARGET := -ffunction-sections $(CFLAGS_NO_SDATA) $(CXXFLAGS_FOR_TARGET_EXTRA) @target_cxxflags@ @cmodel@
+CFLAGS_FOR_TARGET := -ffunction-sections $(CFLAGS_FOR_TARGET_EXTRA) @target_cflags@ @cmodel@
+CXXFLAGS_FOR_TARGET := -ffunction-sections $(CXXFLAGS_FOR_TARGET_EXTRA) @target_cxxflags@ @cmodel@
 ASFLAGS_FOR_TARGET := $(ASFLAGS_FOR_TARGET_EXTRA) @cmodel@
 # --with-expat is required to enable XML support used by OpenOCD.
 BINUTILS_TARGET_FLAGS := --with-expat=yes $(BINUTILS_TARGET_FLAGS_EXTRA)
