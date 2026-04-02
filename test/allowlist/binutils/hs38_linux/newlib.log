@@ -1,5 +1,5 @@
 #
-# hs6x CPU (arc-2026.03 release known failures.)
+# hs38_linux CPU (arc-2026.03 release known failures.)
 #
 
 #
@@ -10,13 +10,17 @@ FAIL: simple objcopy of executable
 #
 # gas
 #
-FAIL: .quad with division (fwdref)
+FAIL: gas/arc/leave_enter
+FAIL: gas/arc/textinsn3op
 FAIL: DWARF5 dir[0]
 FAIL: DWARF5 .loc 0
 
 #
 # ld
 #
+FAIL: DT_TEXTREL in shared lib
+FAIL: DT_TEXTREL map file warning
+FAIL: pr20995
 ERROR: tcl error code TCL READ VARNAME
 ERROR: can't read "enable_libctf": no such variable
 ERROR: tcl error code POSIX ENOENT {no such file or directory}
