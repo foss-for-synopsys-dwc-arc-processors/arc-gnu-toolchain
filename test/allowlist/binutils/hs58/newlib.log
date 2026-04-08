@@ -1,5 +1,5 @@
 #
-# hs6x CPU (arc-2026.03 release known failures.)
+# hs58 CPU (arc-2026.03 release known failures.)
 #
 
 #
@@ -17,6 +17,9 @@ FAIL: DWARF5 .loc 0
 #
 # ld
 #
+FAIL: selective1
+FAIL: selective2
+FAIL: selective3
 ERROR: tcl error code TCL READ VARNAME
 ERROR: can't read "enable_libctf": no such variable
 ERROR: tcl error code POSIX ENOENT {no such file or directory}

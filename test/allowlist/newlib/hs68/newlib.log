@@ -1,0 +1,23 @@
+#
+# hs68 CPU (arc-2026.03 release known failures.)
+#
+
+#
+# newlib
+#
+FAIL: newlib.iconv/iconvru.c execution
+FAIL: newlib.iconv/iconvjp.c execution
+FAIL: newlib.iconv/iconvnm.c execution
+FAIL: newlib.search/hsearchtest.c execution
+FAIL: newlib.stdio/nulprintf.c execution
+FAIL: newlib.stdio/swprintf.c execution
+FAIL: newlib.stdlib/size_max.c execution
+FAIL: newlib.string/tstring.c execution
+FAIL: newlib.string/memmove1.c execution
+FAIL: newlib.string/memcpy-1.c execution
+FAIL: newlib.string/strcmp-1.c execution
+FAIL: newlib.time/tzset.c execution
+FAIL: newlib.wctype/twctype.c execution
+FAIL: newlib.wctype/twctrans.c compilation
+FAIL: newlib.wctype/tiswctype.c execution
+UNRESOLVED: newlib.wctype/twctrans.c execution
