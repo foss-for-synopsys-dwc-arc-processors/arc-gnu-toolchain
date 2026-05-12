@@ -1,0 +1,82 @@
+#
+# arc600 CPU (2025.09 release known failures.)
+#
+FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0[\t ]+[^\n]*bts_offset 7
+FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000001[\t ]+[^\n]*btt_info 1
+FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times 0xf000003[\t ]+[^\n]*btt_info 2
+FAIL: gcc.dg/debug/btf/btf-datasec-1.c scan-assembler-times ascii ".data.0"[\t ]+[^\n]*btf_aux_string 1
+FAIL: gcc.dg/memcmp-1.c execution test
+FAIL: gcc.dg/pr114713.c execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O0  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O1  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O2  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -O3 -g  execution test
+FAIL: gcc.dg/torture/inline-mem-cmp-1.c   -Os  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O0  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O1  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O2  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -O3 -g  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-1.c   -Os  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O0  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O1  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O2  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -O3 -g  execution test
+FAIL: gcc.dg/torture/inline-mem-cpy-cmp-1.c   -Os  execution test
+FAIL: gcc.dg/torture/pr113026-1.c   -O3 -fomit-frame-pointer -funroll-loops -fpeel-loops -ftracer -finline-functions   (test for bogus messages, line 10)
+FAIL: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-prof/stringop-1.c scan-ipa-dump profile "Transformation done: single value 4 stringop"
+FAIL: gcc.dg/tree-prof/stringop-1.c scan-tree-dump optimized " = MEM.*&b"
+FAIL: gcc.dg/tree-prof/stringop-1.c scan-tree-dump optimized "MEM.*&a\\] = "
+FAIL: gcc.dg/tree-prof/time-profiler-2.c compilation,  -fprofile-generate -D_PROFILE_GENERATE
+FAIL: gcc.dg/tree-ssa/pr83403-1.c scan-tree-dump-times lim2 "Executing store motion of" 10
+FAIL: gcc.dg/tree-ssa/pr83403-2.c scan-tree-dump-times lim2 "Executing store motion of" 10
+FAIL: gcc.dg/tree-ssa/slsr-13.c scan-tree-dump-times optimized " \\* 4" 2
+FAIL: gcc.dg/tree-ssa/slsr-13.c scan-tree-dump-times optimized " \\* 5" 0
+FAIL: gcc.dg/tree-ssa/update-threading.c scan-tree-dump-times optimized "Invalid sum" 0
+FAIL: gcc.dg/tree-ssa/vrp-loop-1.c scan-tree-dump-not optimized "foo "
+FAIL: gcc.target/arc/add_n-combine.c scan-assembler @at1\\+1
+FAIL: gcc.target/arc/jumptable.c scan-assembler-times b_s 6
+FAIL: gcc.target/arc/mov-cnst-size.c scan-assembler asl_s\\s+r0,r0,13
+FAIL: gcc.target/arc/mov-cnst-size.c scan-assembler lsl16\\s+r0,63
+FAIL: gcc.target/arc/mov-cnst-size.c scan-assembler lsl8\\s+r0,63
+FAIL: gcc.target/arc/mov-cnst-size.c scan-assembler mov_s\\s+r0,17
+FAIL: gcc.target/arc/mov-cnst-size.c scan-assembler ror8\\s+r0,63
+FAIL: gcc.target/arc/mult-cmp0.c scan-assembler-times mpy\\.f\\s+0 2
+FAIL: gcc.target/arc/mult-cmp0.c scan-assembler-times mpy\\.f\\s+r 2
+
+UNRESOLVED: gcc.dg/torture/pr23821.c   -Os   scan-tree-dump ivcanon "Added canonical iv"
+UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c compilation,  -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c execution,    -fprofile-generate -D_PROFILE_GENERATE
+UNRESOLVED: gcc.dg/tree-prof/indir-call-prof-malloc.c execution,    -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/pr97461.c compilation,  -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/pr97461.c execution,    -fprofile-generate -D_PROFILE_GENERATE
+UNRESOLVED: gcc.dg/tree-prof/pr97461.c execution,    -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c compilation,  -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c execution,    -fprofile-generate -D_PROFILE_GENERATE
+UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c execution,    -fprofile-use -D_PROFILE_USE
+UNRESOLVED: gcc.dg/tree-ssa/ldist-37.c scan-tree-dump ldist "split to 0 loops and 1 library calls"
+
+# 544ca304b8222b5bd98776778e3d48c6a7ec2436 loop versioning pass patch introduced the following failures:
+UNRESOLVED: gcc.dg/pr103079.c scan-tree-dump vrp2 "PHI"
+UNRESOLVED: gcc.dg/pr110582.c scan-tree-dump-not vrp2 "Folding predicate"
+UNRESOLVED: gcc.dg/pr110875.c scan-tree-dump-not vrp2 "foo"
+UNRESOLVED: gcc.dg/pr93917.c scan-tree-dump-times vrp2 "__builtin_unreachable" 0
+UNRESOLVED: gcc.dg/vrp-min-max-2.c scan-tree-dump-times vrp2 "MAX_EXPR" 1
+UNRESOLVED: gcc.dg/vrp-min-max-2.c scan-tree-dump-times vrp2 "MIN_EXPR" 1
+UNRESOLVED: gcc.dg/tree-ssa/pr68234.c scan-tree-dump vrp2 ">> 6"
+UNRESOLVED: gcc.dg/tree-ssa/pr70232.c scan-tree-dump-not vrp2 "Registering jump "
+UNRESOLVED: gcc.dg/tree-ssa/vrp-float-plus.c scan-tree-dump-times vrp2 "return 2\\.0e" 1
+UNRESOLVED: gcc.dg/tree-ssa/vrp-unreachable.c scan-tree-dump-not vrp2 "builtin_unreachable"
+UNRESOLVED: gcc.dg/tree-ssa/vrp47.c scan-tree-dump-times vrp2 " & 1;" 0
+UNRESOLVED: gcc.dg/tree-ssa/vrp91.c scan-tree-dump vrp2 "\\[0, 7\\]"
+
+#
+# g++
+#
