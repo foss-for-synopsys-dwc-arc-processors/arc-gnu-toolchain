@@ -73,6 +73,20 @@ UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c compilation,  -fprofile-use -D_PR
 UNRESOLVED: gcc.dg/tree-prof/time-profiler-2.c execution,    -fprofile-use -D_PROFILE_USE
 UNRESOLVED: gcc.dg/tree-ssa/ldist-37.c scan-tree-dump ldist "split to 0 loops and 1 library calls"
 
+# GCC 544ca304b8222b5bd98776778e3d48c6a7ec2436 loop versioning pass patch introduced the following failures:
+UNRESOLVED: gcc.dg/pr103079.c scan-tree-dump vrp2 "PHI"
+UNRESOLVED: gcc.dg/pr110582.c scan-tree-dump-not vrp2 "Folding predicate"
+UNRESOLVED: gcc.dg/pr110875.c scan-tree-dump-not vrp2 "foo"
+UNRESOLVED: gcc.dg/pr93917.c scan-tree-dump-times vrp2 "__builtin_unreachable" 0
+UNRESOLVED: gcc.dg/vrp-min-max-2.c scan-tree-dump-times vrp2 "MAX_EXPR" 1
+UNRESOLVED: gcc.dg/vrp-min-max-2.c scan-tree-dump-times vrp2 "MIN_EXPR" 1
+UNRESOLVED: gcc.dg/tree-ssa/pr68234.c scan-tree-dump vrp2 ">> 6"
+UNRESOLVED: gcc.dg/tree-ssa/pr70232.c scan-tree-dump-not vrp2 "Registering jump "
+UNRESOLVED: gcc.dg/tree-ssa/vrp-float-plus.c scan-tree-dump-times vrp2 "return 2\\.0e" 1
+UNRESOLVED: gcc.dg/tree-ssa/vrp-unreachable.c scan-tree-dump-not vrp2 "builtin_unreachable"
+UNRESOLVED: gcc.dg/tree-ssa/vrp47.c scan-tree-dump-times vrp2 " & 1;" 0
+UNRESOLVED: gcc.dg/tree-ssa/vrp91.c scan-tree-dump vrp2 "\\[0, 7\\]"
+
 #
 # g++
 #
@@ -240,3 +254,20 @@ XPASS: g++.dg/torture/pr101373.C   -O3 -g  execution test
 XPASS: g++.dg/torture/pr101373.C   -Os  execution test
 XPASS: g++.dg/torture/pr101373.C   -O2 -flto -fno-use-linker-plugin -flto-partition=none  execution test
 XPASS: g++.dg/torture/pr101373.C   -O2 -flto -fuse-linker-plugin -fno-fat-lto-objects  execution test
+
+# 544ca304b8222b5bd98776778e3d48c6a7ec2436 loop versioning pass patch introduced the following failures:
+UNRESOLVED: g++.dg/cpp23/attr-assume-opt.C  -std=gnu++11  scan-tree-dump-times vrp2 "return 0" 0
+UNRESOLVED: g++.dg/cpp23/attr-assume-opt.C  -std=gnu++11  scan-tree-dump-times vrp2 "return 1" 4
+UNRESOLVED: g++.dg/cpp23/attr-assume-opt.C  -std=gnu++17  scan-tree-dump-times vrp2 "return 0" 0
+UNRESOLVED: g++.dg/cpp23/attr-assume-opt.C  -std=gnu++17  scan-tree-dump-times vrp2 "return 1" 4
+UNRESOLVED: g++.dg/cpp23/attr-assume-opt.C  -std=gnu++26  scan-tree-dump-times vrp2 "return 0" 0
+UNRESOLVED: g++.dg/cpp23/attr-assume-opt.C  -std=gnu++26  scan-tree-dump-times vrp2 "return 1" 4
+FAIL: g++.dg/ipa/pure-const-3.C  -std=gnu++17  scan-tree-dump optimized "barvar"
+FAIL: g++.dg/ipa/pure-const-3.C  -std=gnu++26  scan-tree-dump optimized "barvar"
+FAIL: g++.dg/ipa/pure-const-3.C  -std=gnu++98  scan-tree-dump optimized "barvar"
+UNRESOLVED: g++.dg/pr104547.C  -std=gnu++17  scan-tree-dump-not vrp2 "_M_default_append"
+UNRESOLVED: g++.dg/pr104547.C  -std=gnu++26  scan-tree-dump-not vrp2 "_M_default_append"
+UNRESOLVED: g++.dg/pr104547.C  -std=gnu++98  scan-tree-dump-not vrp2 "_M_default_append"
+UNRESOLVED: g++.dg/tree-ssa/pr49911.C  -std=gnu++17  scan-tree-dump-times vrp2 "Folding predicate.*45" 0
+UNRESOLVED: g++.dg/tree-ssa/pr49911.C  -std=gnu++26  scan-tree-dump-times vrp2 "Folding predicate.*45" 0
+UNRESOLVED: g++.dg/tree-ssa/pr49911.C  -std=gnu++98  scan-tree-dump-times vrp2 "Folding predicate.*45" 0
