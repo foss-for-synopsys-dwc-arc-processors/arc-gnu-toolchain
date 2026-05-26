@@ -54,6 +54,7 @@ UNRESOLVED: gcc.dg/tree-ssa/vrp-float-plus.c scan-tree-dump-times vrp2 "return 2
 UNRESOLVED: gcc.dg/tree-ssa/vrp-unreachable.c scan-tree-dump-not vrp2 "builtin_unreachable"
 UNRESOLVED: gcc.dg/tree-ssa/vrp47.c scan-tree-dump-times vrp2 " & 1;" 0
 UNRESOLVED: gcc.dg/tree-ssa/vrp91.c scan-tree-dump vrp2 "\\[0, 7\\]"
+UNRESOLVED: gcc.dg/pr108139.c scan-tree-dump-not vrp2 "Folding predicate"
 
 #
 # g++
