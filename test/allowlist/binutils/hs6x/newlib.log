@@ -1,0 +1,23 @@
+#
+# hs6x CPU (2026.03 release known failures)
+#
+
+# binutils
+FAIL: simple objcopy of executable
+
+# gas
+FAIL: .quad with division (fwdref)
+FAIL: DWARF5 dir[0]
+FAIL: DWARF5 .loc 0
+
+# ld
+ERROR: tcl error code TCL READ VARNAME
+ERROR: can't read "enable_libctf": no such variable
+ERROR: tcl error code POSIX ENOENT {no such file or directory}
+ERROR: -------------------------------------------
+ERROR:  can't read "enable_libctf": no such variable
+ERROR:  tcl error code TCL READ VARNAME
+ERROR:  tcl error info:
+ERROR: -------------------------------------------
+ERROR:  tcl error code POSIX ENOENT {no such file or directory}
+ERROR:  tcl error info:
