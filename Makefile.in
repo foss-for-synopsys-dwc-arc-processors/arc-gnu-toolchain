@@ -81,11 +81,6 @@ export PATH AWK SED
 
 MULTILIB_FLAGS := @multilib_flags@
 MULTILIB_LIST_FLAGS := @multilib_list_flags@
-ifeq ($(MULTILIB_FLAGS),--enable-multilib)
-PICOLIBC_MULTILIB_FLAGS := -Dmultilib=true
-else
-PICOLIBC_MULTILIB_FLAGS := -Dmultilib=false
-endif
 GCC_CHECKING_FLAGS := @gcc_checking@
 
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
@@ -104,6 +99,7 @@ endif
 ROOT_DIR := $(shell pwd)
 
 ifeq (@baremetal_libc@,picolibc)
+WITH_INITFINI_ARRAY := --enable-initfini-array
 ifeq (@target_alias@,arc)
 CFLAGS_NO_SDATA := -mno-sdata
 endif
@@ -139,11 +135,11 @@ endif
 endif
 
 ifeq (@default_target@,linux)
-	TARGET_ALIAS = LINUX_TUPLE_ALIAS
-	TARGET_TRIPLET = LINUX_TUPLE
+	TARGET_ALIAS = $(LINUX_TUPLE_ALIAS)
+	TARGET_TRIPLET = $(LINUX_TUPLE)
 else
-	TARGET_ALIAS = NEWLIB_TUPLE_ALIAS
-	TARGET_TRIPLET = NEWLIB_TUPLE
+	TARGET_ALIAS = $(NEWLIB_TUPLE_ALIAS)
+	TARGET_TRIPLET = $(NEWLIB_TUPLE)
 endif
 
 ifeq ($(SIM),qemu)
@@ -172,14 +168,14 @@ endif
 all: @default_target@ @qemu_build@
 	echo "$(INSTALL_DIR)" > stamps/install_dir
 
+baremetal: stamps/build-gcc-stage2-baremetal
+baremetal: stamps/build-gdb-baremetal
+
 ifeq (@baremetal_libc@,newlib)
 DEJAGNU_LDFLAGS := \
 	-specs=nsim.specs \
 	-Wl,-defsym=__DEFAULT_HEAP_SIZE=256M \
 	-Wl,-defsym=__DEFAULT_STACK_SIZE=1024M
-
-baremetal: stamps/build-gcc-newlib-stage2
-baremetal: stamps/build-gdb-newlib
 else
 ifeq (@baremetal_libc@,picolibc)
 DEJAGNU_CFLAGS := $(CFLAGS_NO_SDATA)
@@ -194,9 +190,6 @@ DEJAGNU_LDFLAGS := \
 	-Wl,-defsym=__heap_size_min=256m \
 	-Wl,-defsym=__stack_size=1024m \
 	-Wl,--no-warn-rwx-segments
-
-baremetal: stamps/build-gcc-picolibc-stage2
-baremetal: stamps/build-gdb-picolibc
 else
 	$(error Valid --with-baremetal-libc= values: newlib, picolibc)
 endif
@@ -495,14 +488,14 @@ stamps/build-gdbserver-linux: $(GDB_SRCDIR) stamps/build-gcc-linux-stage2
 	mkdir -p $(dir $@) && touch $@
 
 #
-# NEWLIB
+# Baremetal
 #
 
-stamps/build-binutils-newlib: $(BINUTILS_SRCDIR)
+stamps/build-binutils-baremetal: $(BINUTILS_SRCDIR)
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
+		--target=$(TARGET_TRIPLET) \
 		--prefix=$(INSTALL_DIR) \
 		--disable-python \
 		--disable-gdb \
@@ -518,11 +511,11 @@ stamps/build-binutils-newlib: $(BINUTILS_SRCDIR)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gdb-newlib: $(GDB_SRCDIR) $(GDB_SRC_GIT)
+stamps/build-gdb-baremetal: $(GDB_SRCDIR)
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
+		--target=$(TARGET_TRIPLET) \
 		--prefix=$(INSTALL_DIR) \
 		--enable-gdb \
 		--disable-gas \
@@ -542,18 +535,19 @@ stamps/build-gdb-newlib: $(GDB_SRCDIR) $(GDB_SRC_GIT)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-newlib-stage1: $(GCC_SRCDIR) stamps/build-binutils-newlib
+stamps/build-gcc-stage1-baremetal: $(GCC_SRCDIR) stamps/build-binutils-baremetal
 	if test -f $</contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" == "true"; then cd $< && ./contrib/download_prerequisites; fi
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
+		--target=$(TARGET_TRIPLET) \
 		@configure_host@ \
 		--prefix=$(INSTALL_DIR) \
 		--disable-shared \
 		--disable-threads \
 		--disable-tls \
 		--enable-languages=c \
+		$(WITH_INITFINI_ARRAY) \
 		@with_system_zlib@ \
 		--with-newlib \
 		--disable-libmudflap \
@@ -576,11 +570,62 @@ stamps/build-gcc-newlib-stage1: $(GCC_SRCDIR) stamps/build-binutils-newlib
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-newlib-stage1
+stamps/build-gcc-stage2-baremetal: $(GCC_SRCDIR) stamps/build-libc-baremetal
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
+		--target=$(TARGET_TRIPLET) \
+		@configure_host@ \
+		--prefix=$(INSTALL_DIR) \
+		--disable-shared \
+		--disable-threads \
+		--enable-languages=c,c++ \
+		$(WITH_INITFINI_ARRAY) \
+		@with_system_zlib@ \
+		--disable-tls \
+		--with-newlib \
+		--with-headers=$(INSTALL_DIR)/$(TARGET_TRIPLET)/include \
+		--disable-libmudflap \
+		--disable-libssp \
+		--disable-libquadmath \
+		--disable-libgomp \
+		--disable-nls \
+		@gcc_checking@ \
+		@multilib_flags@ \
+		@werror_flag@ \
+		$(WITH_CPU) \
+		@with_fpu@ \
+		$(MULTILIB_LIST_FLAGS) \
+		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
+		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
+		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
+		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
+	$(MAKE) -C $(notdir $@)
+	$(MAKE) -C $(notdir $@) install
+	cd $(INSTALL_DIR)/bin && for file_name in $(TARGET_TRIPLET)-*; \
+	do \
+		link_name=`echo $${file_name} | sed 's/$(TARGET_TRIPLET)/$(TARGET_ALIAS)/g'`; \
+		ln -sf $${file_name} $${link_name}; \
+	done
+	mkdir -p $(dir $@) && touch $@
+
+#
+# NEWLIB
+#
+
+ifeq (@baremetal_libc@,newlib)
+stamps/build-libc-baremetal: stamps/build-newlib
+else
+stamps/build-libc-baremetal: stamps/build-picolibc
+endif
+
+stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-stage1-baremetal
+	rm -rf $@ $(notdir $@)
+	mkdir $(notdir $@)
+	cd $(notdir $@) && $</configure \
+		--target=$(TARGET_TRIPLET) \
 		--enable-newlib-io-c99-formats \
 		@configure_host@ \
 		@multilib_flags@ \
@@ -595,135 +640,22 @@ stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-newlib-stage1
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-newlib-stage2: $(GCC_SRCDIR) stamps/build-newlib
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
-		@configure_host@ \
-		--prefix=$(INSTALL_DIR) \
-		--disable-shared \
-		--disable-threads \
-		--enable-languages=c,c++ \
-		@with_system_zlib@ \
-		--disable-tls \
-		--with-newlib \
-		--with-headers=$(INSTALL_DIR)/$(NEWLIB_TUPLE)/include \
-		--disable-libmudflap \
-		--disable-libssp \
-		--disable-libquadmath \
-		--disable-libgomp \
-		--disable-nls \
-		@gcc_checking@ \
-		@multilib_flags@ \
-		@werror_flag@ \
-		$(WITH_CPU) \
-		@with_fpu@ \
-		$(MULTILIB_LIST_FLAGS) \
-		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
-		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
-	$(MAKE) -C $(notdir $@)
-	$(MAKE) -C $(notdir $@) install
-	cd $(INSTALL_DIR)/bin && for file_name in $(NEWLIB_TUPLE)-*; \
-	do \
-		link_name=`echo $${file_name} | sed 's/$(NEWLIB_TUPLE)/$(NEWLIB_TUPLE_ALIAS)/g'`; \
-		ln -sf $${file_name} $${link_name}; \
-	done
-	mkdir -p $(dir $@) && touch $@
-
 #
 # Picolibc
 #
 
-stamps/build-binutils-picolibc: $(BINUTILS_SRCDIR)
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
-		--prefix=$(INSTALL_DIR) \
-		--disable-python \
-		--disable-gdb \
-		@multilib_flags@ \
-		@werror_flag@ \
-		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
-		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
-	$(MAKE) -C $(notdir $@)
-	$(MAKE) -C $(notdir $@) install
-	mkdir -p $(dir $@) && touch $@
-
-stamps/build-gdb-picolibc: $(GDB_SRCDIR) $(GDB_SRC_GIT)
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
-		--prefix=$(INSTALL_DIR) \
-		--enable-gdb \
-		--disable-gas \
-		--disable-binutils \
-		--disable-ld \
-		--disable-gold \
-		--disable-gprof \
-		@multilib_flags@ \
-		@werror_flag@ \
-		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
-		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
-	$(MAKE) -C $(notdir $@)
-	$(MAKE) -C $(notdir $@) install
-	mkdir -p $(dir $@) && touch $@
-
-stamps/build-gcc-picolibc-stage1: $(GCC_SRCDIR) stamps/build-binutils-picolibc
-	if test -f $</contrib/download_prerequisites && test "@NEED_GCC_EXTERNAL_LIBRARIES@" == "true"; then cd $< && ./contrib/download_prerequisites; fi
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
-		@configure_host@ \
-		--prefix=$(INSTALL_DIR) \
-		--disable-shared \
-		--disable-threads \
-		--disable-tls \
-		--enable-languages=c \
-		--enable-initfini-array \
-		@with_system_zlib@ \
-		--with-newlib \
-		--disable-libmudflap \
-		--disable-libssp \
-		--disable-libquadmath \
-		--disable-libgomp \
-		--disable-nls \
-		@gcc_checking@ \
-		@werror_flag@ \
-		$(WITH_CPU) \
-		@with_fpu@ \
-		$(MULTILIB_LIST_FLAGS) \
-		CFLAGS="$(CFLAGS)" \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET)" \
-		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD)" \
-		CXXFLAGS="$(CXXFLAGS)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET)" \
-		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD)"
-	$(MAKE) -C $(notdir $@) all-gcc
-	$(MAKE) -C $(notdir $@) install-gcc
-	mkdir -p $(dir $@) && touch $@
+ifeq ($(MULTILIB_FLAGS),--enable-multilib)
+PICOLIBC_MULTILIB_VALUE := true
+else
+PICOLIBC_MULTILIB_VALUE := false
+endif
 
 PICOLIBC_MESON_OPTIONS := \
-	-Dprefix=$(INSTALL_DIR)/$(NEWLIB_TUPLE) \
-	-Dlibdir=$(INSTALL_DIR)/$(NEWLIB_TUPLE)/lib \
-	-Dspecsdir=$(INSTALL_DIR)/$(NEWLIB_TUPLE)/lib \
+	-Dprefix=$(INSTALL_DIR)/$(TARGET_TRIPLET) \
+	-Dlibdir=$(INSTALL_DIR)/$(TARGET_TRIPLET)/lib \
+	-Dspecsdir=$(INSTALL_DIR)/$(TARGET_TRIPLET)/lib \
 	-Dincludedir=include \
-	$(PICOLIBC_MULTILIB_FLAGS) \
+	-Dmultilib=$(PICOLIBC_MULTILIB_VALUE) \
 	-Dsystem-libc=true \
 	-Ddebug=true \
 	-Dwerror=true \
@@ -742,73 +674,36 @@ PICOLIBC_MESON_OPTIONS := \
 	-Dmb-capable=true \
 	-Dio-wchar=true
 
-stamps/build-picolibc: $(PICOLIBC_SRCDIR) stamps/build-gcc-picolibc-stage1
+stamps/build-picolibc: $(PICOLIBC_SRCDIR) stamps/build-gcc-stage1-baremetal
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && meson setup . $< \
-		--cross-file=$(PICOLIBC_SRCDIR)/scripts/cross-$(NEWLIB_TUPLE).txt \
+		--cross-file=$(PICOLIBC_SRCDIR)/scripts/cross-$(TARGET_TRIPLET).txt \
 		$(PICOLIBC_MESON_OPTIONS)
 	ninja -C $(notdir $@)
 	ninja -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-picolibc-stage2: $(GCC_SRCDIR) stamps/build-picolibc
-	rm -rf $@ $(notdir $@)
-	mkdir $(notdir $@)
-	cd $(notdir $@) && $</configure \
-		--target=$(NEWLIB_TUPLE) \
-		@configure_host@ \
-		--prefix=$(INSTALL_DIR) \
-		--disable-shared \
-		--disable-threads \
-		--enable-languages=c,c++ \
-		--enable-initfini-array \
-		@with_system_zlib@ \
-		--disable-tls \
-		--with-newlib \
-		--with-headers=$(INSTALL_DIR)/$(NEWLIB_TUPLE)/include \
-		--disable-libmudflap \
-		--disable-libssp \
-		--disable-libquadmath \
-		--disable-libgomp \
-		--disable-nls \
-		@gcc_checking@ \
-		@multilib_flags@ \
-		@werror_flag@ \
-		$(WITH_CPU) \
-		@with_fpu@ \
-		$(MULTILIB_LIST_FLAGS) \
-		CFLAGS="$(CFLAGS) $(DEBUG_INFO)" \
-		CFLAGS_FOR_TARGET="-O2 $(CFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CFLAGS_FOR_BUILD="$(CFLAGS_FOR_BUILD) $(DEBUG_INFO)" \
-		CXXFLAGS="$(CXXFLAGS) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_TARGET="-O2 $(CXXFLAGS_FOR_TARGET) $(DEBUG_INFO)" \
-		CXXFLAGS_FOR_BUILD="$(CXXFLAGS_FOR_BUILD) $(DEBUG_INFO)"
-	$(MAKE) -C $(notdir $@)
-	$(MAKE) -C $(notdir $@) install
-	cd $(INSTALL_DIR)/bin && for file_name in $(NEWLIB_TUPLE)-*; \
-	do \
-		link_name=`echo $${file_name} | sed 's/$(NEWLIB_TUPLE)/$(NEWLIB_TUPLE_ALIAS)/g'`; \
-		ln -sf $${file_name} $${link_name}; \
-	done
-	mkdir -p $(dir $@) && touch $@
-
-stamps/build-picolibc-test: $(PICOLIBC_SRCDIR) stamps/build-gcc-picolibc-stage2
+stamps/build-picolibc-test: $(PICOLIBC_SRCDIR) stamps/build-gcc-stage2-baremetal
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && meson setup . $< \
-		--cross-file=$(PICOLIBC_SRCDIR)/scripts/cross-$(NEWLIB_TUPLE).txt \
+		--cross-file=$(PICOLIBC_SRCDIR)/scripts/cross-$(TARGET_TRIPLET).txt \
 		$(PICOLIBC_MESON_OPTIONS) \
 		-Dtests=true \
 		-Dtest-machine=$(SIM)
 	ninja -C $(notdir $@)
 	mkdir -p $(dir $@) && touch $@
 
+#
+# QEMU
+#
+
 stamps/build-qemu: $(QEMU_SRCDIR)
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
-		--prefix=${INSTALL_DIR} \
+		--prefix=$(INSTALL_DIR) \
 		--target-list="arc-softmmu,arc64-softmmu,arc-linux-user,arc64-linux-user" \
 		@werror_flag@ \
 		--enable-debug \
@@ -816,6 +711,10 @@ stamps/build-qemu: $(QEMU_SRCDIR)
 	$(MAKE) -C $(notdir $@)
 	$(MAKE) -C $(notdir $@) install
 	mkdir -p $(dir $@) && touch $@
+
+#
+# Tests
+#
 
 stamps/build-test-qemu: $(srcdir)/test-qemu
 	rm -rf $@ $(notdir $@)
