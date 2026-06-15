@@ -570,7 +570,7 @@ stamps/build-gcc-stage1-baremetal: $(GCC_SRCDIR) stamps/build-binutils-baremetal
 	$(MAKE) -C $(notdir $@) install-gcc
 	mkdir -p $(dir $@) && touch $@
 
-stamps/build-gcc-stage2-baremetal: $(GCC_SRCDIR) stamps/build-libc-baremetal
+stamps/build-gcc-stage2-baremetal: $(GCC_SRCDIR) stamps/build-@baremetal_libc@
 	rm -rf $@ $(notdir $@)
 	mkdir $(notdir $@)
 	cd $(notdir $@) && $</configure \
@@ -614,12 +614,6 @@ stamps/build-gcc-stage2-baremetal: $(GCC_SRCDIR) stamps/build-libc-baremetal
 #
 # NEWLIB
 #
-
-ifeq (@baremetal_libc@,newlib)
-stamps/build-libc-baremetal: stamps/build-newlib
-else
-stamps/build-libc-baremetal: stamps/build-picolibc
-endif
 
 stamps/build-newlib: $(NEWLIB_SRCDIR) stamps/build-gcc-stage1-baremetal
 	rm -rf $@ $(notdir $@)
@@ -737,17 +731,17 @@ stamps/check-gcc-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
 	mkdir -p $(dir $@)
 	date > $@
 
-stamps/check-gcc-baremetal: stamps/build-gcc-@baremetal_libc@-stage2 $(SIM_STAMP)
-	$(SIM_PREPARE) $(MAKE) -C build-gcc-@baremetal_libc@-stage2 check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
+stamps/check-gcc-baremetal: stamps/build-gcc-stage2-baremetal $(SIM_STAMP)
+	$(SIM_PREPARE) $(MAKE) -C build-gcc-stage2-baremetal check-gcc "RUNTESTFLAGS=$(RUNTESTFLAGS) --target_board='$(NEWLIB_TARGET_BOARDS)'"
 	mkdir -p $(dir $@)
 	date > $@
 
-stamps/check-binutils-baremetal: stamps/build-gcc-@baremetal_libc@-stage2 $(SIM_STAMP)
-	$(SIM_PREPARE) $(MAKE) -C build-binutils-@baremetal_libc@ check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+stamps/check-binutils-baremetal: stamps/build-gcc-stage2-baremetal $(SIM_STAMP)
+	$(SIM_PREPARE) $(MAKE) -C build-binutils-baremetal check-binutils check-gas check-ld -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
-stamps/check-gdb-baremetal: stamps/build-gcc-@baremetal_libc@-stage2 stamps/build-gdb-@baremetal_libc@ $(SIM_STAMP)
-	$(SIM_PREPARE) $(MAKE) -C build-gdb-@baremetal_libc@ check-gdb -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
+stamps/check-gdb-baremetal: stamps/build-gcc-stage2-baremetal stamps/build-gdb-@baremetal_libc@ $(SIM_STAMP)
+	$(SIM_PREPARE) $(MAKE) -C build-gdb-baremetal check-gdb -k "RUNTESTFLAGS=--target_board='$(NEWLIB_TARGET_BOARDS)'" || true
 	date > $@
 
 stamps/check-binutils-linux: stamps/build-gcc-linux-stage2 $(SIM_STAMP)
@@ -780,7 +774,7 @@ report-qemu-baremetal: stamps/check-qemu-baremetal
 report-gcc-baremetal: stamps/check-gcc-baremetal
 	$(srcdir)/scripts/testsuite-filter gcc newlib \
 		$(srcdir)/test/allowlist/gcc/$(QEMU_CPU)/ \
-		`find build-gcc-newlib-stage2 -name *.sum |paste -sd "," -`
+		`find build-gcc-stage2-baremetal -name *.sum |paste -sd "," -`
 
 report-gcc-linux: stamps/check-gcc-linux
 	$(srcdir)/scripts/testsuite-filter gcc glibc \
@@ -790,7 +784,7 @@ report-gcc-linux: stamps/check-gcc-linux
 report-binutils-baremetal: stamps/check-binutils-baremetal
 	$(srcdir)/scripts/testsuite-filter binutils newlib \
 		$(srcdir)/test/allowlist/binutils/$(QEMU_CPU)/ \
-		`find build-binutils-newlib -name *.sum |paste -sd "," -`
+		`find build-binutils-baremetal -name *.sum |paste -sd "," -`
 
 report-binutils-linux: stamps/check-binutils-linux
 	$(srcdir)/scripts/testsuite-filter binutils glibc \
