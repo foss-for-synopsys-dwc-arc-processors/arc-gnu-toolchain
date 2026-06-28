@@ -98,7 +98,7 @@ jobs:
             RELEASE_TAG="$(date --utc '+%Y.%m.%d')"
           fi
 
-          echo ::set-output name=toolchain_name::${{ matrix.target }}-${MODE}-${RELEASE_TAG}
+          echo "toolchain_name=${{ matrix.target }}-${MODE}-${RELEASE_TAG}" >> "$GITHUB_OUTPUT"
 
           autoconf
 
