@@ -98,6 +98,29 @@ On Void Linux, at least these packages are required:
 xbps-install libmpc-devel ncurses-devel texinfo bison flex
 ```
 
+#### Additional prerequisite (nSIM testing)
+
+The nSIM wrapper scripts use `mcpu-to-cpu-opts`, which requires
+[pyelftools](https://github.com/eliben/pyelftools).
+
+On Ubuntu:
+
+```sh
+sudo apt-get install python3-pyelftools
+```
+
+On Fedora/CentOS/RHEL:
+
+```sh
+sudo yum install python3-pyelftools
+```
+
+If your distribution does not package pyelftools, install it with pip:
+
+```sh
+pip3 install -r requirements.txt
+```
+
 This process will start by downloading about 200 MiB of upstream sources, then
 will patch, build, and install the toolchain.  If a local cache of the
 upstream sources exists in $(DISTDIR), it will be used; the default location
@@ -186,7 +209,7 @@ During the toolchain compilation process, you can choose the simulator to use fo
 ```sh
 $ ./configure --target=... --prefix=/path/to/install --with-sim=qemu
 ```
-2. If nSIM is preferred over QEMU, ensure that the simulator is defined in the PATH environment variable before executing the testing.
+2. If nSIM is preferred over QEMU, ensure that the simulator is defined in the PATH environment variable before executing the testing. nSIM testing also requires [pyelftools](https://github.com/eliben/pyelftools); see the additional prerequisite above.
 ```sh
 $ ./configure --target=... --prefix=/path/to/install --with-sim=nsim
 ```
