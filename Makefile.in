@@ -5,7 +5,7 @@ INSTALL_DIR := @prefix@
 # SNPS toolchains
 SNPS_GIT_URL    	:= https://github.com/foss-for-synopsys-dwc-arc-processors
 BINUTILS_BRANCH 	:= arc-2026.03
-GCC_BRANCH      	:= arc-2026.09-dev
+GCC_BRANCH      	:= arc-2026.09
 NEWLIB_BRANCH   	:= arc-2026.09
 PICOLIBC_BRANCH   	:= arc-2026.09
 QEMU_BRANCH     	:= master
