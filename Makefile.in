@@ -157,7 +157,7 @@ ifeq ($(SIM),nsim)
 		$(error nSIM not supported)
 	endif
 	SIM_STAMP:= nsim-validation
-	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM)
+	SIM_PATH:=$(srcdir)/scripts/wrapper/$(SIM):$(srcdir)/scripts
 	SIM_PREPARE:=PATH="$(SIM_PATH):$(INSTALL_DIR)/bin:$(PATH)" ARC_SYSROOT="$(SYSROOT)" DEJAGNU="$(srcdir)/dejagnu/site.exp" QEMU_CPU="$(QEMU_CPU)"
 else
 	$(error Only support SIM=nsim, or SIM=qemu (default))
@@ -764,6 +764,9 @@ stamps/check-picolibc-baremetal: stamps/build-picolibc-test $(SIM_STAMP)
 nsim-validation:
 ifeq ($(shell command -v nsimdrv),)
 	$(error nsimdrv not detected)
+endif
+ifneq ($(shell python3 -c "import elftools; print('ok')" 2>/dev/null),ok)
+	$(error pyelftools not found. Install with: pip3 install -r $(srcdir)/requirements.txt or sudo apt-get install python3-pyelftools)
 endif
 
 report-qemu-baremetal: stamps/check-qemu-baremetal
