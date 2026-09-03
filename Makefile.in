@@ -86,10 +86,10 @@ GCC_CHECKING_FLAGS := @gcc_checking@
 GITVER := $(shell git --git-dir=$(GCC_SRCDIR)/.git describe --tag --always)
 PKGVER := "ARCv3 ARC64 GNU/Linux $(GITVER)"
 
-LINUX_TUPLE ?= @target_alias@-snps-linux-gnu
+LINUX_TUPLE ?= @target_alias@-gf-linux-gnu
 LINUX_TUPLE_ALIAS ?= @target_alias@-linux-gnu
 LINUX_HEADERS_SRCDIR := @with_linux_headers_src@
-NEWLIB_TUPLE ?= @target_alias@-snps-elf
+NEWLIB_TUPLE ?= @target_alias@-gf-elf
 ifeq (@target_alias@,arc)
 NEWLIB_TUPLE_ALIAS ?= @target_alias@-elf32
 else
